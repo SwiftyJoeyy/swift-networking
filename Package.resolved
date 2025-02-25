@@ -1,0 +1,24 @@
+{
+  "originHash" : "b837f9780db961d598d6c23cccc631508eb9b4c9c7c97edd3eb9a671b2280787",
+  "pins" : [
+    {
+      "identity" : "macroskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/buildexperience/MacrosKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "06ec396390a04d97e53a691710b9843d2e999f95"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}

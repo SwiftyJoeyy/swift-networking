@@ -1,0 +1,607 @@
+//
+//  RequestMacroTests.swift
+//  NetworkKit
+//
+//  Created by Joe Maghzal on 2/12/25.
+//
+
+import SwiftSyntaxMacros
+import MacrosKit
+import SwiftSyntaxMacrosTestSupport
+import XCTest
+
+#if canImport(NetworkKitMacros)
+import NetworkKitMacros
+
+final class RequestMacroTests: XCTestCase {
+// MARK: - Properties
+    private let testMacros: [String: Macro.Type] = [
+        "Request": RequestMacro.self
+    ]
+    
+// MARK: - No Modifiers Tests
+    func testRequestMacroWithoutModifiers() {
+        assertMacroExpansion(
+            """
+            @Request
+            struct TestRequest {
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                var _modifiers: [any RequestModifier] {
+                    get {
+                        return []
+                    }
+                    set {
+                    }
+                }
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+// MARK: - ID Attribute Tests
+    func testRequestMacroWithIDAttribute() {
+        let id = "Hello"
+        assertMacroExpansion(
+            """
+            @Request("\(id)")
+            struct TestRequest {
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                var _modifiers: [any RequestModifier] {
+                    get {
+                        return []
+                    }
+                    set {
+                    }
+                }
+            
+                let id: String? = "\(id)"
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+// MARK: - Header Tests
+    func testRequestMacroWithOneHeaderWithoutCustomName() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Header var contentLanguage = "en"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Header var contentLanguage = "en"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        HeadersGroup(
+                            [
+                                "contentLanguage": contentLanguage,
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    func testRequestMacroWithOneHeaderWithOptionalValue() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Header var contentLanguage: String?
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Header var contentLanguage: String?
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        HeadersGroup(
+                            [
+                                "contentLanguage": contentLanguage,
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    func testRequestMacroWithOneHeaderWithCustomName() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Header("Content-Language") var contentLanguage = "en"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Header("Content-Language") var contentLanguage = "en"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        HeadersGroup(
+                            [
+                                "Content-Language": contentLanguage,
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    func testRequestMacroWithOneHeaderWithoutDefaultValue() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Header var contentLanguage: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Header var contentLanguage: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        HeadersGroup(
+                            [
+                                "contentLanguage": contentLanguage,
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    func testRequestMacroWithMultipleHeaders() {
+        assertMacroExpansion(
+            """
+            @Request(.get)
+            struct TestRequest {
+                @Header("Content-Language") var contentLanguage = "en"
+                @Header var contentType = "json"
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                @Header("Content-Language") var contentLanguage = "en"
+                @Header var contentType = "json"
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                var _modifiers: [any RequestModifier] {
+                    get {
+                        return [
+                            HeadersGroup(
+                                [
+                                    "Content-Language": contentLanguage,
+                                    "contentType": contentType,
+                                ]
+                            ),
+                        ]
+                    }
+                    set {
+                    }
+                }
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+// MARK: - Parameters Tests
+    func testRequestMacroWithOneParameterWithoutCustomName() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Parameter var contentType = "1"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Parameter var contentType = "1"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        ParametersGroup(
+                            [
+                                URLQueryItem(name: "contentType", value: String(contentType)),
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    // TODO: - Fix
+//    func testRequestMacroWithOneParameterWithOptionalValue() {
+//        assertMacroExpansion(
+//        """
+//        @Request
+//        struct TestRequest {
+//            @Parameter var contentType: String?
+//            var request: some Request {
+//                HTTPRequest(path: "path")
+//            }
+//        }
+//        """,
+//        expandedSource: """
+//        struct TestRequest {
+//            @Parameter var contentType: String?
+//            var request: some Request {
+//                HTTPRequest(path: "path")
+//            }
+//        
+//            var _modifiers: [any RequestModifier] {
+//                get {
+//                    return [
+//                        ParametersGroup(
+//                            [
+//                                contentType.map({
+//                                        URLQueryItem(name: "contentType", value: String($0))
+//                                    }),
+//                            ]
+//                        ),
+//                    ]
+//                }
+//                set {
+//                }
+//            }
+//        }
+//        
+//        extension TestRequest: Request {
+//        }
+//        """,
+//        macros: testMacros
+//        )
+//    }
+    func testRequestMacroWithOneParameterWithCustomName() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Parameter("content-type") var contentType = "1"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Parameter("content-type") var contentType = "1"
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        ParametersGroup(
+                            [
+                                URLQueryItem(name: "content-type", value: String(contentType)),
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    func testRequestMacroWithOneParameterWithoutDefaultValue() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Parameter("content-type") var contentType: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Parameter("content-type") var contentType: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        ParametersGroup(
+                            [
+                                URLQueryItem(name: "content-type", value: String(contentType)),
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    func testRequestMacroWithMultipleParameters() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Parameter("content-type") var contentType = "1"
+            @Parameter var contentLanguage: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Parameter("content-type") var contentType = "1"
+            @Parameter var contentLanguage: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        ParametersGroup(
+                            [
+                                URLQueryItem(name: "content-type", value: String(contentType)),
+                                URLQueryItem(name: "contentLanguage", value: String(contentLanguage)),
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+    
+// MARK: - Headers & Parameters Tests
+    func testRequestMacroWithParametersAndHeaders() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Parameter("content-type") var contentType = "1"
+            @Header var contentLanguage: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Parameter("content-type") var contentType = "1"
+            @Header var contentLanguage: String
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return [
+                        HeadersGroup(
+                            [
+                                "contentLanguage": contentLanguage,
+                            ]
+                        ),
+                        ParametersGroup(
+                            [
+                                URLQueryItem(name: "content-type", value: String(contentType)),
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                }
+            }
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
+
+// MARK: - Access Levels Tests
+    func testRequestMacroWithAccessLevel() {
+        let levels = AccessLevel.allCases
+        let id = "Test"
+        for level in levels {
+            assertMacroExpansion(
+            """
+            @Request("\(id)")
+            \(level.name) struct TestRequest {
+                \(level.name) var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            \(level.name) struct TestRequest {
+                \(level.name) var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                \(level.name) var _modifiers: [any RequestModifier] {
+                    get {
+                        return []
+                    }
+                    set {
+                    }
+                }
+            
+                \(level.name) let id: String? = "\(id)"
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+            )
+        }
+    }
+    
+// MARK: - Validation Tests
+    func testClientMacroFailsWithMissingDeclarationErrorWhenCommandPropertyIsMissing() {
+        let expectedDiagnostics = [
+            // The property is missing a 'request' property declaration.
+            DiagnosticSpec(message: RequestMacroError.missingRequestDeclaration.message, line: 1, column: 1)
+        ]
+        
+        assertMacroExpansion(
+            """
+            @Request
+            struct TestRequest {
+                @Header("Content-Language") var contentLanguage: String
+                @Header("Content-Type") var contentType: String
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                @Header("Content-Language") var contentLanguage: String
+                @Header("Content-Type") var contentType: String
+            }
+            """,
+            diagnostics: expectedDiagnostics,
+            macros: testMacros
+        )
+    }
+}
+#endif
