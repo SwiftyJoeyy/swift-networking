@@ -7,18 +7,18 @@
 
 import Foundation
 
-public protocol RedirectionHandler: Sendable {
-    func redirect(
-        _ task: any NetworkingTask,
-        redirectResponse: URLResponse,
-        newRequest: URLRequest
-    ) async -> RedirectionBehavior
-}
-
-public enum RedirectionBehavior: Sendable {
+@frozen public enum RedirectionBehavior: Sendable {
     case redirect
     case ignore
     case modified(URLRequest?)
+}
+
+public protocol RedirectionHandler: Sendable {
+    func redirect(
+        _ task: some NetworkingTask,
+        redirectResponse: URLResponse,
+        newRequest: URLRequest
+    ) async -> RedirectionBehavior
 }
 
 extension RedirectionHandler where Self == DefaultRedirectionHandler {
@@ -29,7 +29,7 @@ extension RedirectionHandler where Self == DefaultRedirectionHandler {
 
 public struct DefaultRedirectionHandler: RedirectionHandler {
     public func redirect(
-        _ task: any NetworkingTask,
+        _ task: some NetworkingTask,
         redirectResponse: URLResponse,
         newRequest: URLRequest
     ) async -> RedirectionBehavior {

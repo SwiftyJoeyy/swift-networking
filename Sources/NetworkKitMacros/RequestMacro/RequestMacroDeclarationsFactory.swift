@@ -33,46 +33,31 @@ extension RequestMacro.DeclarationsFactory {
         var parameters = ArrayElementListSyntax()
         
         for modifier in modifiers {
+            let name = TokenSyntax.identifier(modifier.name)
+            let value = TokenSyntax.identifier(modifier.value)
             switch modifier.type {
             case .header:
                 let element = DictionaryElementSyntax(
                     leadingTrivia: headers.isEmpty ? .newline: nil,
                     key: StringLiteralExprSyntax(content: modifier.name),
-                    value: DeclReferenceExprSyntax(baseName: "\(raw: modifier.value)"),
+                    value: DeclReferenceExprSyntax(baseName: "\(value)"),
                     trailingComma: .commaToken(),
                     trailingTrivia: .newline
                 )
                 headers.append(element)
             case .parameter:
-                let valueExpression = LabeledExprListSyntax {
-                    LabeledExprSyntax(
-                        expression: DeclReferenceExprSyntax(
-                            baseName: .identifier(modifier.value)
-                        )
-                    )
+                let expr: ExprSyntax = if !modifier.isOptional {
+                    """
+                    URLQueryItem(name: "\(name)", value: String(\(value)))
+                    """
+                }else {
+                    """
+                    \(value).map({URLQueryItem(name: "\(name)", value: String($0))})
+                    """
                 }
                 let element = ArrayElementSyntax(
                     leadingTrivia: parameters.isEmpty ? .newline: nil,
-                    expression: FunctionCallExprSyntax(
-                        calledExpression: DeclReferenceExprSyntax(baseName: "URLQueryItem"),
-                        leftParen: .leftParenToken(),
-                        arguments: LabeledExprListSyntax {
-                            LabeledExprSyntax(
-                                label: "name",
-                                expression: StringLiteralExprSyntax(content: modifier.name)
-                            )
-                            LabeledExprSyntax(
-                                label: "value",
-                                expression: FunctionCallExprSyntax(
-                                    calledExpression: DeclReferenceExprSyntax(baseName: "String"),
-                                    leftParen: .leftParenToken(),
-                                    arguments: valueExpression,
-                                    rightParen: .rightParenToken()
-                                )
-                            )
-                        },
-                        rightParen: .rightParenToken()
-                    ),
+                    expression: expr,
                     trailingComma: .commaToken(),
                     trailingTrivia: .newline
                 )
@@ -136,12 +121,21 @@ extension RequestMacro.DeclarationsFactory {
         accessLevel: TokenSyntax?,
         modifiers: [RequestMacroModifier]
     ) -> DeclSyntax {
+        guard !modifiers.isEmpty else {
+            return makeModifiersBoxDecl(accessLevel: accessLevel, "_modifiers")
+        }
         let stmtSyntax = StmtSyntax(
             ReturnStmtSyntax(
-                expression: ArrayExprSyntax(
-                    elements: ArrayElementListSyntax(
-                        makeModifierGroups(with: modifiers)
-                    )
+                expression: SequenceExprSyntax(
+                    elements: ExprListSyntax([
+                        DeclReferenceExprSyntax(baseName: .identifier("_modifiersBox")),
+                        BinaryOperatorExprSyntax(operator: .binaryOperator("+")),
+                        ArrayExprSyntax(
+                            elements: ArrayElementListSyntax(
+                                makeModifierGroups(with: modifiers)
+                            )
+                        )
+                    ])
                 )
             )
         )
@@ -154,23 +148,20 @@ extension RequestMacro.DeclarationsFactory {
             ),
             AccessorDeclSyntax(
                 accessorSpecifier: .keyword(.set),
-                body: CodeBlockSyntax(
-                    leftBrace: .leftBraceToken(),
-                    statements: CodeBlockItemListSyntax(),
-                    rightBrace: .rightBraceToken()
-                )
+                body: CodeBlockSyntax {
+                    "_modifiersBox = newValue"
+                }
             )
         ]
-        let type = ArrayTypeSyntax(
-            element: SomeOrAnyTypeSyntax(
-                someOrAnySpecifier: .keyword(.any),
-                constraint: IdentifierTypeSyntax(name: "RequestModifier")
-            )
-        )
         let binding = PatternBindingSyntax(
             pattern: IdentifierPatternSyntax(identifier: "_modifiers"),
             typeAnnotation: TypeAnnotationSyntax(
-                type: type
+                type: ArrayTypeSyntax(
+                    element: SomeOrAnyTypeSyntax(
+                        someOrAnySpecifier: .keyword(.any),
+                        constraint: IdentifierTypeSyntax(name: "RequestModifier")
+                    )
+                )
             ),
             accessorBlock: AccessorBlockSyntax(
                 accessors: .accessors(AccessorDeclListSyntax(accessors))
@@ -207,6 +198,42 @@ extension RequestMacro.DeclarationsFactory {
         )
         return DeclSyntax(letDecl)
     }
+    
+    internal static func makeModifiersBoxDecl(
+        accessLevel: TokenSyntax?,
+        _ name: TokenSyntax
+    ) -> DeclSyntax {
+        let arrayElementExpr = ArrayElementSyntax(
+            expression: TypeExprSyntax(
+                type: SomeOrAnyTypeSyntax(
+                    someOrAnySpecifier: .keyword(.any),
+                    constraint: IdentifierTypeSyntax(name: "RequestModifier")
+                )
+            )
+        )
+        let binding = PatternBindingSyntax(
+            pattern: IdentifierPatternSyntax(identifier: name),
+            initializer: InitializerClauseSyntax(
+                value: FunctionCallExprSyntax(
+                    calledExpression: ArrayExprSyntax(
+                        elements: ArrayElementListSyntax([
+                            arrayElementExpr
+                        ])
+                    ),
+                    leftParen: .leftParenToken(),
+                    arguments: LabeledExprListSyntax(),
+                    rightParen: .rightParenToken()
+                )
+            )
+        )
+        let letDecl = VariableDeclSyntax(
+            modifiers: makeAccessModifier(accessLevel),
+            bindingSpecifier: .keyword(.var),
+            bindings: [binding]
+        )
+        return DeclSyntax(letDecl)
+    }
+    
     
     internal static func makeExtensionDecl(
         _ type: some TypeSyntaxProtocol

@@ -85,6 +85,14 @@ extension RequestMacro: MemberMacro {
                     modifiers: modifiers
                 )
             ]
+            if !modifiers.isEmpty {
+                declarations.append(
+                    DeclarationsFactory.makeModifiersBoxDecl(
+                        accessLevel: .keyword(.private),
+                        "_modifiersBox"
+                    )
+                )
+            }
             if let requestID {
                 let idDecl = DeclarationsFactory.makeIDDecl(
                     accessLevel: accessLevel,

@@ -25,7 +25,7 @@ extension ClientMacro.DeclarationsFactory {
             pattern: IdentifierPatternSyntax(identifier: "_command"),
             typeAnnotation: TypeAnnotationSyntax(
                 type: ImplicitlyUnwrappedOptionalTypeSyntax(
-                    wrappedType: IdentifierTypeSyntax(name: "RequestCommand")
+                    wrappedType: IdentifierTypeSyntax(name: "Session")
                 )
             )
         )

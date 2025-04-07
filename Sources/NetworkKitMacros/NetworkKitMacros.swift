@@ -17,6 +17,7 @@ struct NetworkKitMacros: CompilerPlugin {
         ClientInitMacro.self,
         RequestMacro.self,
         HeaderMacro.self,
-        ParameterMacro.self
+        ParameterMacro.self,
+        ConfigurationKeyMacro.self
     ]
 }

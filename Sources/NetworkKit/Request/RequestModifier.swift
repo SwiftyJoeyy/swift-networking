@@ -7,27 +7,48 @@
 
 import Foundation
 
+/// Result builder that constructs an array of request modifiers.
 public typealias RequestModifiersBuilder = AnyResultBuilder<any RequestModifier>
 
-public protocol RequestModifier {
-    func modified(_ request: consuming URLRequest) throws -> URLRequest
+/// Requirements for defining a request modifier. ``RequestModifier``
+/// are used to modify ``URLRequest`` objects before they are sent.
+///
+/// ```
+/// struct TimeoutRequestModifier: RequestModifier {
+///     let timeoutInterval: TimeInterval
+///
+///     func modifying(
+///         _ request: consuming URLRequest,
+///         with configurations: borrowing NetworkConfigurations
+///     ) throws -> URLRequest {
+///         request.timeoutInterval = timeoutInterval
+///         return request
+///     }
+/// }
+/// ```
+public protocol RequestModifier: ~Copyable {
+    /// Modifies the given ``URLRequest`` and returns the updated version.
+    ///
+    /// - Parameters:
+    ///  - request: The original request to modify.
+    ///  - configurations: The network configurations.
+    ///
+    /// - Returns: The ``URLRequest`` with the modifier applied to it.
+    func modifying(
+        _ request: consuming URLRequest,
+        with configurations: borrowing ConfigurationValues
+    ) throws -> URLRequest
 }
 
-@usableFromInline internal struct ModifiedRequest<T: Request>: Request {
-    @usableFromInline internal let request: T
-    @usableFromInline internal var _modifiers: [any RequestModifier]
-    
-    @usableFromInline internal init(request: consuming T, _modifiers: consuming any RequestModifier) {
-        self.request = request
-        self._modifiers = [_modifiers]
-    }
-}
-
-// MARK: - Modifier
 extension Request {
+    /// Applies a request modifier to the request.
+    ///
+    /// - Parameter modifier: The modifier to apply.
+    /// - Returns: The modified request.
     @inlinable public consuming func modifier(
         _ modifier: consuming some RequestModifier
-    ) -> some Request {
-        ModifiedRequest(request: consume self, _modifiers: consume modifier)
+    ) -> Self {
+        _modifiers.append(modifier)
+        return self
     }
 }

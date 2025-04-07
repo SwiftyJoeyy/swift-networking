@@ -7,9 +7,16 @@
 
 import Foundation
 
+/// Request modifier for setting the timeout interval for a ``URLRequest``
+///
+/// - Note: Use ``Request/timeout(_:)`` instead of directly using this.
 @usableFromInline internal struct TimeoutRequestModifier {
+    /// The timeout interval in seconds.
     private let timeoutInterval: TimeInterval
     
+    /// Creates a new ``TimeoutRequestModifier`` with the specified timeout interval.
+    ///
+    /// - Parameter timeoutInterval: The timeout duration in seconds.
     @usableFromInline internal init(_ timeoutInterval: TimeInterval) {
         self.timeoutInterval = timeoutInterval
     }
@@ -17,7 +24,17 @@ import Foundation
 
 // MARK: - RequestModifier
 extension TimeoutRequestModifier: RequestModifier {
-    @usableFromInline internal func modified(_ request: consuming URLRequest) throws -> URLRequest {
+    /// Modifies the given ``URLRequest`` by setting its timeout interval.
+    ///
+    /// - Parameters:
+    ///  - request: The original request to modify.
+    ///  - configurations: The network configurations.
+    ///  
+    /// - Returns: The modified `URLRequest` with the timeout set.
+    @usableFromInline internal func modifying(
+        _ request: consuming URLRequest,
+        with configurations: borrowing ConfigurationValues
+    ) throws -> URLRequest {
         request.timeoutInterval = timeoutInterval
         return request
     }
@@ -25,7 +42,23 @@ extension TimeoutRequestModifier: RequestModifier {
 
 // MARK: - Modifier
 extension Request {
-    @inlinable public func timeout(_ timeoutInterval: TimeInterval) -> some Request {
+    /// Applies a timeout modifier to the request.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     var request: some Request {
+    ///         HTTPRequest()
+    ///             .timeoutInterval(90)
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameter timeoutInterval: The timeout duration in seconds.
+    /// - Returns: A request with the specified timeout applied.
+    @inlinable public consuming func timeout(
+        _ timeoutInterval: TimeInterval
+    ) -> some Request {
         modifier(TimeoutRequestModifier(timeoutInterval))
     }
 }

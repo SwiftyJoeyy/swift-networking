@@ -7,7 +7,16 @@
 
 import Foundation
 
+/// Factory for generating human-readable representations of a raw ``Data``.
 package enum DataLogFactory {
+    /// Converts ``Data`` into a formatted, human-readable string.
+    ///
+    /// - If the data is valid JSON, it will be pretty-printed.
+    /// - If the data is a UTF-8 encoded string, it will be returned as-is.
+    /// - If the data is `nil` or cannot be converted, `"Empty Data"` is returned.
+    ///
+    /// - Parameter data: The ``Data`` to convert.
+    /// - Returns: A human-readable string representation of the data.
     package static func make(for data: Data?) -> String {
         guard let data else {
             return "Empty Data"

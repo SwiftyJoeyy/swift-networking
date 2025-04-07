@@ -7,18 +7,29 @@
 
 import Foundation
 
-public struct ContentDisposition: RequestHeader {
+/// A `Content-Disposition` header modifier.
+@frozen public struct ContentDisposition: RequestHeader {
+    /// The header value.
     public let value: String
     
+    /// The headers dictionary representation.
     public var headers: [String: String] {
         return ["Content-Disposition": value]
     }
     
+    /// Creates a new ``ContentDisposition`` modifier.
+    ///
+    /// - Parameter value: The disposition value.
     public init(_ value: String) {
         self.value = value
     }
     
-    public init(_ name: String, fileName: String? = nil) {
+    /// Creates a new ``ContentDisposition`` modifier for form data.
+    ///
+    /// - Parameters:
+    ///  - name: The name of the form field.
+    ///  - fileName: The optional file name for the field.
+    public init(name: String, fileName: String? = nil) {
         var disposition = """
         form-data; name="\(name)"
         """

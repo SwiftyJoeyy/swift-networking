@@ -9,32 +9,45 @@ import Foundation
 
 public typealias DataResponse = (data: Data, response: URLResponse)
 
-open class DataTask: NetworkTask<DataResponse>, @unchecked Sendable {
-    open override func task(
-        for request: borrowing URLRequest,
-        session: URLSession
+/// Task that handles making HTTP requests, validating response statuses, logging the response,
+/// and decoding the data into a specified ``Decodable`` type.
+///
+/// ``DataTask`` inherits from ``NetworkTask``, which is
+/// responsible for managing the network request, while this class adds
+/// decoding functionality and handles data-related
+/// logic.
+open class DataTask: NetworkTask<Data>, @unchecked Sendable {
+    /// Executes the network request with the provided ``URLRequest`` and session.
+    ///
+    /// - Parameters:
+    ///   - request: The URL request to be executed.
+    ///   - session: The session instance used to perform the request.
+    ///
+    /// - Returns: The response containing the raw data and HTTP response.
+    open override func execute(
+        _ request: borrowing URLRequest,
+        session: Session
     ) async throws -> DataResponse {
-        let response = try await session.data(for: request)
+        let response = try await session.session.data(
+            for: request,
+            delegate: session.delegate
+        )
         let status = response.1.status
-        try Task.checkCancellation()
-        if let status {
-            let validator = await configurations.handlers.statusValidator
-            try await validator.validate(self, status: status)
+        if await configurations.logsEnabled {
+            NetworkLogger.logReceived(data: response.0, status: status)
         }
-        await NetworkLogger.logReceived(data: response.0, status: status, logsEnabled: configurations.logsEnabled)
         return response
     }
     
-    open func response() async throws -> DataResponse {
-        return try await activeTask().value
-    }
+    /// Decodes the response data into a specified ``Decodable`` type.
+    ///
+    /// - Parameter type: The ``Decodable`` type to decode the data into.
+    /// - Returns: The decoded object of type `T`.
     open func decode<T: Decodable>(
-        as type: T.Type,
-        using decoder: JSONDecoder? = nil
+        as type: T.Type
     ) async throws -> sending T {
         let response = try await response()
-        var taskDecoder = await configurations.decoder
-        taskDecoder = decoder ?? taskDecoder
-        return try taskDecoder.decode(T.self, from: response.data)
+        let decoder = await configurations.decoder
+        return try decoder.decode(T.self, from: response.0)
     }
 }

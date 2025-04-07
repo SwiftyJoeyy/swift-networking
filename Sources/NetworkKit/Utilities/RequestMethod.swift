@@ -7,7 +7,8 @@
 
 import Foundation
 
-public enum RequestMethod: String, Equatable, Hashable, Sendable {
+/// The HTTP request methods used in network requests.
+@frozen public enum RequestMethod: String, Equatable, Hashable, Sendable {
     case get = "GET"
     case put = "PUT"
     case head = "HEAD"

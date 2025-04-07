@@ -7,7 +7,8 @@
 
 import Foundation
 
-public enum NKError: Error {
+public enum NKError: Error, Equatable {
     case invalidRequestURL
     case unacceptableStatusCode(ResponseStatus)
+    case unauthorized
 }

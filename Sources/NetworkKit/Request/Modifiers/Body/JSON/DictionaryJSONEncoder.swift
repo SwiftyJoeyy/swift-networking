@@ -7,9 +7,14 @@
 
 import Foundation
 
-public struct DictionaryJSONEncoder {
+/// Encodes a dictionary into JSON data.
+@frozen public struct DictionaryJSONEncoder {
+    /// The dictionary to encode.
     private var dictionary: Dictionary<String, any Sendable>
     
+    /// Creates a new ``DictionaryJSONEncoder``.
+    ///
+    /// - Parameter dictionary: The dictionary to encode.
     public init(dictionary: Dictionary<String, any Sendable>) {
         self.dictionary = dictionary
     }
@@ -17,7 +22,12 @@ public struct DictionaryJSONEncoder {
 
 // MARK: - JSONEncodable
 extension DictionaryJSONEncoder: JSONEncodable {
-    public func encoded() throws -> Data? {
+    /// Encodes the dictionary into JSON data.
+    ///
+    /// - Returns: The encoded JSON data.
+    public func encoded(
+        for configurations: borrowing ConfigurationValues
+    ) throws -> Data? {
         do {
             let data = try JSONSerialization.data(
                 withJSONObject: dictionary,

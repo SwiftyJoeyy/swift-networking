@@ -8,7 +8,31 @@
 import Foundation
 
 public protocol StatusValidator: Sendable {
-    func validate(_ task: any NetworkingTask, status: ResponseStatus) async throws
+    var validStatuses: Set<ResponseStatus> {get}
+    func validate(
+        _ task: some NetworkingTask,
+        status: ResponseStatus
+    ) async throws
+}
+
+extension StatusValidator {
+    public func validate(
+        _ task: some NetworkingTask,
+        status: ResponseStatus
+    ) async throws { }
+    
+    internal func _validate(
+        _ task: any NetworkingTask,
+        status: ResponseStatus
+    ) async throws {
+        let valid = validStatuses.contains(status)
+        guard !valid else {return}
+        if status == .unauthorized {
+            throw NKError.unauthorized
+        }
+        try await validate(task, status: status)
+        throw NKError.unacceptableStatusCode(status)
+    }
 }
 
 extension StatusValidator where Self == DefaultStatusValidator {
@@ -18,37 +42,30 @@ extension StatusValidator where Self == DefaultStatusValidator {
 }
 
 public struct DefaultStatusValidator: StatusValidator {
-    private let handler: (
-        @Sendable (
-            _ status: ResponseStatus,
-            _ task: any NetworkingTask
-        ) async -> (any Error)?
-    )?
-    private let validStatuses: Set<ResponseStatus>
+    public typealias Handler = @Sendable (
+        _ status: ResponseStatus,
+        _ task: any NetworkingTask
+    ) async -> (any Error)?
     
+// MARK: - Properties
+    private let handler: Handler?
+    public let validStatuses: Set<ResponseStatus>
+    
+// MARK: - Initializer
     internal init(
         validStatuses: Set<ResponseStatus> = ResponseStatus.validStatuses,
-        _ handler: (
-            @Sendable (
-                _ status: ResponseStatus,
-                _ task: any NetworkingTask
-            ) async -> (any Error)?
-        )? = nil
+        _ handler: Handler? = nil
     ) {
         self.validStatuses = validStatuses
         self.handler = handler
     }
     
+// MARK: - StatusValidator
     public func validate(
-        _ task: any NetworkingTask,
+        _ task: some NetworkingTask,
         status: ResponseStatus
     ) async throws {
-        let valid = validStatuses.contains(status)
-        guard !valid else {return}
-        
-        if let error = await handler?(status, task) {
-            throw error
-        }
-        throw NKError.unacceptableStatusCode(status)
+        guard let error = await handler?(status, task) else {return}
+        throw error
     }
 }

@@ -36,13 +36,7 @@ final class RequestMacroTests: XCTestCase {
                     HTTPRequest(path: "path")
                 }
             
-                var _modifiers: [any RequestModifier] {
-                    get {
-                        return []
-                    }
-                    set {
-                    }
-                }
+                var _modifiers = [any RequestModifier]()
             }
             
             extension TestRequest: Request {
@@ -70,13 +64,7 @@ final class RequestMacroTests: XCTestCase {
                     HTTPRequest(path: "path")
                 }
             
-                var _modifiers: [any RequestModifier] {
-                    get {
-                        return []
-                    }
-                    set {
-                    }
-                }
+                var _modifiers = [any RequestModifier]()
             
                 let id: String? = "\(id)"
             }
@@ -109,7 +97,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         HeadersGroup(
                             [
                                 "contentLanguage": contentLanguage,
@@ -118,8 +106,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -148,7 +139,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         HeadersGroup(
                             [
                                 "contentLanguage": contentLanguage,
@@ -157,8 +148,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -187,7 +181,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         HeadersGroup(
                             [
                                 "Content-Language": contentLanguage,
@@ -196,8 +190,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -226,7 +223,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         HeadersGroup(
                             [
                                 "contentLanguage": contentLanguage,
@@ -235,8 +232,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -248,7 +248,7 @@ final class RequestMacroTests: XCTestCase {
     func testRequestMacroWithMultipleHeaders() {
         assertMacroExpansion(
             """
-            @Request(.get)
+            @Request
             struct TestRequest {
                 @Header("Content-Language") var contentLanguage = "en"
                 @Header var contentType = "json"
@@ -267,7 +267,7 @@ final class RequestMacroTests: XCTestCase {
             
                 var _modifiers: [any RequestModifier] {
                     get {
-                        return [
+                        return _modifiersBox + [
                             HeadersGroup(
                                 [
                                     "Content-Language": contentLanguage,
@@ -277,8 +277,11 @@ final class RequestMacroTests: XCTestCase {
                         ]
                     }
                     set {
+                        _modifiersBox = newValue
                     }
                 }
+            
+                private var _modifiersBox = [any RequestModifier]()
             }
             
             extension TestRequest: Request {
@@ -309,7 +312,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         ParametersGroup(
                             [
                                 URLQueryItem(name: "contentType", value: String(contentType)),
@@ -318,8 +321,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -328,48 +334,50 @@ final class RequestMacroTests: XCTestCase {
         macros: testMacros
         )
     }
-    // TODO: - Fix
-//    func testRequestMacroWithOneParameterWithOptionalValue() {
-//        assertMacroExpansion(
-//        """
-//        @Request
-//        struct TestRequest {
-//            @Parameter var contentType: String?
-//            var request: some Request {
-//                HTTPRequest(path: "path")
-//            }
-//        }
-//        """,
-//        expandedSource: """
-//        struct TestRequest {
-//            @Parameter var contentType: String?
-//            var request: some Request {
-//                HTTPRequest(path: "path")
-//            }
-//        
-//            var _modifiers: [any RequestModifier] {
-//                get {
-//                    return [
-//                        ParametersGroup(
-//                            [
-//                                contentType.map({
-//                                        URLQueryItem(name: "contentType", value: String($0))
-//                                    }),
-//                            ]
-//                        ),
-//                    ]
-//                }
-//                set {
-//                }
-//            }
-//        }
-//        
-//        extension TestRequest: Request {
-//        }
-//        """,
-//        macros: testMacros
-//        )
-//    }
+    func testRequestMacroWithOneParameterWithOptionalValue() {
+        assertMacroExpansion(
+        """
+        @Request
+        struct TestRequest {
+            @Parameter var contentType: String?
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        }
+        """,
+        expandedSource: """
+        struct TestRequest {
+            @Parameter var contentType: String?
+            var request: some Request {
+                HTTPRequest(path: "path")
+            }
+        
+            var _modifiers: [any RequestModifier] {
+                get {
+                    return _modifiersBox + [
+                        ParametersGroup(
+                            [
+                                contentType.map({
+                                        URLQueryItem(name: "contentType", value: String($0))
+                                    }),
+                            ]
+                        ),
+                    ]
+                }
+                set {
+                    _modifiersBox = newValue
+                }
+            }
+        
+            private var _modifiersBox = [any RequestModifier]()
+        }
+        
+        extension TestRequest: Request {
+        }
+        """,
+        macros: testMacros
+        )
+    }
     func testRequestMacroWithOneParameterWithCustomName() {
         assertMacroExpansion(
         """
@@ -390,7 +398,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         ParametersGroup(
                             [
                                 URLQueryItem(name: "content-type", value: String(contentType)),
@@ -399,8 +407,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -429,7 +440,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         ParametersGroup(
                             [
                                 URLQueryItem(name: "content-type", value: String(contentType)),
@@ -438,8 +449,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -470,7 +484,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         ParametersGroup(
                             [
                                 URLQueryItem(name: "content-type", value: String(contentType)),
@@ -480,8 +494,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -514,7 +531,7 @@ final class RequestMacroTests: XCTestCase {
         
             var _modifiers: [any RequestModifier] {
                 get {
-                    return [
+                    return _modifiersBox + [
                         HeadersGroup(
                             [
                                 "contentLanguage": contentLanguage,
@@ -528,8 +545,11 @@ final class RequestMacroTests: XCTestCase {
                     ]
                 }
                 set {
+                    _modifiersBox = newValue
                 }
             }
+        
+            private var _modifiersBox = [any RequestModifier]()
         }
         
         extension TestRequest: Request {
@@ -559,13 +579,7 @@ final class RequestMacroTests: XCTestCase {
                     HTTPRequest(path: "path")
                 }
             
-                \(level.name) var _modifiers: [any RequestModifier] {
-                    get {
-                        return []
-                    }
-                    set {
-                    }
-                }
+                \(level.name) var _modifiers = [any RequestModifier]()
             
                 \(level.name) let id: String? = "\(id)"
             }
@@ -605,3 +619,4 @@ final class RequestMacroTests: XCTestCase {
     }
 }
 #endif
+

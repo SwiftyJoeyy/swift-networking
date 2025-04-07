@@ -7,17 +7,17 @@
 
 import Foundation
 
-public protocol ResponseCacheHandler: Sendable {
-    func cache(
-        _ task: any NetworkingTask,
-        proposedResponse: CachedURLResponse
-    ) async -> ResponseCacheBehavior
-}
-
-public enum ResponseCacheBehavior: Sendable {
+@frozen public enum ResponseCacheBehavior: Sendable {
     case cache
     case ignore
     case modified(CachedURLResponse?)
+}
+
+public protocol ResponseCacheHandler: Sendable {
+    func cache(
+        _ task: some NetworkingTask,
+        proposedResponse: CachedURLResponse
+    ) async -> ResponseCacheBehavior
 }
 
 extension ResponseCacheHandler where Self == DefaultResponseCacheHandler {
@@ -28,7 +28,7 @@ extension ResponseCacheHandler where Self == DefaultResponseCacheHandler {
 
 public struct DefaultResponseCacheHandler: ResponseCacheHandler {
     public func cache(
-        _ task: any NetworkingTask,
+        _ task: some NetworkingTask,
         proposedResponse: CachedURLResponse
     ) async -> ResponseCacheBehavior {
         return .cache

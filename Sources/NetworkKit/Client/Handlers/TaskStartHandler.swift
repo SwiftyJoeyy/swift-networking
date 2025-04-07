@@ -7,26 +7,44 @@
 
 import Foundation
 
-public protocol TaskStartHandler: Sendable {
-    func willStart(_ task: any NetworkingTask) async throws
+public protocol RequestInterceptor: Sendable {
+    func intercept(
+        _ request: consuming URLRequest,
+        for task: some NetworkingTask,
+        with session: Session
+    ) async throws -> URLRequest
 }
 
-extension TaskStartHandler where Self == DefaultTaskStartHandler {
+extension RequestInterceptor where Self == DefaultRequestInterceptor {
     public static var none: Self {
-        return DefaultTaskStartHandler()
+        return DefaultRequestInterceptor()
     }
 }
 
-public struct DefaultTaskStartHandler: TaskStartHandler {
-    private let handler: (@Sendable (_ task: any NetworkingTask) async throws -> Void)?
+public struct DefaultRequestInterceptor: RequestInterceptor {
+    public typealias Handler = @Sendable (
+        _ request: URLRequest,
+        _ task: any NetworkingTask,
+        _ session: Session
+    ) async throws -> URLRequest
     
-    internal init(
-        _ handler: (@Sendable (_ task: any NetworkingTask) async throws -> Void)? = nil
-    ) {
+// MARK: - Properties
+    private let handler: Handler?
+    
+// MARK: - Initializer
+    internal init(_ handler: Handler? = nil) {
         self.handler = handler
     }
     
-    public func willStart(_ task: any NetworkingTask) async throws {
-        try await handler?(task)
+// MARK: - TaskStartHandler
+    public func intercept(
+        _ request: consuming URLRequest,
+        for task: some NetworkingTask,
+        with session: Session
+    ) async throws -> URLRequest {
+        guard let handler else {
+            return request
+        }
+        return try await handler(consume request, task, session)
     }
 }

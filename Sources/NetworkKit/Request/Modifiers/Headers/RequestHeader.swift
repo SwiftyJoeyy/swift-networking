@@ -7,17 +7,74 @@
 
 import Foundation
 
+/// Requirements for defining a request header modifier that adds custom
+/// headers to a ``URLRequest``.
 public protocol RequestHeader: RequestModifier {
+    /// The HTTP headers to be added to the request.
     var headers: [String: String] {get}
 }
 
-// MARK: - RequestComponent
+// MARK: - RequestModifier
 extension RequestHeader {
-    public func modified(_ request: consuming URLRequest) throws -> URLRequest {
-        let requestHeaders = request.allHTTPHeaderFields ?? [:]
-        request.allHTTPHeaderFields = requestHeaders.merging(headers) { current, new in
-            return new
+    /// Modifies the given ``URLRequest`` by appending custom headers.
+    ///
+    /// - Parameters:
+    ///  - request: The original request to modify.
+    ///  - configurations: The network configurations.
+    ///  
+    /// - Returns: The modified ``URLRequest`` with headers added.
+    public func modifying(
+        _ request: consuming URLRequest,
+        with configurations: borrowing ConfigurationValues
+    ) throws -> URLRequest {
+        if var headersFields = request.allHTTPHeaderFields {
+            for header in headers {
+                headersFields[header.key] = header.value
+            }
+            request.allHTTPHeaderFields = headersFields
+        }else {
+            request.allHTTPHeaderFields = headers
         }
         return request
+    }
+}
+
+// MARK: - Modifier
+extension Request {
+    /// Adds additional headers to the request.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     var request: some Request {
+    ///         HTTPRequest()
+    ///             .additionalHeaders {
+    ///                 Header("language", value: "en")
+    ///             }
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// You can use the ``Header`` macro to define and add
+    /// HTTP headers to a request in a concise and
+    /// readable manner, ensuring proper request configuration.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     @Header("device") var device: String // Automatically applied.
+    ///     @Header var language = "en"
+    ///     var request: some Request {
+    ///         // ...
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameter headers: A builder closure returning header parameters.
+    /// - Returns: A request with the additional headers applied.
+    @inlinable public func additionalHeaders(
+        @HeadersBuilder _ headers: () -> HeadersGroup
+    ) -> some Request {
+        modifier(headers())
     }
 }

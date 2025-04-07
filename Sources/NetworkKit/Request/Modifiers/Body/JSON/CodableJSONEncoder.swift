@@ -7,11 +7,20 @@
 
 import Foundation
 
-public struct CodableJSONEncoder<T: Encodable> {
-    private var encoder: JSONEncoder
+/// Encodes an ``Encodable`` object into JSON data.
+@frozen public struct CodableJSONEncoder<T: Encodable> {
+    /// The encoder to use.
+    private var encoder: JSONEncoder?
+    
+    /// The object to encode.
     private var object: T
     
-    public init(_ object: T, encoder: JSONEncoder = JSONEncoder()) {
+    /// Creates a new ``CodableJSONEncoder``.
+    ///
+    /// - Parameters:
+    ///  - object: The ``Encodable`` object to encode.
+    ///  - encoder: The ``JSONEncoder`` to use.
+    public init(_ object: T, encoder: JSONEncoder? = nil) {
         self.object = object
         self.encoder = encoder
     }
@@ -19,9 +28,15 @@ public struct CodableJSONEncoder<T: Encodable> {
 
 // MARK: - JSONEncodable
 extension CodableJSONEncoder: JSONEncodable {
-    public func encoded() throws -> Data? {
+    /// Encodes the ``Encodable`` object into JSON data.
+    ///
+    /// - Returns: The encoded JSON data.
+    public func encoded(
+        for configurations: borrowing ConfigurationValues
+    ) throws -> Data? {
         do {
-            let data = try encoder.encode(object)
+            let baseEncoder = configurations.encoder
+            let data = try (encoder ?? baseEncoder).encode(object)
             return data
         }catch {
             throw NKError.JSONError.encodingFailed(error)

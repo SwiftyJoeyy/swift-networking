@@ -9,31 +9,66 @@ import Testing
 import Foundation
 @testable import NetworkKit
 
+//@Test
 func test() async throws {
     let client = MyClient()
-    let testingRequest = TestingRequest()
-        .timeout(10)
-    let task = try client.dataTask(testingRequest)
-    let data = try await task.response()
+    let data = try await client.dataTask(TestingRequest())
+        .decode(with: JSONDecoder())
+        .retryPolicy(.doNotRetry)
+        .decode(as: String.self)
+    print(data)
 }
 
 @Client
 struct MyClient {
-    var command: RequestCommand {
-        RequestCommand()
+    var command: Session {
+        Session()
+            .onRequest { request, task, session in
+                // handle request creation
+                return request
+            }.enableLogs()
+            .validate(for: [.accepted, .ok])
+            .retry(limit: 2, for: [.conflict, .badRequest])
+            .url(URL(string: "example.com"))
     }
 }
 
-@Request
+@Request("test-request-id")
 struct TestingRequest {
     @Header("hi_filed") var test = "test"
     @Parameter var testing = 1
     var request: some Request {
         HTTPRequest(url: "https://www.google.com") {
-            JSON("fwbfw")
-        }.body {
+            Header("test", value: "value")
+            Parameter("some", value: ["1", "2"])
+            JSON("fwbfw") // optionally here
+        }.body { // JSON, overwrites the one defined in the body
             JSON("fwbfwejkfrnewkjrewrfw")
+        }.body { // Or Form Data
+            FormData {
+                FormDataBody(
+                    "Image",
+                    data: Data(),
+                    fileName: "image.png",
+                    mimeType: .png
+                )
+                FormDataBody(
+                    "File",
+                    fileURL: URL(filePath: "filePath"),
+                    fileName: "file",
+                    mimeType: .fileURL
+                )
+            }
         }.method(.get)
+        .timeout(90)
+        .cachePolicy(.reloadIgnoringLocalCacheData)
+        .appending(path: "v1")
+        .additionalHeaders {
+            Header("Header", value: "10")
+            AcceptLanguage("en")
+        }.additionalParameters {
+            Parameter("Item", value: "value")
+        }
     }
 }
 
@@ -41,36 +76,7 @@ struct TestingRequest {
 struct TestRequest {
     var timeout: TimeInterval = 90
     var request: some Request {
-        HTTPRequest(path: "path") {
-            ContentType(.applicationJson)
-            Header("Custom", value: "value")
-            FormData {
-                FormDataBody("photo", data: Data(), fileName: "photo.png")
-                FormDataBody(
-                    "test",
-                    filePath: "url",
-                    fileName: "test.csv",
-                    fileManager: .default,
-                    bufferSize: 1024
-                )
-            }
-            JSON("Some custom encodable", encoder: JSONEncoder())
-        }.timeout(timeout)
-        .method(.post)
-        .additionalHeaders {
-            Header("Additional", value: "value")
-        }.appending(paths: "v2")
-        .body {
-            JSON("")
-        }
-    }
-}
-
-@Request
-struct TestRequest2 {
-    var timeout: TimeInterval = 90
-    var request: some Request {
-        TestRequest()
+        TestingRequest()
             .timeout(timeout)
             .method(.post)
             .additionalHeaders {

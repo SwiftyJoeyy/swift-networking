@@ -7,7 +7,8 @@
 
 import Foundation
 
-public enum ResponseStatus: RawRepresentable, Equatable, Hashable, Sendable {
+/// The HTTP response status based on the status code.
+@frozen public enum ResponseStatus: RawRepresentable, Equatable, Hashable, Sendable {
     case custom(code: Int)
     
     // 1xx
