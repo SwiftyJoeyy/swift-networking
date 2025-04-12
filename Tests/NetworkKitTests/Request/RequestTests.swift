@@ -76,3 +76,7 @@ struct RequestTests {
         #expect(request.id == String(describing: NestedRequest.self))
     }
 }
+
+extension Tag {
+    @Tag internal static var request: Self
+}

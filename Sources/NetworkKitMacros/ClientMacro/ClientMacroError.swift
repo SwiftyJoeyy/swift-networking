@@ -12,18 +12,18 @@ import SwiftDiagnostics
 import MacrosKit
 
 package enum ClientMacroError: MacroError, Equatable {
-    case missingCommandDeclaration
-    case unexpectedCommandDeclaration
+    case missingSessionDeclaration
+    case unexpectedSessionDeclaration
 }
 
 extension ClientMacroError {
     /// The diagnostic messages.
     package var message: String {
         switch self {
-            case .missingCommandDeclaration:
-                return "Property 'command' is required to conform to protocol 'NetworkClient'"
-        case .unexpectedCommandDeclaration:
-            return "Unexpected '_command' property declaration"
+        case .missingSessionDeclaration:
+            return "Property 'session' is required to conform to protocol 'NetworkClient'"
+        case .unexpectedSessionDeclaration:
+            return "Unexpected '_session' property declaration"
         }
     }
 }

@@ -15,6 +15,7 @@ public protocol FormDataItem {
     /// The key associated with the form-data item.
     var key: String {get}
     
+    // TODO: - Consume content size
     /// The size of the content, if known.
     var contentSize: UInt64? {get}
     
@@ -24,5 +25,5 @@ public protocol FormDataItem {
     /// Encodes and returns the form-data item as ``Data``.
     ///
     /// - Returns: The encoded data.
-    func data() throws -> Data
+    func data() throws -> Data?
 }

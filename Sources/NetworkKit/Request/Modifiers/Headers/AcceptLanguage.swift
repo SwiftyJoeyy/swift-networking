@@ -8,7 +8,7 @@
 import Foundation
 
 /// An `Accept-Language` header modifier.
-@frozen public struct AcceptLanguage: RequestHeader {
+@frozen public struct AcceptLanguage: RequestHeader, Equatable, Hashable, Sendable {
     /// The language value.
     public var value: String
     

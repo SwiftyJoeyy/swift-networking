@@ -12,7 +12,8 @@ public protocol AuthCredential: RequestModifier, Sendable {
 }
 
 public protocol AuthenticationInterceptor: RequestInterceptor, Sendable {
-    var credential: any AuthCredential {get}
+    associatedtype Credential: AuthCredential
+    var credential: Credential {get}
     func refresh(with session: Session) async throws
 }
 
@@ -25,7 +26,7 @@ extension AuthenticationInterceptor {
         if credential.requiresRefresh() {
             try await refresh(with: session)
         }
-        return try await credential.modifying(
+        return try credential.modifying(
             consume request,
             with: task.configurations
         )

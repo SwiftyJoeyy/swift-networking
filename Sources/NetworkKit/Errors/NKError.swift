@@ -11,4 +11,5 @@ public enum NKError: Error, Equatable {
     case invalidRequestURL
     case unacceptableStatusCode(ResponseStatus)
     case unauthorized
+    case unexpectedError
 }

@@ -10,7 +10,7 @@ import Foundation
 @testable import NetworkKit
 
 /// Suite for testing the functionality of ``RequestHeader``.
-@Suite(.tags(.headers))
+@Suite(.tags(.requestModifiers, .headers))
 struct RequestHeaderTests {
     private let configurations = ConfigurationValues.mock
     private let url = URL(string: "example.com")!
@@ -269,4 +269,8 @@ extension RequestHeaderTests {
         
         #expect(request.allModifiers.contains(where: {$0 is HeadersGroup}))
     }
+}
+
+extension Tag {
+    @Tag internal static var headers: Self
 }

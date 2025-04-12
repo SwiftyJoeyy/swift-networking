@@ -58,25 +58,8 @@ extension ConfigurationsTests {
         typealias Value = String?
         static let defaultValue: String? = nil
     }
-    
-    actor MockTasksStorage: TasksStorage {
-        private var tasks = [URLRequest: any NetworkingTask]()
-        
-        init() { }
-        func task(for request: URLRequest) -> (any NetworkingTask)? {
-            return tasks[request]
-        }
-        func add(_ task: some NetworkingTask, for request: URLRequest) {
-            tasks[request] = task
-        }
-        func remove(_ request: borrowing URLRequest) {
-            tasks.removeValue(forKey: request)
-        }
-        func cancelAll() async {
-            for task in tasks {
-                await task.value.cancel()
-            }
-            tasks.removeAll()
-        }
-    }
+}
+
+extension Tag {
+    @Tag internal static var configurations: Self
 }

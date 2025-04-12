@@ -8,111 +8,83 @@
 import Foundation
 import UniformTypeIdentifiers
 
-/// A form-data body that can contain either raw data or a file.
-@frozen public struct FormDataBody {
-    /// The content of the form-data body.
-    private let content: any FormDataItem
+/// A single form-data content item used in a multipart request.
+@frozen public struct FormDataBody: Equatable, Hashable {
+    /// The key associated with the form-data item.
+    public let key: String
+    
+    /// The raw data content of the form-data item.
+    private let body: Data?
+    
+    /// The file name associated with the form-data item, if applicable.
+    private let fileName: String?
+    
+    /// The MIME type of the content, if specified.
+    private let mimeType: UTType?
 }
 
 // MARK: - Initializers
 extension FormDataBody {
-    /// Creates a new ``FormDataBody`` from raw ``Data``.
+    /// Creates a new ``FormDataBody``.
     ///
     /// - Parameters:
     ///   - key: The key associated with the form-data item.
-    ///   - data: The raw data content.
+    ///   - body: The raw data content.
     ///   - fileName: The optional file name for the data.
     ///   - mimeType: The optional MIME type of the data.
     public init(
         _ key: String,
-        data: Data,
+        data: Data?,
         fileName: String? = nil,
         mimeType: UTType? = nil
     ) {
-        self.content = FormDataContent(
+        self.key = key
+        self.body = data
+        self.fileName = fileName
+        self.mimeType = mimeType
+    }
+    
+    /// Creates a new ``FormDataBody``.
+    ///
+    /// - Parameters:
+    ///   - key: The key associated with the form-data item.
+    ///   - body: The ``String`` content.
+    ///   - fileName: The optional file name for the data.
+    ///   - mimeType: The optional MIME type of the data.
+    public init(
+        _ key: String,
+        body: String?,
+        fileName: String? = nil,
+        mimeType: UTType? = nil
+    ) {
+        self.init(
             key,
-            body: data,
+            data: body?.data(using: .utf8),
             fileName: fileName,
             mimeType: mimeType
-        )
-    }
-    
-    /// Creates a new ``FormDataBody`` from a file at a given URL.
-    ///
-    /// - Parameters:
-    ///   - key: The key associated with the form-data item.
-    ///   - fileURL: The URL of the file to include in the form-data.
-    ///   - fileName: The optional file name for the file.
-    ///   - mimeType: The optional MIME type of the file.
-    ///   - fileManager: The ``FileManager`` instance used for file operations.
-    ///   - bufferSize: The buffer size for reading large files.
-    public init(
-        _ key: String,
-        fileURL: URL,
-        fileName: String? = nil,
-        mimeType: UTType? = nil,
-        fileManager: FileManager = .default,
-        bufferSize: Int = 1024
-    ) {
-        self.content = FileFormDataContent(
-            key,
-            fileURL: fileURL,
-            fileName: fileName,
-            mimeType: mimeType,
-            fileManager: fileManager,
-            bufferSize: bufferSize
-        )
-    }
-    
-    /// Creates a new ``FormDataBody`` from a file at a given file path.
-    ///
-    /// - Parameters:
-    ///   - key: The key associated with the form-data item.
-    ///   - filePath: The file path of the file to include in the form-data.
-    ///   - fileName: The optional file name for the file.
-    ///   - mimeType: The optional MIME type of the file.
-    ///   - fileManager: The ``FileManager`` instance used for file operations.
-    ///   - bufferSize: The buffer size for reading large files.
-    public init(
-        _ key: String,
-        filePath: String,
-        fileName: String? = nil,
-        mimeType: UTType? = nil,
-        fileManager: FileManager = .default,
-        bufferSize: Int = 1024
-    ) {
-        self.content = FileFormDataContent(
-            key,
-            filePath: filePath,
-            fileName: fileName,
-            mimeType: mimeType,
-            fileManager: fileManager,
-            bufferSize: bufferSize
         )
     }
 }
 
 // MARK: - FormDataItem
 extension FormDataBody: FormDataItem {
-    /// The key associated with the form-data item.
-    public var key: String {
-        return content.key
-    }
-    
-    /// The size of the content in bytes, if available.
+    /// The size of the content in bytes.
     public var contentSize: UInt64? {
-        return content.contentSize
+        return body.map({UInt64($0.count)})
     }
     
     /// The headers associated with the form-data item.
     public var headers: HeadersGroup {
-        content.headers
+        ContentDisposition(name: key, fileName: fileName)
+        if let mimeType = mimeType?.preferredMIMEType {
+            ContentType(.custom(mimeType))
+        }
     }
     
     /// Encodes the form-data content into ``Data``.
     ///
     /// - Returns: The encoded data.
-    public func data() throws -> Data {
-        return try content.data()
+    public func data() throws -> Data? {
+        return body
     }
 }

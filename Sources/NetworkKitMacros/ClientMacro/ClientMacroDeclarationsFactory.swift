@@ -18,11 +18,11 @@ extension ClientMacro {
 }
 
 extension ClientMacro.DeclarationsFactory {
-    package static func makeCommandDecl(
+    package static func makeSessionDecl(
         _ accessLevel: TokenSyntax?
     ) -> DeclSyntax {
         let binding = PatternBindingSyntax(
-            pattern: IdentifierPatternSyntax(identifier: "_command"),
+            pattern: IdentifierPatternSyntax(identifier: "_session"),
             typeAnnotation: TypeAnnotationSyntax(
                 type: ImplicitlyUnwrappedOptionalTypeSyntax(
                     wrappedType: IdentifierTypeSyntax(name: "Session")
@@ -49,7 +49,7 @@ extension ClientMacro.DeclarationsFactory {
         guard let accessLevel else {
             return []
         }
-        return [DeclModifierSyntax(name: accessLevel.trimmed)]
+        return [DeclModifierSyntax(name: accessLevel)]
     }
     
     package static func makeInitDecl(

@@ -26,7 +26,7 @@ public typealias HeadersGroup = Header.Group
 ///     }
 /// }
 /// ```
-@frozen public struct Header: RequestHeader {
+@frozen public struct Header: RequestHeader, Equatable, Hashable, Sendable {
     /// The header key.
     public var key: String
     
@@ -51,7 +51,7 @@ public typealias HeadersGroup = Header.Group
 
 extension Header {
     /// A group of headers.
-    @frozen public struct Group: RequestHeader {
+    @frozen public struct Group: RequestHeader, Equatable, Hashable, Sendable {
         /// The HTTP headers contained in this group.
         public var headers: [String: String]
         
@@ -69,7 +69,7 @@ extension Header {
             self.init(headers.compactMapValues(\.self))
         }
         
-        /// Creates a new ``HeadersGroup`` from an array of ``RequestHeader`` instances.
+        /// Creates a new ``HeadersGroup`` from an array of ``RequestHeader``.
         ///
         /// - Parameter headers: The request headers to be grouped.
         public init(_ headers: [any RequestHeader]) {

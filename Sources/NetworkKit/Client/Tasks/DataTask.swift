@@ -21,10 +21,10 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     ///
     /// - Parameters:
     ///   - request: The URL request to be executed.
-    ///   - session: The session instance used to perform the request.
+    ///   - session: The session used to perform the request.
     ///
     /// - Returns: The response containing the raw data and HTTP response.
-    open override func execute(
+    open override func _execute(
         _ request: borrowing URLRequest,
         session: Session
     ) async throws -> DataResponse {
@@ -33,7 +33,7 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
             delegate: session.delegate
         )
         let status = response.1.status
-        if await configurations.logsEnabled {
+        if configurations.logsEnabled {
             NetworkLogger.logReceived(data: response.0, status: status)
         }
         return response
@@ -43,11 +43,9 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     ///
     /// - Parameter type: The ``Decodable`` type to decode the data into.
     /// - Returns: The decoded object of type `T`.
-    open func decode<T: Decodable>(
-        as type: T.Type
-    ) async throws -> sending T {
+    open func decode<T: Decodable>(as type: T.Type) async throws -> sending T {
         let response = try await response()
-        let decoder = await configurations.decoder
+        let decoder = configurations.decoder
         return try decoder.decode(T.self, from: response.0)
     }
 }

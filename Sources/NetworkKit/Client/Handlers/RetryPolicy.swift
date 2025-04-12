@@ -52,6 +52,9 @@ extension RetryPolicy {
         error: (any Error)?,
         status: ResponseStatus?
     ) async -> RetryResult {
+        guard await task.retryCount < maxRetryCount else {
+            return .doNotRetry
+        }
         if let status, retryableStatuses.contains(status) {
             return .retry
         }

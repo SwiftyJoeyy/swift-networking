@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import NetworkKit
 
-@Suite(.tags(.body))
+@Suite(.tags(.requestModifiers, .body, .json))
 struct JSONTests {
     private let url = URL(string: "example.com")!
     private let configurations = ConfigurationValues.mock
@@ -131,4 +131,8 @@ extension JSONTests {
     struct DataMock: Codable, Equatable {
         var testName = UUID()
     }
+}
+
+extension Tag {
+    @Tag internal static var json: Self
 }

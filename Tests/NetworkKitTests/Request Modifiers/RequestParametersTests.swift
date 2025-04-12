@@ -10,7 +10,7 @@ import Foundation
 @testable import NetworkKit
 
 /// Suite for testing the functionality of ``RequestParameter``.
-@Suite(.tags(.parameters))
+@Suite(.tags(.requestModifiers, .parameters))
 struct RequestParametersTests {
 // MARK: - Properties
     private let configurations = ConfigurationValues.mock
@@ -251,4 +251,8 @@ extension RequestParametersTests {
         
         #expect(request.allModifiers.contains(where: {$0 is ParametersGroup}))
     }
+}
+
+extension Tag {
+    @Tag internal static var parameters: Self
 }

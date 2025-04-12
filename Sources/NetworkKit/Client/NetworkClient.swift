@@ -13,22 +13,22 @@ import Foundation
 /// It provides an abstraction for the session and commands network requests based on that session.
 public protocol NetworkClient {
     /// The internal session command that is used to execute network requests.
-    var _command: Session! {get set}
+    var _session: Session! {get set}
     
     /// The command that provides access to the network session.
-    var command: Session {get}
+    var session: Session {get}
 }
 
 extension NetworkClient {
     /// Configures the network client.
     /// This function should be called once to initialize the network client with a specific session.
     public mutating func configure() {
-        _command = command
+        _session = session
     }
     
     /// Cancels all ongoing network tasks in the current session.
     @inlinable @inline(__always) public func cancelAll() async {
-        await _command.cancelAll()
+        await _session.cancelAll()
     }
     
     /// Creates a ``DataTask`` from a ``Request``.
@@ -38,7 +38,7 @@ extension NetworkClient {
     @inlinable @inline(__always) public func dataTask(
         _ request: consuming some Request
     ) throws -> DataTask {
-        return try _command.dataTask(consume request)
+        return try _session.dataTask(consume request)
     }
     
     /// Creates a ``DownloadTask`` from a ``Request``.
@@ -48,6 +48,6 @@ extension NetworkClient {
     @inlinable @inline(__always) public func downloadTask(
         _ request: consuming some Request
     ) throws -> DownloadTask {
-        return try _command.downloadTask(consume request)
+        return try _session.downloadTask(consume request)
     }
 }

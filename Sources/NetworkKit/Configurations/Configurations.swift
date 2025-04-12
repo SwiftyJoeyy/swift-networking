@@ -51,7 +51,7 @@ extension ConfigurationValues {
     @Config public var encoder = JSONEncoder()
     
     /// The base URL used in requests.
-    @Config public var url: URL? = nil
+    @Config public var baseURL: URL? = nil
     
     /// Whether logs are enabled.
     @Config public var logsEnabled = true

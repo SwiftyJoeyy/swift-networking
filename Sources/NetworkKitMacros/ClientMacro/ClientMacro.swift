@@ -14,19 +14,19 @@ import MacrosKit
 import Foundation
 
 package enum ClientMacro {
-    private static let commandRequirement = "command"
-    private static let commandProperty = "_command"
+    private static let sessionRequirement = "session"
+    private static let sessionProperty = "_session"
     
-    private static func checkCommandProperty(
+    private static func checkSessionProperty(
         declaration: VariableDeclSyntax,
         propertyName: String,
         context: some MacroExpansionContext
-    ) {
-        guard propertyName == commandProperty else {return}
+    ) throws {
+        guard propertyName == sessionProperty else {return}
         let node = Syntax(declaration)
         let message = MacroErrorFixItMessage(
-            message: "Remove the '_command' property declaration",
-            id: "unexpectedCommandDeclaration"
+            message: "Remove the '\(sessionProperty)' property declaration",
+            id: "unexpectedSessionDeclaration"
         )
         let fixIt = FixIt(
             message: message,
@@ -34,19 +34,20 @@ package enum ClientMacro {
                 .replace(oldNode: node, newNode: Syntax(TokenSyntax("")))
             ]
         )
-        let error = ClientMacroError.unexpectedCommandDeclaration
+        let error = ClientMacroError.unexpectedSessionDeclaration
         let diagnostic = Diagnostic(node: node, message: error, fixIt: fixIt)
         context.diagnose(diagnostic)
+        throw NSError(domain: "", code: 0)
     }
     
     @discardableResult
     private static func validateClient(
         declaration: some DeclGroupSyntax,
-        checkCommand: Bool,
+        checkSession: Bool,
         in context: some MacroExpansionContext
     ) throws -> Bool {
         var hasInitializer = false
-        var hasCommandRequirement = false
+        var hasSessionRequirement = false
         
         for member in declaration.memberBlock.members {
             guard !member.decl.is(InitializerDeclSyntax.self) else {
@@ -56,19 +57,19 @@ package enum ClientMacro {
             guard let varDecl = member.decl.as(VariableDeclSyntax.self),
                   let propertyName = varDecl.name?.text
             else {continue}
-            if checkCommand {
-                checkCommandProperty(
+            if checkSession {
+                try checkSessionProperty(
                     declaration: varDecl,
                     propertyName: propertyName,
                     context: context
                 )
             }
-            if !hasCommandRequirement {
-                hasCommandRequirement = propertyName == commandRequirement
+            if !hasSessionRequirement {
+                hasSessionRequirement = propertyName == sessionRequirement
             }
         }
-        guard hasCommandRequirement else {
-            throw ClientMacroError.missingCommandDeclaration
+        guard hasSessionRequirement else {
+            throw ClientMacroError.missingSessionDeclaration
         }
         return hasInitializer
     }
@@ -84,11 +85,11 @@ extension ClientMacro: MemberMacro {
         try withErroHandling(context: context, node: node, onFailure: []) {
             let hasInitializer = try validateClient(
                 declaration: declaration,
-                checkCommand: true,
+                checkSession: true,
                 in: context
             )
-            let accessLevel = declaration.modifiers.accessLevel?.modifier
-            let commandDecl = DeclarationsFactory.makeCommandDecl(accessLevel)
+            let accessLevel = declaration.modifiers.accessLevel?.name
+            let commandDecl = DeclarationsFactory.makeSessionDecl(accessLevel)
             var declarations = [commandDecl]
             
             if !hasInitializer {
@@ -113,7 +114,7 @@ extension ClientMacro: ExtensionMacro {
         do {
             try validateClient(
                 declaration: declaration,
-                checkCommand: false,
+                checkSession: false,
                 in: context
             )
             return [

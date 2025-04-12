@@ -27,7 +27,7 @@ import Foundation
 /// }
 /// ```
 @attached(extension, conformances: NetworkClient)
-@attached(member, conformances: NetworkClient, names: named(_command), named(init))
+@attached(member, conformances: NetworkClient, names: named(_session), named(init))
 @attached(memberAttribute)
 public macro Client() = #externalMacro(
     module: "NetworkKitMacros",

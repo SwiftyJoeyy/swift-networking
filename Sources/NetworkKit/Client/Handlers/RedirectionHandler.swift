@@ -7,7 +7,7 @@
 
 import Foundation
 
-@frozen public enum RedirectionBehavior: Sendable {
+@frozen public enum RedirectionBehavior: Equatable, Hashable, Sendable {
     case redirect
     case ignore
     case modified(URLRequest?)

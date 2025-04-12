@@ -32,13 +32,18 @@ extension RequestBody {
         _ request: consuming URLRequest,
         with configurations: borrowing ConfigurationValues
     ) throws -> URLRequest {
+        let body = try body(for: configurations)
+        guard let body else {
+            return request
+        }
+        
         if let contentType {
             request = try contentType.modifying(
                 consume request,
                 with: configurations
             )
         }
-        request.httpBody = try body(for: configurations)
+        request.httpBody = body
         return request
     }
 }

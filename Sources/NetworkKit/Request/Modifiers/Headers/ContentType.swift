@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `Content-Type` header modifier.
-@frozen public struct ContentType: RequestHeader {
+@frozen public struct ContentType: RequestHeader, Equatable, Hashable, Sendable {
     /// The content type.
     public var type: BodyContentType
     

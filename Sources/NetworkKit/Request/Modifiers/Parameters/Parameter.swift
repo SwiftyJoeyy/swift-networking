@@ -26,7 +26,7 @@ public typealias ParametersGroup = Parameter.Group
 ///     }
 /// }
 /// ```
-@frozen public struct Parameter: RequestParameter {
+@frozen public struct Parameter: RequestParameter, Equatable, Hashable, Sendable {
     /// The key of the parameter.
     public var key: String
     
@@ -60,7 +60,7 @@ public typealias ParametersGroup = Parameter.Group
 
 extension Parameter {
     /// A group of query parameters.
-    @frozen public struct Group: RequestParameter {
+    @frozen public struct Group: RequestParameter, Equatable, Hashable, Sendable {
         /// The query parameters contained in this group.
         public var parameters: [URLQueryItem]
         

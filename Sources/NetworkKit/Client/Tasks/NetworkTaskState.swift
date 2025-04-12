@@ -17,8 +17,7 @@ internal actor NetworkTaskState<T: Sendable> {
     /// The number of retry attempts made for this task.
     internal var retryCount = 0
     
-    /// The active configuration values for this task.
-    internal var configurations: ConfigurationValues
+    internal var metrics: URLSessionTaskMetrics?
     
     /// The currently running ``Task``, if any.
     internal var currentTask: Task<T, any Error>?
@@ -32,14 +31,8 @@ internal actor NetworkTaskState<T: Sendable> {
 // MARK: - Initializer
     /// Creates a new ``NetworkTaskState``.
     ///
-    /// - Parameters:
-    ///   - configurations: The configuration values to use.
-    ///   - request: The initial ``URLRequest`` for the task.
-    internal init(
-        _ configurations: ConfigurationValues,
-        request: URLRequest
-    ) {
-        self.configurations = configurations
+    /// - Parameter request: The initial ``URLRequest`` for the task.
+    internal init(request: URLRequest) {
         self.currentRequest = request
     }
     
@@ -76,17 +69,8 @@ internal actor NetworkTaskState<T: Sendable> {
         currentRequest = request
     }
     
-    /// Updates a specific configuration value using a key path.
-    ///
-    /// - Parameters:
-    ///   - keyPath: A writable key path into `ConfigurationValues`.
-    ///   - value: The new value to assign at the key path.
-
-    internal func configuration<V>(
-        _ keyPath: WritableKeyPath<ConfigurationValues, V>,
-        _ value: V
-    ) {
-       configurations[keyPath: keyPath] = value
+    internal func set(_ metrics: URLSessionTaskMetrics?) {
+        self.metrics = metrics
     }
     
     /// Sets the ``URLSessionTask``.

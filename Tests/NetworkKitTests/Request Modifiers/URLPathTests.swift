@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import NetworkKit
 
-@Suite(.tags(.path))
+@Suite(.tags(.requestModifiers, .path))
 struct PathRequestModifierTests {
     private let configurations = ConfigurationValues.mock
     
@@ -65,4 +65,8 @@ extension PathRequestModifierTests {
         
         #expect(request2.allModifiers.contains(where: {$0 is PathRequestModifier<String>}))
     }
+}
+
+extension Tag {
+    @Tag internal static var path: Self
 }

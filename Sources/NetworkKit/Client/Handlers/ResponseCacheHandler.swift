@@ -7,7 +7,7 @@
 
 import Foundation
 
-@frozen public enum ResponseCacheBehavior: Sendable {
+@frozen public enum ResponseCacheBehavior: Equatable, Hashable, Sendable {
     case cache
     case ignore
     case modified(CachedURLResponse?)

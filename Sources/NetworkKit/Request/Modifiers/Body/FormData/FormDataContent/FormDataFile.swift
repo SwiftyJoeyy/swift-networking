@@ -1,5 +1,5 @@
 //
-//  FileFormDataContent.swift
+//  FormDataFile.swift
 //  NetworkKit
 //
 //  Created by Joe Maghzal on 2/11/25.
@@ -9,7 +9,7 @@ import Foundation
 import UniformTypeIdentifiers
 
 /// A form-data item containing a file, used in multipart requests.
-@frozen public struct FileFormDataContent {
+@frozen public struct FormDataFile: Equatable, Hashable {
     /// The form-data errors.
     public typealias FactoryError = NKError.FormDataError
     
@@ -33,15 +33,15 @@ import UniformTypeIdentifiers
 }
 
 // MARK: - Initializers
-extension FileFormDataContent {
-    /// Creates a new ``FileFormDataContent`` instance from a file URL.
+extension FormDataFile {
+    /// Creates a new ``FormDataFile`` from a file URL.
     ///
     /// - Parameters:
     ///   - key: The key associated with the form-data item.
     ///   - fileURL: The URL of the file to be included in the form-data.
     ///   - fileName: The optional file name for the file.
     ///   - mimeType: The optional MIME type of the file.
-    ///   - fileManager: The ``FileManager`` instance used for file operations.
+    ///   - fileManager: The ``FileManager`` used for file operations.
     ///   - bufferSize: The buffer size for reading large files.
     public init(
         _ key: String,
@@ -49,7 +49,7 @@ extension FileFormDataContent {
         fileName: String? = nil,
         mimeType: UTType? = nil,
         fileManager: FileManager = .default,
-        bufferSize: Int
+        bufferSize: Int = 1024
     ) {
         self.key = key
         self.fileURL = fileURL
@@ -59,14 +59,14 @@ extension FileFormDataContent {
         self.bufferSize = bufferSize
     }
     
-    /// Creates a new ``FileFormDataContent`` instance from a file path.
+    /// Creates a new ``FormDataFile`` from a file path.
     ///
     /// - Parameters:
     ///   - key: The key associated with the form-data item.
     ///   - filePath: The file path of the file to be included.
     ///   - fileName: The optional file name for the file.
     ///   - mimeType: The optional MIME type of the file.
-    ///   - fileManager: The ``FileManager`` instance used for file operations.
+    ///   - fileManager: The ``FileManager`` used for file operations.
     ///   - bufferSize: The buffer size for reading large files.
     @inlinable public init(
         _ key: String,
@@ -74,7 +74,7 @@ extension FileFormDataContent {
         fileName: String? = nil,
         mimeType: UTType? = nil,
         fileManager: FileManager = .default,
-        bufferSize: Int
+        bufferSize: Int = 1024
     ) {
         self.init(
             key,
@@ -88,7 +88,7 @@ extension FileFormDataContent {
 }
 
 // MARK: - FormDataItem
-extension FileFormDataContent: FormDataItem {
+extension FormDataFile: FormDataItem {
     /// The size of the file content in bytes, if available.
     public var contentSize: UInt64? {
         let fileAttributes = try? FileManager.default.attributesOfItem(
@@ -110,7 +110,7 @@ extension FileFormDataContent: FormDataItem {
     /// Reads and encodes the file content into ``Data``.
     ///
     /// - Returns: The encoded file data.
-    public func data() throws -> Data {
+    public func data() throws -> Data? {
         try checkFileURLValidity()
         try checkFileReachability()
         
@@ -140,7 +140,7 @@ extension FileFormDataContent: FormDataItem {
 }
 
 // MARK: - Private Functions
-extension FileFormDataContent {
+extension FormDataFile {
     /// Retrieves file metadata such as its name and MIME type.
     ///
     /// - Returns: A tuple containing the file name and MIME type.
@@ -172,7 +172,7 @@ extension FileFormDataContent {
             throw FactoryError.fileDoesNotExist(fileURL)
         }
         if directory.boolValue {
-            throw FactoryError.URLIsDirectory(fileURL)
+            throw FactoryError.urlIsDirectory(fileURL)
         }
     }
     

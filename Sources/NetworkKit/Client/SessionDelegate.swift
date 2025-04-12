@@ -17,6 +17,13 @@ open class SessionDelegate: NSObject, @unchecked Sendable {
     /// Set internally by the ``Session`` and used to
     /// locate task metadata based on the original request.
     public internal(set) var tasks: (any TasksStorage)!
+    
+    private func networkTask(for sessionTask: URLSessionTask) async -> (any NetworkingTask)? {
+        guard let originalRequest = sessionTask.originalRequest else {
+            return nil
+        }
+        return await tasks.task(for: originalRequest)
+    }
 }
 
 // MARK: - URLSessionDelegate
@@ -42,10 +49,8 @@ extension SessionDelegate: URLSessionTaskDelegate {
         didCreateTask task: URLSessionTask
     ) {
         Task {
-            guard let originalRequest = task.originalRequest,
-                  let networkTask = await tasks.task(for: originalRequest)
-            else {return}
-            await networkTask.set(task)
+            let nTask = await networkTask(for: task)
+            await nTask?._set(task)
         }
     }
     
@@ -59,8 +64,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
         willPerformHTTPRedirection response: HTTPURLResponse,
         newRequest request: URLRequest
     ) async -> URLRequest? {
-        guard let originalRequest = task.originalRequest,
-              let task = await tasks.task(for: originalRequest)
+        guard let task = await networkTask(for: task)
         else {
             return request
         }
@@ -76,6 +80,17 @@ extension SessionDelegate: URLSessionTaskDelegate {
             return nil
         case .modified(let newRequest):
             return newRequest
+        }
+    }
+    
+    open func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didFinishCollecting metrics: URLSessionTaskMetrics
+    ) {
+        Task {
+            let task = await networkTask(for: task)
+            await task?._session(collected: metrics)
         }
     }
     
@@ -100,12 +115,10 @@ extension SessionDelegate: URLSessionDataDelegate {
         dataTask: URLSessionDataTask,
         willCacheResponse proposedResponse: CachedURLResponse
     ) async -> CachedURLResponse? {
-        guard let originalRequest = dataTask.originalRequest,
-              let task = await tasks.task(for: originalRequest)
-        else {
+        guard let task = await networkTask(for: dataTask) else {
             return proposedResponse
         }
-        let handler = await task.configurations.cacheHandler
+        let handler = task.configurations.cacheHandler
         let behavior = await handler.cache(task, proposedResponse: proposedResponse)
         switch behavior {
         case .cache:
@@ -126,10 +139,10 @@ extension SessionDelegate: URLSessionDownloadDelegate {
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) { }
-
+    
     /// Called periodically to report download progress.
     ///
-    /// Forwards the progress update to the corresponding task instance, if found.
+    /// Forwards the progress update to the corresponding task, if found.
     open func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
@@ -138,28 +151,30 @@ extension SessionDelegate: URLSessionDownloadDelegate {
         totalBytesExpectedToWrite: Int64
     ) {
         Task {
-            guard let originalRequest = downloadTask.originalRequest,
-                  let task = await tasks.task(for: originalRequest)
-            else {return}
-            await task.session(
+            let task = await networkTask(for: downloadTask)
+            await task?._session(
                 didWriteData: bytesWritten,
                 totalBytesWritten: totalBytesWritten,
                 totalBytesExpectedToWrite: totalBytesExpectedToWrite
             )
         }
     }
-
-    // MARK: - TODO: Add support for resumable downloads
+    
+    /// Called when a download task is resumed from previous download data.
+    ///
+    /// Forwards the progress update to the corresponding task, if found.
     open func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64
     ) {
-//        Task {
-//            guard let originalRequest = downloadTask.originalRequest,
-//                  let task = await tasks.task(for: originalRequest)
-//            else {return}
-//        }
+        Task {
+            let task = await networkTask(for: downloadTask)
+            await task?._session(
+                didResumeAtOffset: fileOffset,
+                expectedTotalBytes: expectedTotalBytes
+            )
+        }
     }
 }

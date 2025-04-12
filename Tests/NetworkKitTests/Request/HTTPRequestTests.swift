@@ -77,7 +77,7 @@ struct HTTPRequestTests {
     @Test func throwsWhenURLMissing() {
         let request = HTTPRequest()
         var configuration = ConfigurationValues.mock
-        configuration.url = nil
+        configuration.baseURL = nil
         
         #expect(throws: NKError.invalidRequestURL) {
             _ = try request._makeURLRequest(configuration)
@@ -86,7 +86,7 @@ struct HTTPRequestTests {
     
     @Test func baseURLFromConfiguration() throws {
         var configuration = ConfigurationValues.mock
-        configuration.url = URL(string: "https://fallback.com")
+        configuration.baseURL = URL(string: "https://fallback.com")
         let request = HTTPRequest()
         
         let urlRequest = try request._makeURLRequest(configuration)
@@ -96,7 +96,7 @@ struct HTTPRequestTests {
     
     @Test func baseURLFromConfigurationWithPath() throws {
         var configuration = ConfigurationValues.mock
-        configuration.url = URL(string: "https://fallback.com")
+        configuration.baseURL = URL(string: "https://fallback.com")
         let request = HTTPRequest(path: "test")
         
         let urlRequest = try request._makeURLRequest(configuration)

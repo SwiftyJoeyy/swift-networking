@@ -42,7 +42,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
         )
     }
     
-    // MARK: - Validation Tests
+// MARK: - Validation Tests
     func testConfigurationKeyMacroFailsWithInvalidPropertyTypeWhenPropertyIsLet() {
         // Invalid property type, the macro requires var instead of let.
         let diagnostic = DiagnosticSpec(

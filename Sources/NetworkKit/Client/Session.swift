@@ -21,12 +21,13 @@ public actor Session: Configurable {
     /// The session delegate responsible for handling ``URLSession`` delegate methods.
     internal let delegate: SessionDelegate
     
-    /// The underlying ``URLSession`` instance used to perform network tasks.
+    /// The underlying ``URLSession`` used to perform network tasks.
     internal let session: URLSession
     
     /// Stores configuration values such as task storage and custom behaviors.
     /// Marked `nonisolated(unsafe)` for cross-actor access; use with caution.
-    nonisolated(unsafe) private var configurations: ConfigurationValues
+    @preconcurrency nonisolated(unsafe)
+    public private(set) var configurations: ConfigurationValues
     
 // MARK: - Initializer
     /// Creates a new ``Session`` with an optional delegate, session configuration,
@@ -64,9 +65,9 @@ public actor Session: Configurable {
     ///   - tasksStorage: Storage mechanism for managing network tasks.
     public init(
         sessionDelegate: SessionDelegate = SessionDelegate(),
-        configuration: () -> URLSessionConfiguration,
         delegateQueue queue: OperationQueue? = nil,
-        tasksStorage: any TasksStorage = NetworkTasksStorage()
+        tasksStorage: any TasksStorage = NetworkTasksStorage(),
+        configuration: () -> URLSessionConfiguration
     ) {
         self.init(
             sessionDelegate: sessionDelegate,

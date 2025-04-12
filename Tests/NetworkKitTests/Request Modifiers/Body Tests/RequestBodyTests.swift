@@ -9,26 +9,10 @@ import Foundation
 import Testing
 @testable import NetworkKit
 
-@Suite(.tags(.body))
+@Suite(.tags(.requestModifiers, .body))
 struct RequestBodyTests {
     private let url = URL(string: "example.com")!
     private let configurations = ConfigurationValues.mock
-    
-    @Test func requestBodyWithoutHTTPBodyWithoutContentType() throws {
-        let urlRequest = URLRequest(url: url)
-        let expectedHeaders = urlRequest.allHTTPHeaderFields ?? [:]
-        let modifier = RequestBodyStub(contentType: nil, result: .success(nil))
-        
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
-        
-        let body = modifiedRequest.httpBody
-        let headers = modifiedRequest.allHTTPHeaderFields ?? [:]
-        #expect(body == nil)
-        #expect(headers == expectedHeaders)
-    }
     
 // MARK: - ContentType Tests
     @Test(arguments: [
@@ -36,36 +20,9 @@ struct RequestBodyTests {
         ContentType(.applicationJson),
         ContentType(.custom("Custom"))
     ])
-    func requestBodySetsContentTypeWithoutBody(expectedContentType: ContentType) throws {
-        let urlRequest = URLRequest(url: url)
-        let expectedHeaders = expectedContentType.headers
-        let modifier = RequestBodyStub(
-            contentType: expectedContentType,
-            result: .success(nil)
-        )
-        
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
-        
-        var headers = modifiedRequest.allHTTPHeaderFields ?? [:]
-        for header in headers {
-            guard expectedHeaders[header.key] == nil else {continue}
-            headers.removeValue(forKey: header.key)
-        }
-        #expect(headers == expectedHeaders)
-    }
-    
-    @Test(arguments: [
-        ContentType(.applicationFormURLEncoded),
-        ContentType(.applicationJson),
-        ContentType(.custom("Custom"))
-    ])
-    func requestBodySetsContentTypeWithBody(expectedContentType: ContentType) throws {
+    func requestBodySetsContentType(expectedContentType: ContentType) throws {
         let body = "Test Body".data(using: .utf8)
         let urlRequest = URLRequest(url: url)
-        let expectedHeaders = expectedContentType.headers
         let modifier = RequestBodyStub(
             contentType: expectedContentType,
             result: .success(body)
@@ -76,23 +33,18 @@ struct RequestBodyTests {
             with: configurations
         )
         
-        var headers = modifiedRequest.allHTTPHeaderFields ?? [:]
-        for header in headers {
-            guard expectedHeaders[header.key] == nil else {continue}
-            headers.removeValue(forKey: header.key)
-        }
-        #expect(headers == expectedHeaders)
+        let contentType = modifiedRequest.allHTTPHeaderFields?["Content-Type"]
+        #expect(contentType == expectedContentType.headers["Content-Type"])
     }
     
     @Test func requestBodyOverwritesContentType() throws {
         var urlRequest = URLRequest(url: url)
         urlRequest = try ContentType(.applicationFormURLEncoded)
-            .modifying(urlRequest, with:configurations)
+            .modifying(urlRequest, with: configurations)
         let expectedContentType = ContentType(.applicationJson)
-        let expectedHeaders = expectedContentType.headers
         let modifier = RequestBodyStub(
             contentType: expectedContentType,
-            result: .success(nil)
+            result: .success(Data())
         )
         
         let modifiedRequest = try modifier.modifying(
@@ -100,15 +52,11 @@ struct RequestBodyTests {
             with: configurations
         )
         
-        var headers = modifiedRequest.allHTTPHeaderFields ?? [:]
-        for header in headers {
-            guard expectedHeaders[header.key] == nil else {continue}
-            headers.removeValue(forKey: header.key)
-        }
-        #expect(headers == expectedHeaders)
+        let contentType = modifiedRequest.allHTTPHeaderFields?["Content-Type"]
+        #expect(contentType == expectedContentType.headers["Content-Type"])
     }
     
-    @Test func requestBodyWithoutContentTypeWithBody() throws {
+    @Test func requestBodyWithoutContentType() throws {
         let body = "Test Body".data(using: .utf8)
         let urlRequest = URLRequest(url: url)
         let expectedHeaders = urlRequest.allHTTPHeaderFields ?? [:]
@@ -127,7 +75,7 @@ struct RequestBodyTests {
         var urlRequest = URLRequest(url: url)
         urlRequest = try ContentType(.applicationFormURLEncoded)
             .modifying(urlRequest, with: configurations)
-        let expectedHeaders = urlRequest.allHTTPHeaderFields
+        let expectedHeaders = urlRequest.allHTTPHeaderFields ?? [:]
         let modifier = RequestBodyStub(contentType: nil, result: .success(nil))
         
         let modifiedRequest = try modifier.modifying(
@@ -192,7 +140,7 @@ struct RequestBodyTests {
         #expect(body == expectedBody)
     }
     
-    @Test func requestBodyWithoutHTTPBodyWithContentType() throws {
+    @Test func requestBodyWithoutHTTPBody() throws {
         let urlRequest = URLRequest(url: url)
         let modifier = RequestBodyStub(
             contentType: ContentType(.applicationJson),
@@ -204,8 +152,7 @@ struct RequestBodyTests {
             with: configurations
         )
         
-        let body = modifiedRequest.httpBody
-        #expect(body == nil)
+        #expect(modifiedRequest == urlRequest)
     }
     
     @Test func requestBodyWithoutHTTPBodyWithExistingHTTPBody() throws {
@@ -221,8 +168,7 @@ struct RequestBodyTests {
             with: configurations
         )
         
-        let body = modifiedRequest.httpBody
-        #expect(body == nil)
+        #expect(modifiedRequest == urlRequest)
     }
     
     @Test func requestBodyThrowsWithThrowingBody() {
@@ -263,4 +209,8 @@ extension RequestBodyTests {
             return try result.get()
         }
     }
+}
+
+extension Tag {
+    @Tag internal static var body: Self
 }

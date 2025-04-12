@@ -9,7 +9,6 @@ import Testing
 import Foundation
 @testable import NetworkKit
 
-//@Test
 func test() async throws {
     let client = MyClient()
     let data = try await client.dataTask(TestingRequest())
@@ -21,7 +20,7 @@ func test() async throws {
 
 @Client
 struct MyClient {
-    var command: Session {
+    var session: Session {
         Session()
             .onRequest { request, task, session in
                 // handle request creation
@@ -29,7 +28,7 @@ struct MyClient {
             }.enableLogs()
             .validate(for: [.accepted, .ok])
             .retry(limit: 2, for: [.conflict, .badRequest])
-            .url(URL(string: "example.com"))
+            .baseURL(URL(string: "example.com"))
     }
 }
 
@@ -52,7 +51,7 @@ struct TestingRequest {
                     fileName: "image.png",
                     mimeType: .png
                 )
-                FormDataBody(
+                FormDataFile(
                     "File",
                     fileURL: URL(filePath: "filePath"),
                     fileName: "file",

@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import NetworkKit
 
-@Test func applyingHTTPMethodToURLRequest() throws {
+@Test(.tags(.requestModifiers)) func applyingHTTPMethodToURLRequest() throws {
     let method = RequestMethod.post
     let urlRequest = URLRequest(url: URL(string: "example.com")!)
     
@@ -22,14 +22,14 @@ import Testing
     #expect(newRequest.httpMethod == method.rawValue)
 }
 
-@Test func applyingTHTTPMethodModifierToRequest() throws {
+@Test(.tags(.requestModifiers)) func applyingTHTTPMethodModifierToRequest() throws {
     let request = DummyRequest().method(.get)
     
     #expect(request.allModifiers.contains(where: {$0 is HTTPMethodRequestModifier}))
 }
 
 
-@Test func applyingTimeoutIntervalToURLRequest() throws {
+@Test(.tags(.requestModifiers)) func applyingTimeoutIntervalToURLRequest() throws {
     let timeout: TimeInterval = 1000
     let urlRequest = URLRequest(url: URL(string: "example.com")!)
     
@@ -42,14 +42,14 @@ import Testing
     #expect(newRequest.timeoutInterval == timeout)
 }
 
-@Test func applyingTimeoutIntervalModifierToRequest() throws {
+@Test(.tags(.requestModifiers)) func applyingTimeoutIntervalModifierToRequest() throws {
     let request = DummyRequest().timeout(90)
     
     #expect(request.allModifiers.contains(where: {$0 is TimeoutRequestModifier}))
 }
 
 
-@Test(.serialized, arguments: [
+@Test(.serialized, .tags(.requestModifiers), arguments: [
     URLRequest.CachePolicy.useProtocolCachePolicy,
     URLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData,
     URLRequest.CachePolicy.reloadIgnoringLocalCacheData,
@@ -70,8 +70,12 @@ func applyingCachePolityToURLRequest(policy: URLRequest.CachePolicy) throws {
     #expect(newRequest.cachePolicy == policy)
 }
 
-@Test func applyingCachePolicyModifierToRequest() throws {
+@Test(.tags(.requestModifiers)) func applyingCachePolicyModifierToRequest() throws {
     let request = DummyRequest().cachePolicy(.reloadIgnoringCacheData)
     
     #expect(request.allModifiers.contains(where: {$0 is CachePolicyRequestModifier}))
+}
+
+extension Tag {
+    @Tag internal static var requestModifiers: Self
 }

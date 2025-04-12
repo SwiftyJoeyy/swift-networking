@@ -24,13 +24,13 @@ public protocol Configurable {
 
 extension Configurable {
     /// Sets the base URL for the request.
-    public func url(_ url: URL?) -> Self {
-        return configuration(\.url, url)
+    public func baseURL(_ url: URL?) -> Self {
+        return configuration(\.baseURL, url)
     }
     
     /// Sets the base URL for the request from a string.
-    public func url(_ url: String) -> Self {
-        return configuration(\.url, URL(string: url))
+    public func baseURL(_ url: String) -> Self {
+        return configuration(\.baseURL, URL(string: url))
     }
     
     /// Sets the ``JSONEncoder`` used for encoding requests.

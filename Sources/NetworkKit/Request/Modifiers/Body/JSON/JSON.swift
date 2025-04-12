@@ -101,7 +101,7 @@ extension Data: JSONEncodable {
         self.init(DictionaryJSONEncoder(dictionary: dictionary))
     }
     
-    /// Creates a new ``JSON`` instance from an ``Encodable`` object.
+    /// Creates a new ``JSON`` from an ``Encodable`` object.
     ///
     /// - Parameters:
     ///  - object: The object to be encoded.

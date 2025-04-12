@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `Content-Disposition` header modifier.
-@frozen public struct ContentDisposition: RequestHeader {
+@frozen public struct ContentDisposition: RequestHeader, Equatable, Hashable, Sendable {
     /// The header value.
     public let value: String
     

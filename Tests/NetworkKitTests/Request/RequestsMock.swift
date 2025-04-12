@@ -47,7 +47,7 @@ struct NestedRequest: Request {
         _ configurations: borrowing ConfigurationValues
     ) throws -> URLRequest {
         let configs = copy configurations
-        var request = URLRequest(url: configs.url!)
+        var request = URLRequest(url: configs.baseURL!)
         
         for component in _modifiers {
             request = try component.modifying(

@@ -101,7 +101,7 @@ extension HTTPRequest: Request {
     public func _makeURLRequest(
         _ configurations: borrowing ConfigurationValues
     ) throws -> URLRequest {
-        let baseURL = configurations.url
+        let baseURL = configurations.baseURL
         guard var url = url ?? baseURL else {
             throw NKError.invalidRequestURL
         }

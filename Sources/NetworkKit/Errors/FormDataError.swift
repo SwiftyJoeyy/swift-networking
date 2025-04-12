@@ -11,7 +11,7 @@ extension NKError {
     public enum FormDataError: Error {
         case invalidFileURL(URL)
         case fileDoesNotExist(URL)
-        case URLIsDirectory(URL)
+        case urlIsDirectory(URL)
         case unreachableFile(URL)
         case failedFileReachabilityCheck(url: URL, error: any Error)
         case failedStreamCreation(URL)

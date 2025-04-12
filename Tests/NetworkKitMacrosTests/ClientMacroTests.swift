@@ -10,51 +10,239 @@ import MacrosKit
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
-//#if canImport(NetworkKitMacros)
-//import NetworkKitMacros
-//
-//final class ClientMacroTests: XCTestCase {
-//// MARK: - Properties
-//    private let testMacros: [String: Macro.Type] = [
-//        "Client": ClientMacro.self,
-//        "ClientInit": ClientInitMacro.self
-//    ]
-//    
-//// MARK: - No Modifiers Tests
-//    func testRequestMacroWithoutModifiers() {
-//        assertMacroExpansion(
-//            """
-//            @Client
-//            struct TTRClient {
-//            var modifiers: [any RequestModifier] {
-//            get {
-//            return modifiersBox + [
-//            ]
-//            }
-//            }
-//                var command: Session {
-//                    Session()
-//                }
-//            }
-//            """,
-//            expandedSource: """
-//            struct TTRClient {
-//                var command: Session {
-//                    RequestCommand()
-//                }
-//            
-//                var _command: Session!
-//            
-//                init() {
-//                    configure()
-//                }
-//            }
-//            
-//            extension TTRClient: NetworkClient {
-//            }
-//            """,
-//            macros: testMacros
-//        )
-//    }
-//}
-//#endif
+#if canImport(NetworkKitMacros)
+import NetworkKitMacros
+
+final class ClientMacroTests: XCTestCase {
+// MARK: - Properties
+    private let testMacros: [String: Macro.Type] = [
+        "Client": ClientMacro.self
+    ]
+    
+// MARK: - Expansion Tests
+    func testClientMacroExpansion() {
+        assertMacroExpansion(
+            """
+            @Client
+            struct TestClient {
+                var session: Session {
+                    Session()
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestClient {
+                var session: Session {
+                    Session()
+                }
+            
+                var _session: Session!
+            
+                @ClientInit init() {
+                }
+            }
+            
+            extension TestClient: NetworkClient {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+    func testClientMacroAddClientInitMacroToInit() {
+        assertMacroExpansion(
+            """
+            @Client
+            struct TestClient {
+                init() { }
+                var session: Session {
+                    Session()
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestClient {
+                @ClientInit
+                init() { }
+                var session: Session {
+                    Session()
+                }
+            
+                var _session: Session!
+            }
+            
+            extension TestClient: NetworkClient {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+    func testClientMacroAddClientInitMacroToInitWithParameters() {
+        assertMacroExpansion(
+            """
+            @Client
+            struct TestClient {
+                init(test: Int) { 
+                    self.test = test
+                }
+                var session: Session {
+                    Session()
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestClient {
+                @ClientInit
+                init(test: Int) { 
+                    self.test = test
+                }
+                var session: Session {
+                    Session()
+                }
+            
+                var _session: Session!
+            }
+            
+            extension TestClient: NetworkClient {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+// MARK: - Access Level Tests
+    func testClientMacroWithAccessLevel() {
+        let levels = AccessLevel.allCases
+        for level in levels {
+            assertMacroExpansion(
+            """
+            @Client
+            \(level.name) struct TestClient {
+                \(level.name) var session: Session {
+                    Session()
+                }
+            }
+            """,
+            expandedSource: """
+            \(level.name) struct TestClient {
+                \(level.name) var session: Session {
+                    Session()
+                }
+            
+                \(level.name) var _session: Session!
+            
+                @ClientInit \(level.name) init() {
+                }
+            }
+            
+            extension TestClient: NetworkClient {
+            }
+            """,
+            macros: testMacros
+            )
+        }
+    }
+    
+    func testClientMacroWithInitWithAccessLevel() {
+        let levels = AccessLevel.allCases
+        for level in levels {
+            assertMacroExpansion(
+            """
+            @Client
+            \(level.name) struct TestClient {
+                \(level.name) init() { }
+                \(level.name) var session: Session {
+                    Session()
+                }
+            }
+            """,
+            expandedSource: """
+            \(level.name) struct TestClient {
+                @ClientInit
+                \(level.name) init() { }
+                \(level.name) var session: Session {
+                    Session()
+                }
+            
+                \(level.name) var _session: Session!
+            }
+            
+            extension TestClient: NetworkClient {
+            }
+            """,
+            macros: testMacros
+            )
+        }
+    }
+    
+// MARK: - Validations Tests
+    func testClientMacroFailsWithMissingSessionDeclaration() {
+        let expectedDiagnostics = [
+            DiagnosticSpec(
+                message: ClientMacroError.missingSessionDeclaration.message,
+                line: 1,
+                column: 1
+            )
+        ]
+        
+        assertMacroExpansion(
+            """
+            @Client
+            struct TestClient {
+                init() { }
+            }
+            """,
+            expandedSource: """
+            struct TestClient {
+                @ClientInit
+                init() { }
+            }
+            """,
+            diagnostics: expectedDiagnostics,
+            macros: testMacros
+        )
+    }
+    
+    func testClientMacroFailsWithUnexpectedSessionDeclaration() {
+        let expectedDiagnostics = [
+            DiagnosticSpec(
+                message: ClientMacroError.unexpectedSessionDeclaration.message,
+                line: 7,
+                column: 5,
+                fixIts: [
+                    FixItSpec(message: "Remove the '_session' property declaration")
+                ]
+            )
+        ]
+        
+        assertMacroExpansion(
+            """
+            @Client
+            struct TestClient {
+                init() { }
+                var session: Session {
+                    Session()
+                }
+                var _session: Session!
+            }
+            """,
+            expandedSource: """
+            struct TestClient {
+                @ClientInit
+                init() { }
+                var session: Session {
+                    Session()
+                }
+                var _session: Session!
+            }
+            
+            extension TestClient: NetworkClient {
+            }
+            """,
+            diagnostics: expectedDiagnostics,
+            macros: testMacros
+        )
+    }
+}
+#endif

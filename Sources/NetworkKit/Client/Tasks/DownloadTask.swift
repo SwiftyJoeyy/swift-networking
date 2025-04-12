@@ -34,19 +34,6 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
         }
     }
     
-    /// Cancels the current download task and produces resume data,
-    /// which can be used to resume the task later.
-    ///
-    /// This method cancels the current task by producing resume data.
-    /// The produced resume data can be used to resume the task from where it left off.
-    ///
-    /// - Returns: The resume data.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
-    public func cancelByProducingResumeData() async -> Data? {
-        let downloadTask = await sessionTask as? URLSessionDownloadTask
-        return await downloadTask?.cancelByProducingResumeData()
-    }
-    
     /// Executes the download task.
     ///
     /// This method starts the download using the session’s ``download(for:)``
@@ -58,7 +45,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///   - session: The session managing the download.
     ///
     /// - Returns: A tuple containing the downloaded ``URL`` and ``URLResponse``.
-    open override func execute(
+    open override func _execute(
         _ request: borrowing URLRequest,
         session: Session
     ) async throws -> DownloadResponse {
@@ -76,28 +63,53 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     /// - Parameters:
     ///   - error: An optional error if the task failed.
     ///   - configurations: The configuration values for the task.
-    open override func finished(
-        with error: (any Error)?,
-        configurations: borrowing ConfigurationValues
-    ) async {
+    open override func _finished(with error: (any Error)?) async {
+        await super._finished(with: error)
         continuation?.finish()
         continuation = nil
     }
     
-    /// Reports progress updates during the download.
+    /// Reports download progress to the task.
     ///
-    /// This method is called when the session writes data, and it updates
-    /// the download progress.
-    ///
-    /// - Parameters:
-    ///   - bytesWritten: The number of bytes written in this write cycle.
-    ///   - totalBytesWritten: The total number of bytes written so far.
-    ///   - totalBytesExpectedToWrite: The total number of bytes expected to write.
-    public func session(
+    /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    public func _session(
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
     ) async {
+        guard totalBytesExpectedToWrite > 0 else {
+            progress = 0
+            return
+        }
         progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+    }
+    
+    /// Called when a download task is resumed from previous download data.
+    ///
+    /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    public func _session(
+        didResumeAtOffset fileOffset: Int64,
+        expectedTotalBytes: Int64
+    ) async {
+        guard expectedTotalBytes > 0 else {
+            progress = 0
+            return
+        }
+        progress = Double(fileOffset) / Double(expectedTotalBytes)
+    }
+}
+
+extension DownloadTask {
+    /// Cancels the current download task and produces resume data,
+    /// which can be used to resume the task later.
+    ///
+    /// This method cancels the current task by producing resume data.
+    /// The produced resume data can be used to resume the task from where it left off.
+    ///
+    /// - Returns: The resume data.
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
+    public func cancelByProducingResumeData() async -> Data? {
+        let downloadTask = await _sessionTask as? URLSessionDownloadTask
+        return await downloadTask?.cancelByProducingResumeData()
     }
 }

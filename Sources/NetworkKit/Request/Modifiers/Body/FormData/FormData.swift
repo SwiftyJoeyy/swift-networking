@@ -57,12 +57,18 @@ extension FormData: RequestBody {
         data.append(firstBoundary)
         
         let encapsulatedBoundary = BoundaryFactory.makeBoundary(.encapsulated, for: boundary)
+        var foundInputData = false
         for input in inputs {
-            let inputData = try input.data()
+            guard let inputData = try input.data() else {continue}
+            foundInputData = true
             data.append(encapsulatedBoundary)
             let headerData = BoundaryFactory.makeHeaders(for: input.headers.headers)
             data.append(headerData)
             data.append(inputData)
+        }
+        
+        guard foundInputData else {
+            return nil
         }
         
         let lastBoundary = BoundaryFactory.makeBoundary(.last, for: boundary)

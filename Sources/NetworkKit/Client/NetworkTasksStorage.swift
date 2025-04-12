@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// Requirements for defining a storage that safely manages a collection of active networking tasks,
+/// mapped by their originating ``URLRequest``.
 public protocol TasksStorage: Actor {
     /// Retrieves the task associated with a given request, if it exists.
     ///
