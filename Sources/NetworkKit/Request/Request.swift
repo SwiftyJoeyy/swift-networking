@@ -53,8 +53,8 @@ public protocol Request: _Request {
     /// The contents of the request.
     associatedtype Contents: Request
     
-    /// An optional identifier for the request.
-    var id: String? {get}
+    /// The request's identifier.
+    var id: String {get}
     
     /// The contents of the request.
     var request: Self.Contents {get}
@@ -65,8 +65,8 @@ public protocol Request: _Request {
 
 // MARK: - _Request
 extension Request {
-    /// An optional identifier for the request.
-    public var id: String? {
+    /// The request's identifier.
+    public var id: String {
         return String(describing: Self.self)
     }
     

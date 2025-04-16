@@ -73,7 +73,14 @@ struct RequestTests {
     @Test func requestWithoutID() throws {
         let request = NestedRequest()
         
-        #expect(request.id == String(describing: NestedRequest.self))
+        #expect(request.id == "NestedRequest")
+    }
+    
+    @Test func requestWithExplicitID() throws {
+        let id = "testing"
+        let request = DummyRequest(id: id)
+        
+        #expect(request.id == id)
     }
 }
 

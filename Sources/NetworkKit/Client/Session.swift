@@ -91,7 +91,7 @@ public actor Session: Configurable {
         _ request: consuming some Request
     ) throws -> DataTask {
         return DataTask(
-            id: request.id ?? UUID().uuidString,
+            id: request.id,
             request: try request._makeURLRequest(configurations),
             session: self,
             configurations: configurations
@@ -106,7 +106,7 @@ public actor Session: Configurable {
         _ request: consuming some Request
     ) throws -> DownloadTask {
         return DownloadTask(
-            id: request.id ?? UUID().uuidString,
+            id: request.id,
             request: try request._makeURLRequest(configurations),
             session: self,
             configurations: configurations

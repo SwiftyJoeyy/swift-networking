@@ -9,6 +9,7 @@ import Foundation
 @testable import NetworkKit
 
 struct DummyRequest: Request {
+    var id = "DummyRequest"
     typealias Contents = Never
     var _modifiers = [any RequestModifier]()
     

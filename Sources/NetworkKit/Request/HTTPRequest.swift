@@ -40,7 +40,10 @@ import Foundation
 ///     }
 /// }
 /// ```
-public struct HTTPRequest {
+@frozen public struct HTTPRequest {
+    /// The request's identifier.
+    public let id = "HTTPRequest"
+    
     /// The base URL for the request.
     private let url: URL?
     

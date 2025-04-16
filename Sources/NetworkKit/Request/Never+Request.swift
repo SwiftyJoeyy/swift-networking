@@ -8,6 +8,11 @@
 import Foundation
 
 extension Never: Request {
+    /// The request's identifier.
+    public var id: String {
+        return "Never"
+    }
+    
     /// The request modifiers applied to this request.
     ///
     /// - Warning: This should not be accessed directly.

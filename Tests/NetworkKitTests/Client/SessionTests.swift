@@ -89,12 +89,12 @@ struct SessionTests {
     
     @Test func creatingTaskFromRequestWithoutID() throws {
         let session = Session()
-        let request = TestRequest(id: nil)
+        let request = TestRequest()
         let dataTask = try session.dataTask(request)
         let downloadTask = try session.downloadTask(request)
         
-        #expect(dataTask.id != nil)
-        #expect(downloadTask.id != nil)
+        #expect(dataTask.id == "TestRequest")
+        #expect(downloadTask.id == "TestRequest")
     }
     
     @Test func creatingTaskSetsConfigurationsAndURLRequest() async throws {
@@ -115,7 +115,7 @@ struct SessionTests {
 extension SessionTests {
     struct TestRequest: Request {
         typealias Contents = Never
-        var id: String?
+        var id = "TestRequest"
         var _modifiers = [any RequestModifier]()
         
         var allModifiers: [any RequestModifier] {
