@@ -37,6 +37,9 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "MacrosKit", package: "MacrosKit"),
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny")
             ]
         ),
         .testTarget(
@@ -44,21 +47,25 @@ let package = Package(
             dependencies: [
                 "NetworkKitMacros",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny")
             ]
         ),
         
         .target(
             name: "NetworkKit",
-            dependencies: [
-                "NetworkKitMacros"
-            ],
+            dependencies: ["NetworkKitMacros"],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny")
             ]
         ),
         .testTarget(
             name: "NetworkKitTests",
-            dependencies: ["NetworkKit"]
+            dependencies: ["NetworkKit"],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny")
+            ]
         ),
     ]
 )

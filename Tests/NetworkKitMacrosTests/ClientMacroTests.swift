@@ -15,7 +15,7 @@ import NetworkKitMacros
 
 final class ClientMacroTests: XCTestCase {
 // MARK: - Properties
-    private let testMacros: [String: Macro.Type] = [
+    private let testMacros: [String: any Macro.Type] = [
         "Client": ClientMacro.self
     ]
     

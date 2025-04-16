@@ -79,23 +79,7 @@ extension ConfigurationValues {
     
     /// The task storage used to track and cancel network tasks.
     ///
-    /// If accessed before being explicitly set, this property will trigger a runtime
+    /// - Warning: If accessed before being explicitly set, this property will trigger a runtime
     /// precondition failure to help catch misconfiguration.
-    public internal(set) var tasks: any TasksStorage {
-        get {
-            let value = self[TasksConfigurationKey.self]
-            precondition(
-                value != nil,
-                "Missing configuration of type: 'any TasksStorage'. Make sure you're setting a value for the key 'tasks' before using it."
-            )
-            return value!
-        }
-        set {
-            self[TasksConfigurationKey.self] = newValue
-        }
-    }
-}
-
-fileprivate struct TasksConfigurationKey: ConfigurationKey {
-    fileprivate static let defaultValue: (any TasksStorage)? = nil
+    @Config(forceUnwrapped: true) public internal(set) var tasks: any TasksStorage
 }

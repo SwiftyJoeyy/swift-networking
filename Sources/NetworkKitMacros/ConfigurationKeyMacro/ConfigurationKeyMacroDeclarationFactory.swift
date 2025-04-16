@@ -48,11 +48,11 @@ extension ConfigurationKeyMacro.DeclarationsFactory {
     
     internal static func makeUnwrappedAccessors(
         propertyName: PatternSyntax,
-        type: TypeSyntax
+        type: TypeSyntax?
     ) -> [AccessorDeclSyntax] {
         let keyName = makeKeyName(from: propertyName)
         let message: DeclSyntax = """
-        "Missing configuration of type: '\(type)'. Make sure you're setting a value for the key '\(propertyName)' before using it."
+        "Missing configuration of type: '\(type ?? "")'. Make sure you're setting a value for the key '\(propertyName)' before using it."
         """
         return [
             AccessorDeclSyntax(
@@ -75,7 +75,8 @@ extension ConfigurationKeyMacro.DeclarationsFactory {
     internal static func makeKeyDecl(
         propertyName: PatternSyntax,
         binding: PatternBindingSyntax,
-        forced: Bool
+        forced: Bool,
+        optional: Bool
     ) -> [DeclSyntax] {
         let accessLevel = DeclModifierSyntax(name: .keyword(.fileprivate))
         var binding = binding
@@ -83,10 +84,17 @@ extension ConfigurationKeyMacro.DeclarationsFactory {
             IdentifierPatternSyntax(identifier: .identifier("defaultValue"))
         )
         
+        if (optional || forced) && binding.initializer == nil {
+            binding.initializer = InitializerClauseSyntax(value: NilLiteralExprSyntax())
+        }
         binding.typeAnnotation = binding.typeAnnotation.map {
             if forced {
                 return TypeAnnotationSyntax(
-                    type: OptionalTypeSyntax(wrappedType: $0.type)
+                    type: OptionalTypeSyntax(
+                        wrappedType: TupleTypeSyntax(elements: [
+                            TupleTypeElementSyntax(type: $0.type)
+                        ])
+                    )
                 )
             }else {
                 return TypeAnnotationSyntax(

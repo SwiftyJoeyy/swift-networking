@@ -33,12 +33,17 @@ package enum ConfigurationKeyMacro {
         
         let arguments = decl.attributes.first?.attribute?.arguments?.arguments
         let forced = arguments?[forceArgument]?.tokenKind == .keyword(.true)
+        let type = binding.typeAnnotation?.type
+        
+        if forced && type == nil {
+            throw ConfigurationKeyMacroError.missingTypeAnnotation
+        }
         
         return (
             binding: binding,
             forced: forced,
             propertyName: binding.pattern.trimmed,
-            type: binding.typeAnnotation?.type
+            type: type
         )
     }
 }
@@ -55,12 +60,9 @@ extension ConfigurationKeyMacro: AccessorMacro {
         try withErroHandling(context: context, node: node, onFailure: []) {
             let info = try declInfo(for: declaration)
             if info.forced {
-                guard let type = info.type else {
-                    throw ConfigurationKeyMacroError.missingTypeAnnotation
-                }
                 return DeclarationsFactory.makeUnwrappedAccessors(
                     propertyName: info.propertyName,
-                    type: type
+                    type: info.type
                 )
             }
             return DeclarationsFactory.makeAccessors(from: info.propertyName)
@@ -78,16 +80,16 @@ extension ConfigurationKeyMacro: PeerMacro {
     ) throws -> [DeclSyntax] {
         try withErroHandling(context: context, node: node, onFailure: []) {
             let info = try declInfo(for: declaration)
-            if !info.forced && info.binding.initializer == nil,
-               info.type?.is(OptionalTypeSyntax.self) != true
-            {
+            let optional = info.type?.is(OptionalTypeSyntax.self) == true
+            if !info.forced && info.binding.initializer == nil && !optional {
                 throw ConfigurationKeyMacroError.missingInitializer
             }
-    
+            
             return DeclarationsFactory.makeKeyDecl(
                 propertyName: info.propertyName,
                 binding: info.binding,
-                forced: info.forced
+                forced: info.forced,
+                optional: optional
             )
         }
     }

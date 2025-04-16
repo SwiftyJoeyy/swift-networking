@@ -14,7 +14,7 @@ import NetworkKitMacros
 
 final class ModifierMacroTests: XCTestCase {
 // MARK: - Properties
-    private let testMacros: [String: Macro.Type] = [
+    private let testMacros: [String: any Macro.Type] = [
         "Header": HeaderMacro.self,
         "Parameter": ParameterMacro.self,
     ]

@@ -14,7 +14,7 @@ import NetworkKitMacros
 
 final class ConfigurationKeyMacroTests: XCTestCase {
 // MARK: - Properties
-    private let testMacros: [String: Macro.Type] = [
+    private let testMacros: [String: any Macro.Type] = [
         "Config": ConfigurationKeyMacro.self
     ]
     
@@ -105,7 +105,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
             }
             
             fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
-                fileprivate static let defaultValue: JSONDecoder?
+                fileprivate static let defaultValue: JSONDecoder? = nil
             }
             """,
             macros: testMacros
@@ -134,7 +134,34 @@ final class ConfigurationKeyMacroTests: XCTestCase {
             }
             
             fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
-                fileprivate static let defaultValue: JSONDecoder?
+                fileprivate static let defaultValue: (JSONDecoder)? = nil
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    func testConfigurationKeyMacroWithForceUnwrapTrueAndExistential() {
+        assertMacroExpansion(
+            """
+            @Config(forceUnwrapped: true) var decoder: any Decoder
+            """,
+            expandedSource: """
+            var decoder: any Decoder {
+                get {
+                    let value = self[ConfigurationKey_decoder.self]
+                    precondition(
+                        value != nil,
+                        "Missing configuration of type: 'any Decoder'. Make sure you're setting a value for the key 'decoder' before using it."
+                    )
+                    return value!
+                }
+                set {
+                    self[ConfigurationKey_decoder.self] = newValue
+                }
+            }
+            
+            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+                fileprivate static let defaultValue: (any Decoder)? = nil
             }
             """,
             macros: testMacros
@@ -241,12 +268,8 @@ final class ConfigurationKeyMacroTests: XCTestCase {
             """,
             expandedSource: """
             var decoder
-            
-            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
-                fileprivate static let defaultValue
-            }
             """,
-            diagnostics: [diagnostic],
+            diagnostics: [diagnostic, diagnostic],
             macros: testMacros
         )
     }
