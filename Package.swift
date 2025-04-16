@@ -4,7 +4,7 @@ import PackageDescription
 import CompilerPluginSupport
 
 let package = Package(
-    name: "NetworkKit",
+    name: "Networking",
     platforms: [
         .iOS(.v15),
         .macOS(.v12),
@@ -14,9 +14,9 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "NetworkKit",
+            name: "Networking",
             targets: [
-                "NetworkKit"
+                "Networking"
             ]
         ),
     ],
@@ -32,7 +32,7 @@ let package = Package(
     ],
     targets: [
         .macro(
-            name: "NetworkKitMacros",
+            name: "NetworkingMacros",
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
@@ -43,9 +43,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "NetworkKitMacrosTests",
+            name: "NetworkingMacrosTests",
             dependencies: [
-                "NetworkKitMacros",
+                "NetworkingMacros",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ],
             swiftSettings: [
@@ -54,15 +54,15 @@ let package = Package(
         ),
         
         .target(
-            name: "NetworkKit",
-            dependencies: ["NetworkKitMacros"],
+            name: "Networking",
+            dependencies: ["NetworkingMacros"],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny")
             ]
         ),
         .testTarget(
-            name: "NetworkKitTests",
-            dependencies: ["NetworkKit"],
+            name: "NetworkingTests",
+            dependencies: ["Networking"],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny")
             ]
