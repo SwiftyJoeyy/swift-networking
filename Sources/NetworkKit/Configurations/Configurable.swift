@@ -30,7 +30,7 @@ extension Configurable {
     
     /// Sets the base URL for the request from a string.
     public func baseURL(_ url: String) -> Self {
-        return configuration(\.baseURL, URL(string: url))
+        return baseURL(URL(string: url))
     }
     
     /// Sets the ``JSONEncoder`` used for encoding requests.
@@ -60,7 +60,7 @@ extension Configurable {
     public func onRequest(
         _ handler: @escaping DefaultRequestInterceptor.Handler
     ) -> Self {
-        return configuration(\.interceptor, DefaultRequestInterceptor(handler))
+        return interceptor(DefaultRequestInterceptor(handler))
     }
     
     /// Sets the retry policy to use when a request fails..
@@ -79,12 +79,12 @@ extension Configurable {
         for statuses: Set<ResponseStatus> = [],
         handler: DefaultRetryPolicy.Handler? = nil
     ) -> Self {
-        let retryPolicy = DefaultRetryPolicy(
+        let policy = DefaultRetryPolicy(
             maxRetryCount: limit,
             retryableStatuses: statuses,
             handler: handler
         )
-        return configuration(\.retryPolicy, retryPolicy)
+        return retryPolicy(policy)
     }
     
     /// Sets the handler used for managing response caching.
@@ -111,11 +111,11 @@ extension Configurable {
         for statuses: Set<ResponseStatus> = ResponseStatus.validStatuses,
         _ handler: DefaultStatusValidator.Handler? = nil
     ) -> Self {
-        let statusValidator = DefaultStatusValidator(
+        let validator = DefaultStatusValidator(
             validStatuses: statuses,
             handler
         )
-        return configuration(\.statusValidator, statusValidator)
+        return statusValidator(validator)
     }
     
     /// Sets the handler used to manage request authorization.
