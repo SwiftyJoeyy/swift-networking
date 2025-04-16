@@ -1,6 +1,6 @@
-# swift-networking
+# Swift Networking
 
-**swift-networking** is a modern Swift networking library built entirely around a **declarative programming model**. From defining requests to configuring clients and handling responses, everything is expressed clearly and fluentlyy.
+**Swift Networking** is a modern Swift networking library built entirely around a **declarative programming model**. From defining requests to configuring clients and handling responses, everything is expressed clearly and fluentlyy.
 
 Inspired by **Swift** & **SwiftUI**’s design philosophy, it allows you to define network behavior in a way that is readable, modular, and test-friendly — all while keeping boilerplate to a minimum.
 
@@ -22,7 +22,7 @@ Add via **Swift Package Manager**:
 .package(url: "https://github.com/SwiftyJoeyy/swift-networking.git", branch: "refactored")
 ```
 
-Then add `"SwiftNetworking"` to your target dependencies.
+Then add `"Networking"` to your target dependencies.
 
 
 
