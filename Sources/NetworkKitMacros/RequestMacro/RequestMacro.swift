@@ -18,16 +18,16 @@ package enum RequestMacro {
     
     private static func validateRequest(
         declaration: some DeclGroupSyntax,
-        map: ((_ varDecl: VariableDeclSyntax, _ name: String) -> Void)? = nil
+        map: ((_ varDecl: VariableDeclSyntax, _ name: TokenSyntax) -> Void)? = nil
     ) throws {
         var hasRequestRequirement = false
         for member in declaration.memberBlock.members {
             guard let varDecl = member.decl.as(VariableDeclSyntax.self),
-                  let name = varDecl.name?.text
+                  let name = varDecl.name
             else {continue}
             
             if !hasRequestRequirement {
-                hasRequestRequirement = name == requestRequirement
+                hasRequestRequirement = name.text == requestRequirement
             }
             map?(varDecl, name)
         }
@@ -53,11 +53,10 @@ package enum RequestMacro {
                     else {
                         return nil
                     }
-                    let argument = attribute.argumentName?.text
                     return RequestMacroModifier(
                         type: type,
-                        name: argument ?? varName,
-                        value: varName,
+                        name: (attribute.argumentName ?? varName).trimmed,
+                        value: varName.trimmed,
                         isOptional: isOptional ?? false
                     )
                 }
@@ -93,12 +92,21 @@ extension RequestMacro: MemberMacro {
                     )
                 )
             }
-            if let requestID {
-                let idDecl = DeclarationsFactory.makeIDDecl(
-                    accessLevel: accessLevel,
-                    id: requestID
+            let hasIDProperty = declaration.memberBlock.members
+                .contains { member in
+                    let varDecl = member.decl.as(VariableDeclSyntax.self)
+                    return varDecl?.name?.text == "id"
+                }
+            
+            if !hasIDProperty,
+                let id = requestID ?? declaration.typeName?.text
+            {
+                declarations.append(
+                    DeclarationsFactory.makeIDDecl(
+                        accessLevel: accessLevel,
+                        id: id
+                    )
                 )
-                declarations.append(idDecl)
             }
             return declarations
         }

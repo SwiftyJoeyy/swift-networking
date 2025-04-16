@@ -14,8 +14,8 @@ internal enum RequestModifierType: String {
 
 internal struct RequestMacroModifier {
     internal let type: RequestModifierType
-    internal let name: String
-    internal let value: String
+    internal let name: TokenSyntax
+    internal let value: TokenSyntax
     internal let isOptional: Bool
 }
 
@@ -33,14 +33,12 @@ extension RequestMacro.DeclarationsFactory {
         var parameters = ArrayElementListSyntax()
         
         for modifier in modifiers {
-            let name = TokenSyntax.identifier(modifier.name)
-            let value = TokenSyntax.identifier(modifier.value)
             switch modifier.type {
             case .header:
                 let element = DictionaryElementSyntax(
                     leadingTrivia: headers.isEmpty ? .newline: nil,
-                    key: StringLiteralExprSyntax(content: modifier.name),
-                    value: DeclReferenceExprSyntax(baseName: "\(value)"),
+                    key: StringLiteralExprSyntax(content: modifier.name.text),
+                    value: DeclReferenceExprSyntax(baseName: "\(modifier.value)"),
                     trailingComma: .commaToken(),
                     trailingTrivia: .newline
                 )
@@ -48,11 +46,11 @@ extension RequestMacro.DeclarationsFactory {
             case .parameter:
                 let expr: ExprSyntax = if !modifier.isOptional {
                     """
-                    URLQueryItem(name: "\(name)", value: String(\(value)))
+                    URLQueryItem(name: "\(modifier.name)", value: String(\(modifier.value)))
                     """
                 }else {
                     """
-                    \(value).map({URLQueryItem(name: "\(name)", value: String($0))})
+                    \(modifier.value).map({URLQueryItem(name: "\(modifier.name)", value: String($0))})
                     """
                 }
                 let element = ArrayElementSyntax(
@@ -128,7 +126,7 @@ extension RequestMacro.DeclarationsFactory {
             ReturnStmtSyntax(
                 expression: SequenceExprSyntax(
                     elements: ExprListSyntax([
-                        DeclReferenceExprSyntax(baseName: .identifier("_modifiersBox")),
+                        DeclReferenceExprSyntax(baseName: "_modifiersBox"),
                         BinaryOperatorExprSyntax(operator: .binaryOperator("+")),
                         ArrayExprSyntax(
                             elements: ArrayElementListSyntax(
@@ -182,11 +180,6 @@ extension RequestMacro.DeclarationsFactory {
     ) -> DeclSyntax {
         let binding = PatternBindingSyntax(
             pattern: IdentifierPatternSyntax(identifier: "id"),
-            typeAnnotation: TypeAnnotationSyntax(
-                type: OptionalTypeSyntax(
-                    wrappedType: IdentifierTypeSyntax(name: "String")
-                )
-            ),
             initializer: InitializerClauseSyntax(
                 value: StringLiteralExprSyntax(content: id)
             )

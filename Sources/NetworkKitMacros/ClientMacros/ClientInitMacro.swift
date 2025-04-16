@@ -22,9 +22,7 @@ package enum ClientInitMacro: BodyMacro {
         providingBodyFor declaration: some DeclSyntaxProtocol & WithOptionalCodeBlockSyntax,
         in context: some MacroExpansionContext
     ) throws -> [CodeBlockItemSyntax] {
-        guard var statements = declaration.body.map({Array($0.statements)}) else {
-            return []
-        }
+        var statements = Array(declaration.body!.statements)
         let containsConfigureCall = statements.contains { statement in
             let functionCall = statement.item.as(FunctionCallExprSyntax.self)
             let name = functionCall?.calledExpression

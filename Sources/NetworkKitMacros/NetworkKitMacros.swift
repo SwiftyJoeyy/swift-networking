@@ -10,9 +10,9 @@ import SwiftSyntaxMacros
 
 /// Compiler plugin for providing NetworkKit macros.
 @main
-struct NetworkKitMacros: CompilerPlugin {
+internal struct NetworkKitMacros: CompilerPlugin {
     /// The macros provided by this plugin.
-    let providingMacros: [Macro.Type] = [
+    internal let providingMacros: [Macro.Type] = [
         ClientMacro.self,
         ClientInitMacro.self,
         RequestMacro.self,

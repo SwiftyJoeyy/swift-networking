@@ -13,12 +13,12 @@ import XCTest
 import NetworkKitMacros
 
 final class ConfigurationKeyMacroTests: XCTestCase {
-    // MARK: - Properties
+// MARK: - Properties
     private let testMacros: [String: Macro.Type] = [
         "Config": ConfigurationKeyMacro.self
     ]
     
-    // MARK: - Expansion Tests
+// MARK: - Expansion Tests
     func testConfigurationKeyMacro() {
         assertMacroExpansion(
             """
@@ -29,7 +29,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 get {
                     return self[ConfigurationKey_decoder.self]
                 }
-                set(newValue) {
+                set {
                     self[ConfigurationKey_decoder.self] = newValue
                 }
             }
@@ -42,17 +42,113 @@ final class ConfigurationKeyMacroTests: XCTestCase {
         )
     }
     
+    func testConfigurationKeyMacroWithType() {
+        assertMacroExpansion(
+            """
+            @Config var decoder: JSONDecoder = JSONDecoder()
+            """,
+            expandedSource: """
+            var decoder: JSONDecoder {
+                get {
+                    return self[ConfigurationKey_decoder.self]
+                }
+                set {
+                    self[ConfigurationKey_decoder.self] = newValue
+                }
+            }
+            
+            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+                fileprivate static let defaultValue: JSONDecoder = JSONDecoder()
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+// MARK: - Optional Type Tests
+    func testConfigurationKeyMacroWithOptionalValueWithInitializer() {
+        assertMacroExpansion(
+            """
+            @Config var decoder: JSONDecoder? = nil
+            """,
+            expandedSource: """
+            var decoder: JSONDecoder? {
+                get {
+                    return self[ConfigurationKey_decoder.self]
+                }
+                set {
+                    self[ConfigurationKey_decoder.self] = newValue
+                }
+            }
+            
+            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+                fileprivate static let defaultValue: JSONDecoder? = nil
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+    func testConfigurationKeyMacroWithOptionalValueWithoutInitializer() {
+        assertMacroExpansion(
+            """
+            @Config var decoder: JSONDecoder?
+            """,
+            expandedSource: """
+            var decoder: JSONDecoder? {
+                get {
+                    return self[ConfigurationKey_decoder.self]
+                }
+                set {
+                    self[ConfigurationKey_decoder.self] = newValue
+                }
+            }
+            
+            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+                fileprivate static let defaultValue: JSONDecoder?
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+// MARK: - Force Unwrapp Tests
+    func testConfigurationKeyMacroWithForceUnwrapTrue() {
+        assertMacroExpansion(
+            """
+            @Config(forceUnwrapped: true) var decoder: JSONDecoder
+            """,
+            expandedSource: """
+            var decoder: JSONDecoder {
+                get {
+                    let value = self[ConfigurationKey_decoder.self]
+                    precondition(
+                        value != nil,
+                        "Missing configuration of type: 'JSONDecoder'. Make sure you're setting a value for the key 'decoder' before using it."
+                    )
+                    return value!
+                }
+                set {
+                    self[ConfigurationKey_decoder.self] = newValue
+                }
+            }
+            
+            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+                fileprivate static let defaultValue: JSONDecoder?
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
 // MARK: - Validation Tests
-    func testConfigurationKeyMacroFailsWithInvalidPropertyTypeWhenPropertyIsLet() {
+    func testConfigurationKeyMacroFailsWithInvalidPropertyType() {
         // Invalid property type, the macro requires var instead of let.
         let diagnostic = DiagnosticSpec(
             message: ConfigurationKeyMacroError.invalidPropertyType.message,
             line: 1,
             column: 1
         )
-        
-        // Expect 2 diagnostics since both the PeerMacro & the AccessorMacro fail & throw the error.
-        let expectedDiagnostics = [diagnostic, diagnostic]
         
         assertMacroExpansion(
             """
@@ -61,21 +157,29 @@ final class ConfigurationKeyMacroTests: XCTestCase {
             expandedSource: """
             let decoder = JSONDecoder()
             """,
-            diagnostics: expectedDiagnostics,
+            diagnostics: [diagnostic, diagnostic],
+            macros: testMacros
+        )
+        
+        assertMacroExpansion(
+            """
+            @Config func decoder() { }
+            """,
+            expandedSource: """
+            func decoder() { }
+            """,
+            diagnostics: [diagnostic],
             macros: testMacros
         )
     }
     
-    func testConfigurationKeyMacroFailsWithMissingDefaultValueWhenPropertyHasOnlyAName() {
-        // Expect 1 diagnostic since only the PeerMacro fails & throws the error.
-        let expectedDiagnostics = [
-            // The property is missing a default value
-            DiagnosticSpec(
-                message: ConfigurationKeyMacroError.missingDefaultValue.message,
-                line: 1,
-                column: 1
-            )
-        ]
+    func testConfigurationKeyMacroFailsWithMissingInitializerWhenPropertyHasOnlyAName() {
+        // The property is missing an initializer
+        let diagnostic = DiagnosticSpec(
+            message: ConfigurationKeyMacroError.missingInitializer.message,
+            line: 1,
+            column: 1
+        )
         
         assertMacroExpansion(
             """
@@ -86,26 +190,23 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 get {
                     return self[ConfigurationKey_decoder.self]
                 }
-                set(newValue) {
+                set {
                     self[ConfigurationKey_decoder.self] = newValue
                 }
             }
             """,
-            diagnostics: expectedDiagnostics,
+            diagnostics: [diagnostic],
             macros: testMacros
         )
     }
     
-    func testConfigurationKeyMacroFailsWithMissingDefaultValueWhenPropertyHasATypeButNoValue() {
-        // Expect 1 diagnostic since only the PeerMacro fails & throws the error.
-        let expectedDiagnostics = [
-            // The property is missing a default value
-            DiagnosticSpec(
-                message: ConfigurationKeyMacroError.missingDefaultValue.message,
-                line: 1,
-                column: 1
-            )
-        ]
+    func testConfigurationKeyMacroFailsWithMissingInitializerWhenPropertyHasATypeButNoValue() {
+        // The property is missing an initializer
+        let diagnostic = DiagnosticSpec(
+            message: ConfigurationKeyMacroError.missingInitializer.message,
+            line: 1,
+            column: 1
+        )
         
         assertMacroExpansion(
             """
@@ -116,12 +217,36 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 get {
                     return self[ConfigurationKey_decoder.self]
                 }
-                set(newValue) {
+                set {
                     self[ConfigurationKey_decoder.self] = newValue
                 }
             }
             """,
-            diagnostics: expectedDiagnostics,
+            diagnostics: [diagnostic],
+            macros: testMacros
+        )
+    }
+    
+    func testConfigurationKeyMacroFailsWithMissingTypeWithForceUnwrappAttribute() {
+        // The property is missing a type
+        let diagnostic = DiagnosticSpec(
+            message: ConfigurationKeyMacroError.missingTypeAnnotation.message,
+            line: 1,
+            column: 1
+        )
+        
+        assertMacroExpansion(
+            """
+            @Config(forceUnwrapped: true) var decoder
+            """,
+            expandedSource: """
+            var decoder
+            
+            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+                fileprivate static let defaultValue
+            }
+            """,
+            diagnostics: [diagnostic],
             macros: testMacros
         )
     }

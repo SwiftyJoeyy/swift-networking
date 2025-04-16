@@ -37,6 +37,42 @@ final class RequestMacroTests: XCTestCase {
                 }
             
                 var _modifiers = [any RequestModifier]()
+            
+                let id = "TestRequest"
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+    func testRequestMacroWithUnknownModifierAndFunction() {
+        assertMacroExpansion(
+            """
+            @Request
+            struct TestRequest {
+                @Test var test = ""
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                func test() { }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                @Test var test = ""
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                func test() { }
+            
+                var _modifiers = [any RequestModifier]()
+            
+                let id = "TestRequest"
             }
             
             extension TestRequest: Request {
@@ -66,7 +102,93 @@ final class RequestMacroTests: XCTestCase {
             
                 var _modifiers = [any RequestModifier]()
             
-                let id: String? = "\(id)"
+                let id = "\(id)"
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+    func testRequestMacroWithoutIDAttribute() {
+        assertMacroExpansion(
+            """
+            @Request
+            struct TestRequest {
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                var _modifiers = [any RequestModifier]()
+            
+                let id = "TestRequest"
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+    func testRequestMacroWithIDAttributeWithExplicitID() {
+        let id = "testing"
+        assertMacroExpansion(
+            """
+            @Request("some-id")
+            struct TestRequest {
+                let id = "\(id)"
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                let id = "\(id)"
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                var _modifiers = [any RequestModifier]()
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
+        )
+    }
+    
+    func testRequestMacroWithoutIDAttributeWithExplicitID() {
+        let id = "testing"
+        assertMacroExpansion(
+            """
+            @Request
+            struct TestRequest {
+                let id = "\(id)"
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                let id = "\(id)"
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                var _modifiers = [any RequestModifier]()
             }
             
             extension TestRequest: Request {
@@ -111,6 +233,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -153,6 +277,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -195,6 +321,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -203,7 +331,7 @@ final class RequestMacroTests: XCTestCase {
         macros: testMacros
         )
     }
-    func testRequestMacroWithOneHeaderWithoutDefaultValue() {
+    func testRequestMacroWithOneHeaderWithoutInitializer() {
         assertMacroExpansion(
         """
         @Request
@@ -237,6 +365,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -282,6 +412,8 @@ final class RequestMacroTests: XCTestCase {
                 }
             
                 private var _modifiersBox = [any RequestModifier]()
+            
+                let id = "TestRequest"
             }
             
             extension TestRequest: Request {
@@ -326,6 +458,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -370,6 +504,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -412,6 +548,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -420,7 +558,7 @@ final class RequestMacroTests: XCTestCase {
         macros: testMacros
         )
     }
-    func testRequestMacroWithOneParameterWithoutDefaultValue() {
+    func testRequestMacroWithOneParameterWithoutInitializer() {
         assertMacroExpansion(
         """
         @Request
@@ -454,6 +592,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -499,6 +639,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -550,6 +692,8 @@ final class RequestMacroTests: XCTestCase {
             }
         
             private var _modifiersBox = [any RequestModifier]()
+        
+            let id = "TestRequest"
         }
         
         extension TestRequest: Request {
@@ -581,7 +725,7 @@ final class RequestMacroTests: XCTestCase {
             
                 \(level.name) var _modifiers = [any RequestModifier]()
             
-                \(level.name) let id: String? = "\(id)"
+                \(level.name) let id = "\(id)"
             }
             
             extension TestRequest: Request {
