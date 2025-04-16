@@ -5,13 +5,10 @@
 //  Created by Joe Maghzal on 2/24/25.
 //
 
-import SwiftCompilerPlugin
 import SwiftSyntax
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 import SwiftDiagnostics
 import MacrosKit
-import Foundation
 
 package enum ClientMacro {
     private static let sessionRequirement = "session"
@@ -24,9 +21,9 @@ package enum ClientMacro {
     ) throws {
         guard propertyName == sessionProperty else {return}
         let node = Syntax(declaration)
-        let message = MacroErrorFixItMessage(
+        let message = MacroFixItMessage(
             message: "Remove the '\(sessionProperty)' property declaration",
-            id: "unexpectedSessionDeclaration"
+            fixItID: ClientMacroError.unexpectedSessionDeclaration.diagnosticID
         )
         let fixIt = FixIt(
             message: message,
@@ -34,10 +31,15 @@ package enum ClientMacro {
                 .replace(oldNode: node, newNode: Syntax(TokenSyntax("")))
             ]
         )
-        let error = ClientMacroError.unexpectedSessionDeclaration
-        let diagnostic = Diagnostic(node: node, message: error, fixIt: fixIt)
-        context.diagnose(diagnostic)
-        throw NSError(domain: "", code: 0)
+        throw DiagnosticsError(
+            diagnostics: [
+                Diagnostic(
+                    node: node,
+                    message: ClientMacroError.unexpectedSessionDeclaration,
+                    fixIt: fixIt
+                )
+            ]
+        )
     }
     
     @discardableResult
@@ -82,23 +84,20 @@ extension ClientMacro: MemberMacro {
         providingMembersOf declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        try withErroHandling(context: context, node: node, onFailure: []) {
-            let hasInitializer = try validateClient(
-                declaration: declaration,
-                checkSession: true,
-                in: context
-            )
-            let accessLevel = declaration.modifiers.accessLevel?.name
-            let commandDecl = DeclarationsFactory.makeSessionDecl(accessLevel)
-            var declarations = [commandDecl]
-            
-            if !hasInitializer {
-                let initDecl = DeclarationsFactory.makeInitDecl(accessLevel)
-                declarations.append(initDecl)
-            }
-            
-            return declarations
+        let hasInitializer = try validateClient(
+            declaration: declaration,
+            checkSession: true,
+            in: context
+        )
+        let commandDecl = DeclarationsFactory.makeSessionDecl(declaration.modifiers)
+        var declarations = [commandDecl]
+        
+        if !hasInitializer {
+            let initDecl = DeclarationsFactory.makeInitDecl(declaration.modifiers)
+            declarations.append(initDecl)
         }
+        
+        return declarations
     }
 }
 

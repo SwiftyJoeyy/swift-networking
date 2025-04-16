@@ -5,13 +5,11 @@
 //  Created by Joe Maghzal on 05/04/2025.
 //
 
-import Foundation
 import SwiftSyntax
 import SwiftDiagnostics
-import MacrosKit
 
 /// Errors that can occur during the processing of ``KeyMacro``.
-package enum ConfigurationKeyMacroError: MacroError {
+package enum ConfigurationKeyMacroError: Error {
     /// The property type is invalid for the applied macro.
     case invalidPropertyType
     
@@ -23,7 +21,17 @@ package enum ConfigurationKeyMacroError: MacroError {
     case missingTypeAnnotation
 }
 
-extension ConfigurationKeyMacroError {
+extension ConfigurationKeyMacroError: DiagnosticMessage {
+    /// The unique identifier for the diagnostic message.
+    package var diagnosticID: MessageID {
+        return MessageID(domain: "NetworkingMacros.ConfigurationKeyMacro", id: "\(self)")
+    }
+    
+    /// The severity level of the diagnostic message.
+    package var severity: DiagnosticSeverity {
+        return .error
+    }
+    
     /// The diagnostic messages.
     package var message: String {
         switch self {

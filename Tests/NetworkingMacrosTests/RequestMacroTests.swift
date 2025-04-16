@@ -711,21 +711,21 @@ final class RequestMacroTests: XCTestCase {
             assertMacroExpansion(
             """
             @Request("\(id)")
-            \(level.name) struct TestRequest {
-                \(level.name) var request: some Request {
+            \(level) struct TestRequest {
+                \(level) var request: some Request {
                     HTTPRequest(path: "path")
                 }
             }
             """,
             expandedSource: """
-            \(level.name) struct TestRequest {
-                \(level.name) var request: some Request {
+            \(level) struct TestRequest {
+                \(level) var request: some Request {
                     HTTPRequest(path: "path")
                 }
             
-                \(level.name) var _modifiers = [any RequestModifier]()
+                \(level) var _modifiers = [any RequestModifier]()
             
-                \(level.name) let id = "\(id)"
+                \(level) let id = "\(id)"
             }
             
             extension TestRequest: Request {

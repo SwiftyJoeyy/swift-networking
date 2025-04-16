@@ -5,13 +5,8 @@
 //  Created by Joe Maghzal on 2/12/25.
 //
 
-import SwiftCompilerPlugin
 import SwiftSyntax
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
-import SwiftDiagnostics
-import MacrosKit
-import Foundation
 
 package protocol ModifierMacro: PeerMacro { }
 
@@ -25,3 +20,7 @@ extension ModifierMacro {
         return []
     }
 }
+
+package enum HeaderMacro: ModifierMacro { }
+
+package enum ParameterMacro: ModifierMacro { }

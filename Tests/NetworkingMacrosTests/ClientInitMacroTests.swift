@@ -74,11 +74,11 @@ final class ClientInitMacroTests: XCTestCase {
         for level in levels {
             assertMacroExpansion(
             """
-            @ClientInit \(level.name) init() { 
+            @ClientInit \(level) init() { 
             }
             """,
             expandedSource: """
-            \(level.name) init() {
+            \(level) init() {
                 configure()
             }
             """,

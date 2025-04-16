@@ -23,7 +23,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/buildexperience/MacrosKit.git",
-            branch: "main"
+            from: "1.0.0"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax.git",

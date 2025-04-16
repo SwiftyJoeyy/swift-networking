@@ -7,13 +7,23 @@
 
 import SwiftSyntax
 import SwiftDiagnostics
-import MacrosKit
 
-package enum RequestMacroError: MacroError, Equatable {
+package enum RequestMacroError: Error, Equatable {
     case missingRequestDeclaration
 }
 
-extension RequestMacroError {
+// MARK: - DiagnosticMessage
+extension RequestMacroError: DiagnosticMessage {
+    /// The unique identifier for the diagnostic message.
+    package var diagnosticID: MessageID {
+        return MessageID(domain: "NetworkingMacros.RequestMacro", id: "\(self)")
+    }
+    
+    /// The severity level of the diagnostic message.
+    package var severity: DiagnosticSeverity {
+        return .error
+    }
+    
     /// The diagnostic messages.
     package var message: String {
         switch self {

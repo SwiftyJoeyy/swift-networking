@@ -5,13 +5,8 @@
 //  Created by Joe Maghzal on 2/25/25.
 //
 
-import SwiftCompilerPlugin
 import SwiftSyntax
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
-import SwiftDiagnostics
-import MacrosKit
-import Foundation
 
 package enum ClientInitMacro: BodyMacro {
     private static let functionName = "configure"

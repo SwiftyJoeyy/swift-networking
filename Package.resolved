@@ -1,13 +1,13 @@
 {
-  "originHash" : "427b608ce1308d119196168007dced006e3b1ebb8d7ac05c55c6111fe6f75a09",
+  "originHash" : "985a6fd891bdfdaf4bf88eaa8d8875641975a80ce5ccef5329794e8e8225b013",
   "pins" : [
     {
       "identity" : "macroskit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/buildexperience/MacrosKit.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "06ec396390a04d97e53a691710b9843d2e999f95"
+        "revision" : "f5d60c1b21f7f35c786264ec8198dea7165a320f",
+        "version" : "1.0.0"
       }
     },
     {

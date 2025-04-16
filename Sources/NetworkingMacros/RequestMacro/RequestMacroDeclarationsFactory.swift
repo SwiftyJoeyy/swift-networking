@@ -106,21 +106,13 @@ extension RequestMacro.DeclarationsFactory {
             trailingTrivia: trailingTrivia
         )
     }
-    private static func makeAccessModifier(
-        _ accessLevel: TokenSyntax?
-    ) -> DeclModifierListSyntax {
-        guard let accessLevel else {
-            return []
-        }
-        return [DeclModifierSyntax(name: accessLevel)]
-    }
     
     internal static func makeModifiersDecl(
-        accessLevel: TokenSyntax?,
-        modifiers: [RequestMacroModifier]
+        modifiers: DeclModifierListSyntax,
+        reqModifiers: [RequestMacroModifier]
     ) -> DeclSyntax {
-        guard !modifiers.isEmpty else {
-            return makeModifiersBoxDecl(accessLevel: accessLevel, "_modifiers")
+        guard !reqModifiers.isEmpty else {
+            return makeModifiersBoxDecl(modifiers: modifiers, "_modifiers")
         }
         let stmtSyntax = StmtSyntax(
             ReturnStmtSyntax(
@@ -130,7 +122,7 @@ extension RequestMacro.DeclarationsFactory {
                         BinaryOperatorExprSyntax(operator: .binaryOperator("+")),
                         ArrayExprSyntax(
                             elements: ArrayElementListSyntax(
-                                makeModifierGroups(with: modifiers)
+                                makeModifierGroups(with: reqModifiers)
                             )
                         )
                     ])
@@ -166,7 +158,7 @@ extension RequestMacro.DeclarationsFactory {
             )
         )
         let varDecl = VariableDeclSyntax(
-            modifiers: makeAccessModifier(accessLevel),
+            modifiers: modifiers,
             bindingSpecifier: .keyword(.var),
             bindings: [binding]
         )
@@ -175,7 +167,7 @@ extension RequestMacro.DeclarationsFactory {
     }
     
     internal static func makeIDDecl(
-        accessLevel: TokenSyntax?,
+        modifiers: DeclModifierListSyntax,
         id: String
     ) -> DeclSyntax {
         let binding = PatternBindingSyntax(
@@ -185,7 +177,7 @@ extension RequestMacro.DeclarationsFactory {
             )
         )
         let letDecl = VariableDeclSyntax(
-            modifiers: makeAccessModifier(accessLevel),
+            modifiers: modifiers,
             bindingSpecifier: .keyword(.let),
             bindings: [binding]
         )
@@ -193,7 +185,7 @@ extension RequestMacro.DeclarationsFactory {
     }
     
     internal static func makeModifiersBoxDecl(
-        accessLevel: TokenSyntax?,
+        modifiers: DeclModifierListSyntax,
         _ name: TokenSyntax
     ) -> DeclSyntax {
         let arrayElementExpr = ArrayElementSyntax(
@@ -220,7 +212,7 @@ extension RequestMacro.DeclarationsFactory {
             )
         )
         let letDecl = VariableDeclSyntax(
-            modifiers: makeAccessModifier(accessLevel),
+            modifiers: modifiers,
             bindingSpecifier: .keyword(.var),
             bindings: [binding]
         )

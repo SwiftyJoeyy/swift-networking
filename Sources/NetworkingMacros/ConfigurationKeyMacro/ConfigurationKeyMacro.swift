@@ -5,18 +5,17 @@
 //  Created by Joe Maghzal on 05/04/2025.
 //
 
-import Foundation
-import SwiftCompilerPlugin
 import SwiftSyntax
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
-import SwiftDiagnostics
 import MacrosKit
 
 package enum ConfigurationKeyMacro {
     private static let forceArgument = "forceUnwrapped"
+    
     private static func declInfo(
-        for declaration: some DeclSyntaxProtocol
+        of node: AttributeSyntax,
+        declaration: some DeclSyntaxProtocol,
+        in context: some MacroExpansionContext
     ) throws -> (
         binding: PatternBindingSyntax,
         forced: Bool,
@@ -31,7 +30,7 @@ package enum ConfigurationKeyMacro {
         
         let binding = decl.bindings.first!
         
-        let arguments = decl.attributes.first?.attribute?.arguments?.arguments
+        let arguments = node.arguments?.named
         let forced = arguments?[forceArgument]?.tokenKind == .keyword(.true)
         let type = binding.typeAnnotation?.type
         
@@ -57,16 +56,14 @@ extension ConfigurationKeyMacro: AccessorMacro {
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AccessorDeclSyntax] {
-        try withErroHandling(context: context, node: node, onFailure: []) {
-            let info = try declInfo(for: declaration)
-            if info.forced {
-                return DeclarationsFactory.makeUnwrappedAccessors(
-                    propertyName: info.propertyName,
-                    type: info.type
-                )
-            }
-            return DeclarationsFactory.makeAccessors(from: info.propertyName)
+        let info = try declInfo(of: node, declaration: declaration, in: context)
+        if info.forced {
+            return DeclarationsFactory.makeUnwrappedAccessors(
+                propertyName: info.propertyName,
+                type: info.type
+            )
         }
+        return DeclarationsFactory.makeAccessors(from: info.propertyName)
     }
 }
 
@@ -78,19 +75,17 @@ extension ConfigurationKeyMacro: PeerMacro {
         providingPeersOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        try withErroHandling(context: context, node: node, onFailure: []) {
-            let info = try declInfo(for: declaration)
-            let optional = info.type?.is(OptionalTypeSyntax.self) == true
-            if !info.forced && info.binding.initializer == nil && !optional {
-                throw ConfigurationKeyMacroError.missingInitializer
-            }
-            
-            return DeclarationsFactory.makeKeyDecl(
-                propertyName: info.propertyName,
-                binding: info.binding,
-                forced: info.forced,
-                optional: optional
-            )
+        let info = try declInfo(of: node, declaration: declaration, in: context)
+        let optional = info.type?.is(OptionalTypeSyntax.self) == true
+        if !info.forced && info.binding.initializer == nil && !optional {
+            throw ConfigurationKeyMacroError.missingInitializer
         }
+        
+        return DeclarationsFactory.makeKeyDecl(
+            propertyName: info.propertyName,
+            binding: info.binding,
+            forced: info.forced,
+            optional: optional
+        )
     }
 }

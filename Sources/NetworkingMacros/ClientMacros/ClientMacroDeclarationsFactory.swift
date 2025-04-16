@@ -5,13 +5,7 @@
 //  Created by Joe Maghzal on 2/25/25.
 //
 
-import SwiftCompilerPlugin
 import SwiftSyntax
-import SwiftSyntaxBuilder
-import SwiftSyntaxMacros
-import SwiftDiagnostics
-import MacrosKit
-import Foundation
 
 extension ClientMacro {
     package enum DeclarationsFactory { }
@@ -19,7 +13,7 @@ extension ClientMacro {
 
 extension ClientMacro.DeclarationsFactory {
     package static func makeSessionDecl(
-        _ accessLevel: TokenSyntax?
+        _ modifiers: DeclModifierListSyntax
     ) -> DeclSyntax {
         let binding = PatternBindingSyntax(
             pattern: IdentifierPatternSyntax(identifier: "_session"),
@@ -30,7 +24,7 @@ extension ClientMacro.DeclarationsFactory {
             )
         )
         let varDecl = VariableDeclSyntax(
-            modifiers: makeAccessModifier(accessLevel),
+            modifiers: modifiers,
             bindingSpecifier: .keyword(.var),
             bindings: [binding]
         )
@@ -43,21 +37,12 @@ extension ClientMacro.DeclarationsFactory {
         )
     }
     
-    package static func makeAccessModifier(
-        _ accessLevel: TokenSyntax?
-    ) -> DeclModifierListSyntax {
-        guard let accessLevel else {
-            return []
-        }
-        return [DeclModifierSyntax(name: accessLevel)]
-    }
-    
     package static func makeInitDecl(
-        _ accessLevel: TokenSyntax?
+        _ modifiers: DeclModifierListSyntax
     ) -> DeclSyntax {
         let declaration = InitializerDeclSyntax(
             attributes: [.attribute(makeInitAttribute())],
-            modifiers: makeAccessModifier(accessLevel),
+            modifiers: modifiers,
             signature: FunctionSignatureSyntax(
                 parameterClause: FunctionParameterClauseSyntax(parameters: [])
             ),

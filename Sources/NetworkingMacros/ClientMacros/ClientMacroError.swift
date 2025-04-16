@@ -6,17 +6,24 @@
 //
 
 import SwiftSyntax
-
-import SwiftSyntax
 import SwiftDiagnostics
-import MacrosKit
 
-package enum ClientMacroError: MacroError, Equatable {
+package enum ClientMacroError: Error, Equatable {
     case missingSessionDeclaration
     case unexpectedSessionDeclaration
 }
 
-extension ClientMacroError {
+extension ClientMacroError: DiagnosticMessage {
+    /// The unique identifier for the diagnostic message.
+    package var diagnosticID: MessageID {
+        return MessageID(domain: "NetworkingMacros.ClientMacro", id: "\(self)")
+    }
+    
+    /// The severity level of the diagnostic message.
+    package var severity: DiagnosticSeverity {
+        return .error
+    }
+    
     /// The diagnostic messages.
     package var message: String {
         switch self {

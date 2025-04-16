@@ -118,21 +118,22 @@ final class ClientMacroTests: XCTestCase {
             assertMacroExpansion(
             """
             @Client
-            \(level.name) struct TestClient {
-                \(level.name) var session: Session {
+            \(level) struct TestClient {
+                \(level) var session: Session {
                     Session()
                 }
             }
             """,
             expandedSource: """
-            \(level.name) struct TestClient {
-                \(level.name) var session: Session {
+            \(level) struct TestClient {
+                \(level) var session: Session {
                     Session()
                 }
             
-                \(level.name) var _session: Session!
+                \(level) var _session: Session!
             
-                @ClientInit \(level.name) init() {
+                @ClientInit
+                \(level) init() {
                 }
             }
             
@@ -150,22 +151,22 @@ final class ClientMacroTests: XCTestCase {
             assertMacroExpansion(
             """
             @Client
-            \(level.name) struct TestClient {
-                \(level.name) init() { }
-                \(level.name) var session: Session {
+            \(level) struct TestClient {
+                \(level) init() { }
+                \(level) var session: Session {
                     Session()
                 }
             }
             """,
             expandedSource: """
-            \(level.name) struct TestClient {
+            \(level) struct TestClient {
                 @ClientInit
-                \(level.name) init() { }
-                \(level.name) var session: Session {
+                \(level) init() { }
+                \(level) var session: Session {
                     Session()
                 }
             
-                \(level.name) var _session: Session!
+                \(level) var _session: Session!
             }
             
             extension TestClient: NetworkClient {
