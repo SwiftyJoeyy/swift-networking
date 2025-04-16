@@ -10,12 +10,12 @@ import Foundation
 /// Encodes a dictionary into JSON data.
 @frozen public struct DictionaryJSONEncoder {
     /// The dictionary to encode.
-    private var dictionary: Dictionary<String, any Sendable>
+    @usableFromInline internal let dictionary: Dictionary<String, any Sendable>
     
     /// Creates a new ``DictionaryJSONEncoder``.
     ///
     /// - Parameter dictionary: The dictionary to encode.
-    public init(dictionary: Dictionary<String, any Sendable>) {
+    @inlinable public init(dictionary: Dictionary<String, any Sendable>) {
         self.dictionary = dictionary
     }
 }

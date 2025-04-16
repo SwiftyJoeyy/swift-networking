@@ -10,17 +10,17 @@ import Foundation
 /// Encodes an ``Encodable`` object into JSON data.
 @frozen public struct CodableJSONEncoder<T: Encodable> {
     /// The encoder to use.
-    private var encoder: JSONEncoder?
+    @usableFromInline internal let encoder: JSONEncoder?
     
     /// The object to encode.
-    private var object: T
+    @usableFromInline internal let object: T
     
     /// Creates a new ``CodableJSONEncoder``.
     ///
     /// - Parameters:
     ///  - object: The ``Encodable`` object to encode.
     ///  - encoder: The ``JSONEncoder`` to use.
-    public init(_ object: T, encoder: JSONEncoder? = nil) {
+    @inlinable public init(_ object: T, encoder: JSONEncoder? = nil) {
         self.object = object
         self.encoder = encoder
     }

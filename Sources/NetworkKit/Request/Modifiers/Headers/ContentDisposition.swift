@@ -20,7 +20,7 @@ import Foundation
     /// Creates a new ``ContentDisposition`` modifier.
     ///
     /// - Parameter value: The disposition value.
-    public init(_ value: String) {
+    @inlinable public init(_ value: String) {
         self.value = value
     }
     

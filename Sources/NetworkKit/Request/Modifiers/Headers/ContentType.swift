@@ -20,7 +20,7 @@ import Foundation
     /// Creates a new ``ContentType`` modifier.
     ///
     /// - Parameter type: The content type to apply.
-    public init(_ type: BodyContentType) {
+    @inlinable public init(_ type: BodyContentType) {
         self.type = type
     }
 }

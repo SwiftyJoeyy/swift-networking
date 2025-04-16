@@ -20,7 +20,7 @@ import Foundation
     /// Creates a new ``AcceptLanguage`` modifier.
     ///
     /// - Parameter value: The language value to apply.
-    public init(_ value: String) {
+    @inlinable public init(_ value: String) {
         self.value = value
     }
 }

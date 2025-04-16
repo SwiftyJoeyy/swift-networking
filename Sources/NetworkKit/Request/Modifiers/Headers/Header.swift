@@ -43,7 +43,7 @@ public typealias HeadersGroup = Header.Group
     /// - Parameters:
     ///  - key: The header field name.
     ///  - value: The value of the header field.
-    public init(_ key: String, value: String) {
+    @inlinable public init(_ key: String, value: String) {
         self.key = key
         self.value = value
     }
@@ -58,21 +58,21 @@ extension Header {
         /// Creates a new ``HeadersGroup`` from a dictionary of headers.
         ///
         /// - Parameter headers: The headers dictionary.
-        public init(_ headers: [String: String]) {
+        @inlinable public init(_ headers: [String: String]) {
             self.headers = headers
         }
         
         /// Creates a new ``HeadersGroup`` from a dictionary with optional values.
         ///
         /// - Parameter headers: The headers dictionary with optional values.
-        public init(_ headers: [String: String?]) {
+        @inlinable public init(_ headers: [String: String?]) {
             self.init(headers.compactMapValues(\.self))
         }
         
         /// Creates a new ``HeadersGroup`` from an array of ``RequestHeader``.
         ///
         /// - Parameter headers: The request headers to be grouped.
-        public init(_ headers: [any RequestHeader]) {
+        @inlinable public init(_ headers: [any RequestHeader]) {
             var headersFields = [String: String]()
             for header in headers.flatMap(\.headers) {
                 headersFields[header.key] = header.value
@@ -83,7 +83,7 @@ extension Header {
         /// Creates a new ``HeadersGroup`` using a builder closure for headers.
         ///
         /// - Parameter headers: A builder closure returning a ``HeadersGroup``.
-        public init(@HeadersBuilder _ headers: () -> HeadersGroup) {
+        @inlinable public init(@HeadersBuilder _ headers: () -> HeadersGroup) {
             self = headers()
         }
     }

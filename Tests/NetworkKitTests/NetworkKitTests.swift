@@ -9,6 +9,7 @@ import Testing
 import Foundation
 @testable import NetworkKit
 
+//@Test
 func test() async throws {
     let client = MyClient()
     let data = try await client.dataTask(TestingRequest())
@@ -39,7 +40,7 @@ struct TestingRequest {
     var request: some Request {
         HTTPRequest(url: "https://www.google.com") {
             Header("test", value: "value")
-            Parameter("some", value: ["1", "2"])
+            Parameter("some", values: ["1", "2"])
             JSON("fwbfw") // optionally here
         }.body { // JSON, overwrites the one defined in the body
             JSON("fwbfwejkfrnewkjrewrfw")

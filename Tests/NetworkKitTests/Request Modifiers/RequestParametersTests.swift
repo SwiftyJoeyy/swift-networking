@@ -57,7 +57,7 @@ struct RequestParametersTests {
     
     /// Checks that ``Parameter`` with an array value is correctly converted to ``[URLQueryItem]``.
     @Test func convertParameterWithArrayToURLQueryItem() {
-        let parameter = Parameter("testing", value: ["1", "2"])
+        let parameter = Parameter("testing", values: ["1", "2"])
         let expectedItems = [
             URLQueryItem(name: "testing", value: "1"),
             URLQueryItem(name: "testing", value: "2")
@@ -86,7 +86,7 @@ struct RequestParametersTests {
     @Test func convertParametersGroupWithArrayToURLQueryItem() {
         let group = ParametersGroup {
             Parameter("testing", value: "Hii")
-            Parameter("testing2", value: ["1", "2"])
+            Parameter("testing2", values: ["1", "2"])
         }
         
         let expectedItems = [

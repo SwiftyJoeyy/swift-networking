@@ -51,7 +51,7 @@ extension FormDataBody {
     ///   - body: The ``String`` content.
     ///   - fileName: The optional file name for the data.
     ///   - mimeType: The optional MIME type of the data.
-    public init(
+    @inlinable public init(
         _ key: String,
         body: String?,
         fileName: String? = nil,

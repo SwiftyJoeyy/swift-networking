@@ -78,12 +78,12 @@ extension Data: JSONEncodable {
 /// ```
 @frozen public struct JSON {
     /// The JSON encodable object.
-    private var encodable: any JSONEncodable
+    @usableFromInline internal let encodable: any JSONEncodable
 
     /// Creates a new ``JSON`` from a ``JSONEncodable``.
     ///
     /// - Parameter encodable: The object to be encoded into JSON.
-    public init(_ encodable: any JSONEncodable) {
+    @inlinable public init(_ encodable: any JSONEncodable) {
         self.encodable = encodable
     }
     

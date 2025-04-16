@@ -31,11 +31,11 @@ public typealias ParametersGroup = Parameter.Group
     public var key: String
     
     /// The values associated with the key.
-    public var value: [String?]
+    public var values: [String?]
     
     /// The ``URLQueryItem`` parameters.
     public var parameters: [URLQueryItem] {
-        return value.map({URLQueryItem(name: key, value: $0)})
+        return values.map({URLQueryItem(name: key, value: $0)})
     }
     
     /// Creates a new ``Parameter`` with a key and multiple values.
@@ -43,9 +43,9 @@ public typealias ParametersGroup = Parameter.Group
     /// - Parameters:
     ///  - key: The query parameter key.
     ///  - value: The values associated with the key.
-    public init(_ key: String, value: [String?]) {
+    @inlinable public init(_ key: String, values: [String?]) {
         self.key = key
-        self.value = value
+        self.values = values
     }
     
     /// Creates a new ``Parameter`` with a key and a single optional value.
@@ -54,7 +54,7 @@ public typealias ParametersGroup = Parameter.Group
     ///  - key: The query parameter key.
     ///  - value: A single optional value associated with the key.
     @inlinable public init(_ key: String, value: String?) {
-        self.init(key, value: [value])
+        self.init(key, values: [value])
     }
 }
 
@@ -67,28 +67,28 @@ extension Parameter {
         /// Creates a new ``ParametersGroup`` from an array of ``URLQueryItem``.
         ///
         /// - Parameter parameters: The query parameters.
-        public init(_ parameters: [URLQueryItem]) {
+        @inlinable public init(_ parameters: [URLQueryItem]) {
             self.parameters = parameters
         }
         
         /// Creates a new ``Group`` from an array of optional ``URLQueryItem``.
         ///
         /// - Parameter parameters: The query parameters, with optional values.
-        public init(_ parameters: [URLQueryItem?]) {
+        @inlinable public init(_ parameters: [URLQueryItem?]) {
             self.init(parameters.compactMap(\.self))
         }
         
         /// Creates a new ``Group`` from an array of ``RequestParameter``.
         ///
         /// - Parameter parameters: The request parameters to be grouped.
-        public init(_ parameters: [any RequestParameter]) {
+        @inlinable public init(_ parameters: [any RequestParameter]) {
             self.init(parameters.flatMap(\.parameters))
         }
         
         /// Creates a new ``Group`` using a builder closure for query parameters.
         ///
         /// - Parameter parameters: A builder closure returning a `ParametersGroup`.
-        public init(@ParametersBuilder _ parameters: () -> ParametersGroup) {
+        @inlinable public init(@ParametersBuilder _ parameters: () -> ParametersGroup) {
             self = parameters()
         }
     }
