@@ -35,6 +35,8 @@ public protocol RetryPolicy: Sendable {
     var maxRetryCount: Int {get}
     var retryableStatuses: Set<ResponseStatus> {get}
     
+    // TODO: - Should we add support for custom error retrying?
+    // TODO: - Fix ResponseStatus logic since tasks always provide nil.
     func shouldRetry(
         _ task: some NetworkingTask,
         error: (any Error)?,

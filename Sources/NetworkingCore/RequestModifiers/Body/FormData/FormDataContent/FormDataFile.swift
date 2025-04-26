@@ -27,9 +27,6 @@ import UniformTypeIdentifiers
     
     /// The file manager used for file-related operations.
     private let fileManager: FileManager
-    
-    /// The buffer size used for reading large files in chunks.
-    private let bufferSize: Int
 }
 
 // MARK: - Initializers
@@ -48,15 +45,13 @@ extension FormDataFile {
         fileURL: URL,
         fileName: String? = nil,
         mimeType: UTType? = nil,
-        fileManager: FileManager = .default,
-        bufferSize: Int = 1024
+        fileManager: FileManager = .default
     ) {
         self.key = key
         self.fileURL = fileURL
         self.fileName = fileName
         self.mimeType = mimeType
         self.fileManager = fileManager
-        self.bufferSize = bufferSize
     }
     
     /// Creates a new ``FormDataFile`` from a file path.
@@ -73,16 +68,14 @@ extension FormDataFile {
         filePath: String,
         fileName: String? = nil,
         mimeType: UTType? = nil,
-        fileManager: FileManager = .default,
-        bufferSize: Int = 1024
+        fileManager: FileManager = .default
     ) {
         self.init(
             key,
             fileURL: URL(string: filePath)!,
             fileName: fileName,
             mimeType: mimeType,
-            fileManager: fileManager,
-            bufferSize: bufferSize
+            fileManager: fileManager
         )
     }
 }
@@ -110,7 +103,9 @@ extension FormDataFile: FormDataItem {
     /// Reads and encodes the file content into ``Data``.
     ///
     /// - Returns: The encoded file data.
-    public func data() throws -> Data? {
+    public func data(
+        _ configurations: borrowing ConfigurationValues
+    ) throws -> Data? {
         try checkFileURLValidity()
         try checkFileReachability()
         
@@ -123,6 +118,7 @@ extension FormDataFile: FormDataItem {
             inputStream.close()
         }
         
+        let bufferSize = configurations.bufferSize
         var data = Data()
         var buffer = [UInt8](repeating: 0, count: bufferSize)
         while inputStream.hasBytesAvailable {
@@ -185,5 +181,21 @@ extension FormDataFile {
         }catch {
             throw FactoryError.failedFileReachabilityCheck(url: fileURL, error: error)
         }
+    }
+}
+
+// MARK: - CustomStringConvertible
+extension FormDataFile: CustomStringConvertible {
+    public var description: String {
+        return """
+        FormDataFile = {
+          key = \(key),
+          fileName = \(String(describing: fileName)),
+          fileURL = \(fileURL),
+          mimeType = \(String(describing: mimeType))
+          contentSize = \(String(describing: contentSize)),
+          headers = \(headers)
+        }
+        """
     }
 }

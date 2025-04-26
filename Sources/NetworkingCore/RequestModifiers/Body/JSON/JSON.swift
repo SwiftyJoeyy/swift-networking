@@ -130,3 +130,14 @@ extension JSON: RequestBody {
         return try encodable.encoded(for: configurations)
     }
 }
+
+extension JSON: CustomStringConvertible {
+    public var description: String {
+        return """
+        JSON = {
+          contentType = \(String(describing: contentType)),
+          body = \(String(describing: encodable))
+        }
+        """
+    }
+}

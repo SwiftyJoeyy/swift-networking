@@ -40,6 +40,13 @@ extension HTTPMethodRequestModifier: RequestModifier {
     }
 }
 
+// MARK: - CustomStringConvertible
+extension HTTPMethodRequestModifier: CustomStringConvertible {
+    @usableFromInline internal var description: String {
+        "HTTPMethodRequestModifier(httpMethod: \(String(describing: httpMethod))"
+    }
+}
+
 // MARK: - Modifier
 extension Request {
     /// Applies an HTTP method modifier to the request.

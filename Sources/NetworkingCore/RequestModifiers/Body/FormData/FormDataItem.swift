@@ -25,5 +25,5 @@ public protocol FormDataItem {
     /// Encodes and returns the form-data item as ``Data``.
     ///
     /// - Returns: The encoded data.
-    func data() throws -> Data?
+    func data(_ configurations: borrowing ConfigurationValues) throws -> Data?
 }

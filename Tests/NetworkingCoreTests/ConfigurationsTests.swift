@@ -35,6 +35,12 @@ struct ConfigurationsTests {
         #expect(configured.configurationValues.decoder === decoder)
     }
     
+    @Test func bufferSizeConfiguration() {
+        let size = 3092
+        let configured = TestConfigurable().bufferSize(size)
+        #expect(configured.configurationValues.bufferSize == size)
+    }
+    
     @Test func defaultValueForKey() {
         let configurations = ConfigurationValues()
         let value = configurations[MockKey.self]
@@ -86,6 +92,14 @@ extension ConfigurationsTests {
         typealias Value = String?
         static let defaultValue: String? = nil
     }
+}
+
+extension ConfigurationValues {
+    static let mock: ConfigurationValues = {
+        var values = ConfigurationValues()
+        values.baseURL = URL(string: "example.com")
+        return values
+    }()
 }
 
 extension Tag {

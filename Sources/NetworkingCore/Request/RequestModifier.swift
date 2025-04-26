@@ -40,6 +40,7 @@ public protocol RequestModifier: ~Copyable {
     ) throws -> URLRequest
 }
 
+// TODO: - Add support for unique modifiers (ie: There should be only one RequestBody in the request mods)
 extension Request {
     /// Applies a request modifier to the request.
     ///

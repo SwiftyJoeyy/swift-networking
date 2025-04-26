@@ -20,9 +20,9 @@ public protocol ConfigurationKey: Sendable {
 ///
 /// This type holds a collection of values indexed by their ``ConfigurationKey`` type.
 /// Each key has a default value that is used if a custom value is not provided.
-public struct ConfigurationValues: Sendable {
+public struct ConfigurationValues: Sendable, CustomStringConvertible {
     /// The configuration values storage.
-    private var values = [ObjectIdentifier: any Sendable]()
+    private var values = [String: any Sendable]()
     
     /// Creates a new ``ConfigurationValues``.
     @inlinable public init() { }
@@ -33,19 +33,35 @@ public struct ConfigurationValues: Sendable {
     /// the key's default value is returned.
     ///
     /// - Parameter key: The type of the configuration key.
-    public subscript<Key: ConfigurationKey>(_ key: Key.Type) -> Key.Value {
+    public subscript<K: ConfigurationKey>(_ key: K.Type) -> K.Value {
         get {
-            guard let value = values[ObjectIdentifier(key)] else {
-                return Key.defaultValue
+            guard let value = values[String(describing: key)] else {
+                return K.defaultValue
             }
-            return unsafeBitCast(value, to: Key.Value.self)
+            return unsafeBitCast(value, to: K.Value.self)
         }
         set {
-            values[ObjectIdentifier(key)] = newValue
+            values[String(describing: key)] = newValue
         }
+    }
+    
+    /// A string that represents the contents of the environment values instance.
+    public var description: String {
+        guard !values.isEmpty else {
+            return "\(String(describing: Self.self)) = []"
+        }
+        let valuesString = values
+            .map({"  \($0): \($1)"})
+            .joined(separator: ",\n")
+        return """
+        \(String(describing: Self.self)) = [
+        \(valuesString)
+        ]
+        """
     }
 }
 
+// TODO: - Implement a robust universal Configurations system to apply configurations to Request, Task, Client, RequestModifier.
 extension ConfigurationValues {
     /// The decoder used for decoding responses.
     @Config public internal(set) var decoder = JSONDecoder()
@@ -55,4 +71,7 @@ extension ConfigurationValues {
     
     /// The base URL used in requests.
     @Config public internal(set) var baseURL: URL? = nil
+    
+    /// The size of the buffer used for reading files.
+    @Config public internal(set) var bufferSize = 1024
 }

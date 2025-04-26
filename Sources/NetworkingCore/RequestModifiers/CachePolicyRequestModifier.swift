@@ -40,6 +40,13 @@ extension CachePolicyRequestModifier: RequestModifier {
     }
 }
 
+// MARK: - CustomStringConvertible
+extension CachePolicyRequestModifier: CustomStringConvertible {
+    @usableFromInline internal var description: String {
+        "CachePolicyRequestModifier(cachePolicy: \(cachePolicy))"
+    }
+}
+
 // MARK: - Modifier
 extension Request {
     /// Applies a cache policy modifier to the request.

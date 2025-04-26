@@ -49,6 +49,14 @@ extension PathRequestModifier: RequestModifier {
     }
 }
 
+// MARK: - CustomStringConvertible
+extension PathRequestModifier: CustomStringConvertible {
+    @usableFromInline internal var description: String {
+        let pathsString = paths.map({"\"\($0)\""}).joined(separator: ", ")
+        return "PathRequestModifier(paths: [\(pathsString)])"
+    }
+}
+
 // MARK: - Modifier
 extension Request {
     /// Appends multiple paths to the request URL.

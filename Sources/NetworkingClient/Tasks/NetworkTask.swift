@@ -8,6 +8,9 @@
 import Foundation
 import NetworkingCore
 
+// TODO: - I'm not too happy with the current implementation of tasks and client. Can they be improved?
+// TODO: - Should we pass Request instead of URLRequest? This will help remove interceptors.
+
 /// Task representing the full lifecycle of a request, including retry logic,
 /// configuration management, and logging.
 ///
@@ -35,11 +38,13 @@ open class NetworkTask<T: Sendable>: NetworkingTask, Configurable, @unchecked Se
         }
     }
     
+    /// The current task metrics.
     public var metrics: URLSessionTaskMetrics? {
         get async {
             return await state.metrics
         }
     }
+    // TODO: - Add a way to notify the user of the received metrics.
     
     /// The active configuration values for this task.
     @preconcurrency nonisolated(unsafe)
@@ -122,7 +127,7 @@ open class NetworkTask<T: Sendable>: NetworkingTask, Configurable, @unchecked Se
     }
     
     /// Starts or resumes the task if needed and returns its response.
-    @discardableResult public func response() async throws -> Response {
+    @discardableResult public func response() async throws -> sending Response {
         return try await state.activeTask {
             try await self.start()
         }.value

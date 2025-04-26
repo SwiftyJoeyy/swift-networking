@@ -7,6 +7,7 @@
 
 import Foundation
 
+// TODO: - Should we remove this since we support composable requests that work similiar to interceptors?
 public protocol RequestInterceptor: Sendable {
     func intercept(
         _ request: consuming URLRequest,

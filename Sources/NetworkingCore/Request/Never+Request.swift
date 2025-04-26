@@ -7,6 +7,8 @@
 
 import Foundation
 
+extension Never: @retroactive CustomStringConvertible { }
+
 extension Never: Request {
     /// The request's identifier.
     public var id: String {

@@ -31,11 +31,26 @@ extension DictionaryJSONEncoder: JSONEncodable {
         do {
             let data = try JSONSerialization.data(
                 withJSONObject: dictionary,
-                options: .prettyPrinted
+                options: [.prettyPrinted, .fragmentsAllowed]
             )
             return data
         }catch {
             throw NetworkingError.JSONError.serializationFailed(dictionary: dictionary, error: error)
         }
+    }
+}
+
+// MARK: - CustomStringConvertible
+extension DictionaryJSONEncoder: CustomStringConvertible {
+    public var description: String {
+        guard !dictionary.isEmpty else {
+            return "DictionaryJSONEncoder = []"
+        }
+        let dictString = dictionary.map(\.key).joined(separator: ",\n")
+        return """
+        DictionaryJSONEncoder (\(dictionary.count)) = [
+        \(dictString)
+        ]
+        """
     }
 }

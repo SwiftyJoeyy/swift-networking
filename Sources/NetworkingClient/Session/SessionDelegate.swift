@@ -18,7 +18,9 @@ open class SessionDelegate: NSObject, @unchecked Sendable {
     /// locate task metadata based on the original request.
     public internal(set) var tasks: (any TasksStorage)!
     
-    private func networkTask(for sessionTask: URLSessionTask) async -> (any NetworkingTask)? {
+    private func networkTask(
+        for sessionTask: URLSessionTask
+    ) async -> (any NetworkingTask)? {
         guard let originalRequest = sessionTask.originalRequest else {
             return nil
         }
@@ -83,6 +85,7 @@ extension SessionDelegate: URLSessionTaskDelegate {
         }
     }
     
+    /// Called when metrics have been collected for a task.
     open func urlSession(
         _ session: URLSession,
         task: URLSessionTask,

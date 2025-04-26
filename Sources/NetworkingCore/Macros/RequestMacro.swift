@@ -53,3 +53,5 @@ public macro Request(_ id: String = "") = #externalMacro(
     module: "NetworkingMacros",
     type: "RequestMacro"
 )
+
+// TODO: - Add support for mods builder in init for composable requests

@@ -9,7 +9,7 @@ import Foundation
 
 /// Requirements for defining a request header modifier that adds custom
 /// headers to a ``URLRequest``.
-public protocol RequestHeader: RequestModifier {
+public protocol RequestHeader: RequestModifier, CustomStringConvertible {
     /// The HTTP headers to be added to the request.
     var headers: [String: String] {get}
 }
@@ -36,6 +36,24 @@ extension RequestHeader {
             request.allHTTPHeaderFields = headers
         }
         return request
+    }
+}
+
+// MARK: - CustomStringConvertible
+extension RequestHeader {
+    public var description: String {
+        guard !headers.isEmpty else {
+            return "\(String(describing: Self.self)) = []"
+        }
+        let headersString = headers
+            .map({"  \($0) : \($1)"})
+            .joined(separator: ",\n")
+        
+        return """
+        \(String(describing: Self.self)) (\(headers.count)) = [
+        \(headersString)
+        ]
+        """
     }
 }
 

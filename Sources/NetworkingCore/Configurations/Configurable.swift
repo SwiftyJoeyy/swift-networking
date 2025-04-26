@@ -42,4 +42,9 @@ extension Configurable {
     public func decode(with decoder: JSONDecoder) -> Self {
         return configuration(\.decoder, decoder)
     }
+    
+    /// Sets the buffer size used for reading files.
+    public func bufferSize(_ size: Int) -> Self {
+        return configuration(\.bufferSize, size)
+    }
 }

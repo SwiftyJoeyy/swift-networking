@@ -9,10 +9,12 @@ import Foundation
 
 /// Requirements for defining a request parameter modifier that adds
 /// query parameters to a ``URLRequest``.
-public protocol RequestParameter: RequestModifier {
+public protocol RequestParameter: RequestModifier, CustomStringConvertible {
     /// The query parameters to be added to the request.
     var parameters: [URLQueryItem] {get}
 }
+
+// TODO: - Add support for parameter encoding strategies (ie: arrays)
 
 // MARK: - RequestModifier
 extension RequestParameter {
@@ -41,6 +43,25 @@ extension RequestParameter {
         return request
     }
 }
+
+
+// MARK: - CustomStringConvertible
+extension RequestParameter {
+    public var description: String {
+        guard !parameters.isEmpty else {
+            return "\(String(describing: Self.self)) = []"
+        }
+        let paramsString = parameters
+            .map({"  \($0.name) : \(String(describing: $0.value))"})
+            .joined(separator: ",\n")
+        return """
+        \(String(describing: Self.self)) (\(parameters.count)) = [
+        \(paramsString)
+        ]
+        """
+    }
+}
+
 
 // MARK: - Modifier
 extension Request {

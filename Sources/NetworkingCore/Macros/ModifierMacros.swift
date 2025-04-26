@@ -120,3 +120,5 @@ public macro Parameter(_ key: String = "") = #externalMacro(
     module: "NetworkingMacros",
     type: "ParameterMacro"
 )
+
+// TODO: - Add support for type safety.

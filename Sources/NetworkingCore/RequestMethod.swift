@@ -8,7 +8,7 @@
 import Foundation
 
 /// The HTTP request methods used in network requests.
-@frozen public enum RequestMethod: String, Equatable, Hashable, Sendable {
+@frozen public enum RequestMethod: String, Equatable, Hashable, Sendable, CaseIterable {
     case get = "GET"
     case put = "PUT"
     case head = "HEAD"
@@ -36,4 +36,11 @@ import Foundation
     case subscribe = "SUBSCRIBE"
     case unsubscribe = "UNSUBSCRIBE"
     case source = "SOURCE"
+}
+
+// MARK: - CustomStringConvertible
+extension RequestMethod: CustomStringConvertible {
+    public var description: String {
+        return rawValue
+    }
 }

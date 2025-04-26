@@ -49,7 +49,7 @@ import Foundation
 ///
 /// - Warning: Use the ``Request`` macro to define requests,
 /// do not manually conform to this protocol.
-public protocol Request: _Request {
+public protocol Request: CustomStringConvertible {
     /// The contents of the request.
     associatedtype Contents: Request
     
@@ -61,13 +61,33 @@ public protocol Request: _Request {
     
     /// All request modifiers applied to this request.
     var allModifiers: [any RequestModifier] {get}
+    
+    
+    /// The request modifiers applied to this request.
+    ///
+    /// - Warning: This property is private and should not be accessed externally.
+    var _modifiers: [any RequestModifier] {get set}
+    
+    /// Constructs a ``URLRequest`` using the given base url.
+    ///
+    /// - Parameter baseURL: The base URL to use if the request does not have one.
+    /// - Returns: The configured ``URLRequest``.
+    /// - Warning: This method is private and should not be accessed externally.
+    func _makeURLRequest(
+        _ configurations: borrowing ConfigurationValues
+    ) throws -> URLRequest
 }
 
-// MARK: - _Request
 extension Request {
     /// The request's identifier.
     public var id: String {
         return String(describing: Self.self)
+    }
+    
+    /// All request modifiers applied to this request, including any
+    /// inherited from its contained request.
+    public var allModifiers: [any RequestModifier] {
+        return _modifiers + request.allModifiers
     }
     
     /// Constructs a ``URLRequest`` using the given base url.
@@ -81,10 +101,22 @@ extension Request {
         configuredRequest._modifiers.append(contentsOf: _modifiers)
         return try configuredRequest._makeURLRequest(configurations)
     }
-    
-    /// All request modifiers applied to this request, including any
-    /// inherited from its contained request.
-    public var allModifiers: [any RequestModifier] {
-        return _modifiers + request.allModifiers
+}
+
+// MARK: - CustomStringConvertible
+extension Request {
+    public var description: String {
+        let modsString = _modifiers
+            .map({"    " + String(describing: $0)})
+            .joined(separator: ",\n")
+        return """
+        \(String(describing: Self.self)) {
+          id = \(id),
+          request = \(String(describing: request)),
+          modifiers (\(_modifiers.count)) = [
+        \(modsString)
+          ]
+        }
+        """
     }
 }

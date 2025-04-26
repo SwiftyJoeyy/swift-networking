@@ -12,9 +12,6 @@ import Foundation
     /// The boundary string used for separating form-data parts.
     private let boundary: String
     
-    /// The buffer size for reading large files, if applicable.
-    private let bufferSize: Int?
-    
     /// The form-data items included in the request.
     private let inputs: [any FormDataItem]
 }
@@ -25,15 +22,12 @@ extension FormData {
     ///
     /// - Parameters:
     ///   - boundary: The boundary string (auto-generated if not provided).
-    ///   - bufferSize: The buffer size for reading large files.
     ///   - inputs: The form-data items.
     public init(
         boundary: String? = nil,
-        bufferSize: Int? = nil,
         @FormDataItemBuilder _ inputs: () -> [any FormDataItem]
     ) {
         self.boundary = boundary ?? BoundaryFactory.makeRandom()
-        self.bufferSize = bufferSize
         self.inputs = inputs()
     }
 }
@@ -59,7 +53,7 @@ extension FormData: RequestBody {
         let encapsulatedBoundary = BoundaryFactory.makeBoundary(.encapsulated, for: boundary)
         var foundInputData = false
         for input in inputs {
-            guard let inputData = try input.data() else {continue}
+            guard let inputData = try input.data(configurations) else {continue}
             foundInputData = true
             data.append(encapsulatedBoundary)
             let headerData = BoundaryFactory.makeHeaders(for: input.headers.headers)
@@ -75,5 +69,21 @@ extension FormData: RequestBody {
         data.append(lastBoundary)
         
         return data
+    }
+}
+
+// MARK: - CustomStringConvertible
+extension FormData: CustomStringConvertible {
+    public var description: String {
+        let bodyString = inputs.map({"    " + String(describing: $0)})
+        return """
+        FormData = {
+          contentType = \(String(describing: contentType)),
+          boundary = \(boundary),
+          body (\(inputs.count)) = [
+        \(bodyString)
+          ]
+        }
+        """
     }
 }

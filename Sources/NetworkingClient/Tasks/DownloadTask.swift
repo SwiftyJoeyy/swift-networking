@@ -7,6 +7,8 @@
 
 import Foundation
 
+// TODO: - Add support for resumable downloads.
+
 public typealias DownloadResponse = (url: URL, response: URLResponse)
 
 /// Task that handles the download of a file from a given ``URLRequest``,

@@ -43,3 +43,11 @@ extension CodableJSONEncoder: JSONEncodable {
         }
     }
 }
+
+// MARK: - CustomStringConvertible
+extension CodableJSONEncoder: CustomStringConvertible {
+    /// A textual representation of the codable encoder.
+    public var description: String {
+        "CodableJSONEncoder = \(String(describing: object.self))"
+    }
+}

@@ -126,3 +126,21 @@ extension HTTPRequest: Request {
         return request
     }
 }
+
+
+// MARK: - CustomStringConvertible
+extension HTTPRequest: CustomStringConvertible {
+    public var description: String {
+        let modsString = _modifiers
+            .map({"    " + String(describing: $0)})
+            .joined(separator: ",\n")
+        return """
+        \(String(describing: Self.self)) {
+          id = \(id),
+          modifiers (\(_modifiers.count)) = [
+        \(modsString)
+          ]
+        }
+        """
+    }
+}

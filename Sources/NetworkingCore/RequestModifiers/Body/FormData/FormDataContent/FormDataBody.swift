@@ -84,7 +84,25 @@ extension FormDataBody: FormDataItem {
     /// Encodes the form-data content into ``Data``.
     ///
     /// - Returns: The encoded data.
-    public func data() throws -> Data? {
+    public func data(
+        _ configurations: borrowing ConfigurationValues
+    ) throws -> Data? {
         return body
+    }
+}
+
+// MARK: - CustomStringConvertible
+extension FormDataBody: CustomStringConvertible {
+    public var description: String {
+        return """
+        FormDataFile = {
+          key = \(key),
+          fileName = \(String(describing: fileName)),
+          mimeType = \(String(describing: mimeType)),
+          body = \(String(describing: body)),
+          contentSize = \(String(describing: contentSize)),
+          headers = \(headers)
+        }
+        """
     }
 }

@@ -123,7 +123,9 @@ extension FormDataTests {
         var headers: HeadersGroup {
             HeadersGroup(headerValues)
         }
-        func data() throws -> Data? {
+        func data(
+            _ configurations: borrowing ConfigurationValues
+        ) throws -> Data? {
             content
         }
     }

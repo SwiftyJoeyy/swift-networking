@@ -29,6 +29,7 @@ public actor Session: Configurable {
     /// Marked `nonisolated(unsafe)` for cross-actor access; use with caution.
     @preconcurrency nonisolated(unsafe)
     public private(set) var configurations: ConfigurationValues
+    // TODO: - We should avoid using nonisolated here.
     
 // MARK: - Initializer
     /// Creates a new ``Session`` with an optional delegate, session configuration,
@@ -55,6 +56,8 @@ public actor Session: Configurable {
         )
         sessionDelegate.tasks = configurations.tasks
     }
+    
+    // TODO: - We should add suppor for URLSession mocking.
     
     /// Creates a new ``Session`` with an optional delegate, session configuration,
     /// delegate queue, and task storage.

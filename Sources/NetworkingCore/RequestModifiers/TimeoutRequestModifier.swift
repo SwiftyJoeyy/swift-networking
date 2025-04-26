@@ -40,6 +40,13 @@ extension TimeoutRequestModifier: RequestModifier {
     }
 }
 
+// MARK: - CustomStringConvertible
+extension TimeoutRequestModifier: CustomStringConvertible {
+    @usableFromInline internal var description: String {
+        "TimeoutRequestModifier(timeoutInterval: \(timeoutInterval))"
+    }
+}
+
 // MARK: - Modifier
 extension Request {
     /// Applies a timeout modifier to the request.

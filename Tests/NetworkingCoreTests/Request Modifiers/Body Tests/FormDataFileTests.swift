@@ -19,6 +19,7 @@ final class FormDataFileTests {
     private let contents: String
     private var tempDirectory: URL!
     private var tempFileURL: URL!
+    private let configs = ConfigurationValues.mock
     
 // MARK: - Lifecycle
     init() throws {
@@ -49,7 +50,7 @@ final class FormDataFileTests {
     
     @Test func dataReadsCorrectly() throws {
         let item = FormDataFile("file", fileURL: tempFileURL)
-        let data = try #require(try item.data())
+        let data = try #require(try item.data(configs))
         let string = String(data: data, encoding: .utf8)
         
         #expect(string == contents)
@@ -118,7 +119,7 @@ final class FormDataFileTests {
         let item = FormDataFile("file", fileURL: invalidURL)
         
         #expect(performing: {
-            try item.data()
+            try item.data(configs)
         }, throws: { error in
             let formError = error as? NetworkingError.FormDataError
             guard case .invalidFileURL(let url) = formError else {
@@ -133,7 +134,7 @@ final class FormDataFileTests {
         let item = FormDataFile("file", fileURL: missingURL)
         
         #expect(performing: {
-            try item.data()
+            try item.data(configs)
         }, throws: { error in
             let formError = error as? NetworkingError.FormDataError
             guard case .fileDoesNotExist(let url) = formError else {
@@ -146,7 +147,7 @@ final class FormDataFileTests {
     @Test func directoryURLThrowsError() throws {
         let item = FormDataFile("file", fileURL: tempDirectory)
         #expect(performing: {
-            try item.data()
+            try item.data(configs)
         }, throws: { error in
             let formError = error as? NetworkingError.FormDataError
             guard case .urlIsDirectory(let url) = formError else {

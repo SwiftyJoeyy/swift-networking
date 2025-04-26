@@ -22,6 +22,7 @@ public protocol NetworkingTask: Sendable {
     /// The number of retry attempts made for this task.
     var retryCount: Int {get async}
     
+    /// The current task metrics.
     var metrics: URLSessionTaskMetrics? {get async}
     
     /// The current configuration values that influence task behavior.
