@@ -120,3 +120,25 @@ extension Request {
         """
     }
 }
+
+// MARK: - CustomStringConvertible
+extension Request where Self.Contents == Never {
+    /// All request modifiers applied to this request.
+    public var allModifiers: [any RequestModifier] {
+        return _modifiers
+    }
+    
+    public var description: String {
+        let modsString = _modifiers
+            .map({"    " + String(describing: $0)})
+            .joined(separator: ",\n")
+        return """
+        \(String(describing: Self.self)) {
+          id = \(id),
+          modifiers (\(_modifiers.count)) = [
+        \(modsString)
+          ]
+        }
+        """
+    }
+}

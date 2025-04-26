@@ -47,9 +47,6 @@ import Foundation
     /// The base URL for the request.
     private let url: URL?
     
-    /// The specific path to append to the base URL.
-    private let path: String?
-    
     /// The request modifiers applied to this request.
     public var _modifiers = [any RequestModifier]()
     
@@ -65,8 +62,10 @@ import Foundation
         @RequestModifiersBuilder components: () -> [any RequestModifier] = {[ ]}
     ) {
         self.url = url
-        self.path = path
         self._modifiers = components()
+        if let path {
+            _modifiers.append(PathRequestModifier([path]))
+        }
     }
     
     /// Creates a new ``HTTPRequest`` to be used for calling apis.
@@ -92,11 +91,6 @@ import Foundation
 extension HTTPRequest: Request {
     public typealias Contents = Never
     
-    /// All request modifiers applied to this request.
-    public var allModifiers: [any RequestModifier] {
-        return _modifiers
-    }
-    
     /// Constructs a ``URLRequest`` using the given base url.
     ///
     /// - Parameter baseURL: The base URL to use if the request does not have one.
@@ -105,15 +99,8 @@ extension HTTPRequest: Request {
         _ configurations: borrowing ConfigurationValues
     ) throws -> URLRequest {
         let baseURL = configurations.baseURL
-        guard var url = url ?? baseURL else {
+        guard let url = url ?? baseURL else {
             throw NetworkingError.invalidRequestURL
-        }
-        if let path {
-            if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *) {
-                url.append(path: path)
-            }else {
-                url.appendPathComponent(path)
-            }
         }
         var request = URLRequest(url: url)
         
@@ -124,23 +111,5 @@ extension HTTPRequest: Request {
             )
         }
         return request
-    }
-}
-
-
-// MARK: - CustomStringConvertible
-extension HTTPRequest: CustomStringConvertible {
-    public var description: String {
-        let modsString = _modifiers
-            .map({"    " + String(describing: $0)})
-            .joined(separator: ",\n")
-        return """
-        \(String(describing: Self.self)) {
-          id = \(id),
-          modifiers (\(_modifiers.count)) = [
-        \(modsString)
-          ]
-        }
-        """
     }
 }
