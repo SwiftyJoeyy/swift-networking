@@ -31,6 +31,18 @@ let package = Package(
         ),
     ],
     targets: [
+        .target(
+            name: "Networking",
+            dependencies: [
+                "NetworkingCore",
+                "NetworkingClient",
+                "NetworkingMacros"
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny")
+            ]
+        ),
+        
         .macro(
             name: "NetworkingMacros",
             dependencies: [
@@ -54,15 +66,30 @@ let package = Package(
         ),
         
         .target(
-            name: "Networking",
+            name: "NetworkingCore",
             dependencies: ["NetworkingMacros"],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny")
             ]
         ),
         .testTarget(
-            name: "NetworkingTests",
-            dependencies: ["Networking"],
+            name: "NetworkingCoreTests",
+            dependencies: ["NetworkingCore"],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny")
+            ]
+        ),
+        
+        .target(
+            name: "NetworkingClient",
+            dependencies: ["NetworkingMacros", "NetworkingCore"],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny")
+            ]
+        ),
+        .testTarget(
+            name: "NetworkingClientTests",
+            dependencies: ["NetworkingClient"],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny")
             ]
