@@ -10,7 +10,8 @@ let package = Package(
         .macOS(.v12),
         .watchOS(.v8),
         .tvOS(.v15),
-        .visionOS(.v1)
+        .visionOS(.v1),
+        .macCatalyst(.v15)
     ],
     products: [
         .library(
@@ -38,9 +39,7 @@ let package = Package(
                 "NetworkingClient",
                 "NetworkingMacros"
             ],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+            swiftSettings: networkingSwiftSettings
         ),
         
         .macro(
@@ -50,9 +49,7 @@ let package = Package(
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "MacrosKit", package: "MacrosKit"),
             ],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+            swiftSettings: networkingSwiftSettings
         ),
         .testTarget(
             name: "NetworkingMacrosTests",
@@ -60,39 +57,35 @@ let package = Package(
                 "NetworkingMacros",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+            swiftSettings: networkingSwiftSettings
         ),
         
         .target(
             name: "NetworkingCore",
             dependencies: ["NetworkingMacros"],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+            swiftSettings: networkingSwiftSettings
         ),
         .testTarget(
             name: "NetworkingCoreTests",
             dependencies: ["NetworkingCore"],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+            swiftSettings: networkingSwiftSettings
         ),
         
         .target(
             name: "NetworkingClient",
             dependencies: ["NetworkingMacros", "NetworkingCore"],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+            swiftSettings: networkingSwiftSettings
         ),
         .testTarget(
             name: "NetworkingClientTests",
             dependencies: ["NetworkingClient"],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+            swiftSettings: networkingSwiftSettings
         ),
     ]
 )
+
+var networkingSwiftSettings: [SwiftSetting] {
+    return [
+        .enableUpcomingFeature("ExistentialAny")
+    ]
+}
