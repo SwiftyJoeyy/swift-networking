@@ -47,10 +47,10 @@ import Foundation
 ///
 /// - Note: This macros is needed for the ``Header`` & ``Parameter``
 /// macros to work.
-@attached(extension, conformances: Request)
-@attached(member, conformances: Request, names: named(_modifiers), named(id), named(_modifiersBox))
+@attached(extension, conformances: Request, ModifiableRequest)
+@attached(member, conformances: Request, names: named(modifier), named(id))
 public macro Request(_ id: String = "") = #externalMacro(
-    module: "NetworkingMacros",
+    module: "NetworkingCoreMacros",
     type: "RequestMacro"
 )
 

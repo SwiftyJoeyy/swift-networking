@@ -7,9 +7,6 @@
 
 import Foundation
 
-/// A group of headers.
-public typealias HeadersGroup = Header.Group
-
 /// A HTTP header.
 ///
 /// You can use the ``Header`` macro to define and add
@@ -34,7 +31,7 @@ public typealias HeadersGroup = Header.Group
     public var value: String
     
     /// The header dictionary representation.
-    public var headers: [String : String] {
+    public var headers: [String: String] {
         return [key: value]
     }
     
@@ -49,42 +46,31 @@ public typealias HeadersGroup = Header.Group
     }
 }
 
-extension Header {
-    /// A group of headers.
-    @frozen public struct Group: RequestHeader, Equatable, Hashable, Sendable {
-        /// The HTTP headers contained in this group.
-        public var headers: [String: String]
-        
-        /// Creates a new ``HeadersGroup`` from a dictionary of headers.
-        ///
-        /// - Parameter headers: The headers dictionary.
-        @inlinable public init(_ headers: [String: String]) {
-            self.headers = headers
-        }
-        
-        /// Creates a new ``HeadersGroup`` from a dictionary with optional values.
-        ///
-        /// - Parameter headers: The headers dictionary with optional values.
-        @inlinable public init(_ headers: [String: String?]) {
-            self.init(headers.compactMapValues(\.self))
-        }
-        
-        /// Creates a new ``HeadersGroup`` from an array of ``RequestHeader``.
-        ///
-        /// - Parameter headers: The request headers to be grouped.
-        @inlinable public init(_ headers: [any RequestHeader]) {
-            var headersFields = [String: String]()
-            for header in headers.flatMap(\.headers) {
-                headersFields[header.key] = header.value
-            }
-            self.init(headersFields)
-        }
-        
-        /// Creates a new ``HeadersGroup`` using a builder closure for headers.
-        ///
-        /// - Parameter headers: A builder closure returning a ``HeadersGroup``.
-        @inlinable public init(@HeadersBuilder _ headers: () -> HeadersGroup) {
-            self = headers()
-        }
+/// A group of headers.
+@frozen public struct HeadersGroup: RequestHeader, Equatable, Hashable, Sendable {
+    /// The HTTP headers contained in this group.
+    public var headers: [String: String]
+    
+    /// Creates a new ``HeadersGroup`` from a dictionary of headers.
+    ///
+    /// - Parameter headers: The headers dictionary.
+    @inlinable public init(_ headers: [String: String]) {
+        self.headers = headers
+    }
+    
+    /// Creates a new ``HeadersGroup`` from a dictionary with optional values.
+    ///
+    /// - Parameter headers: The headers dictionary with optional values.
+    @inlinable public init(_ headers: [String: String?]) {
+        self.init(headers.compactMapValues(\.self))
+    }
+    
+    /// Creates a new ``HeadersGroup`` using ``HeadersBuilder``.
+    ///
+    /// - Parameter header: A builder returning headers.
+    @inlinable public init(
+        @HeadersBuilder header: () -> some RequestHeader
+    ) {
+        self.init(header().headers)
     }
 }

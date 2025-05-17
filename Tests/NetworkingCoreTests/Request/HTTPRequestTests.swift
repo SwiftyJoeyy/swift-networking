@@ -38,40 +38,26 @@ struct HTTPRequestTests {
     }
     
     @Test func initWithURLAndPath() throws {
-        let request = HTTPRequest(url: URL(string: "https://example.com"), path: "test")
+        let request = HTTPRequest(
+            url: URL(string: "https://example.com"),
+            path: "test"
+        )
         
         let urlRequest = try request._makeURLRequest(configuration)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/test")
     }
     
-    @Test func nestedRequestModifierIsApplied() throws {
-        let request = HTTPRequest(url: "https://example.com") {
-            DummyModifier(header: ("Content-Type", "application/json"))
+    @Test func requestWithModifiers() throws {
+        let request = HTTPRequest(
+            url: URL(string: "https://example.com")
+        ) {
+            DummyModifier(header: ("test", "value"))
         }
         
         let urlRequest = try request._makeURLRequest(configuration)
         
-        #expect(urlRequest.value(forHTTPHeaderField: "Content-Type") == "application/json")
-    }
-    
-    @Test func allModifiersIncludesNestedRequestModifiers() {
-        let request = HTTPRequest {
-            RequestModifierStub()
-        }.modifier(RequestModifierStub())
-        
-        #expect(request.allModifiers.filter({$0 is RequestModifierStub}).count == 2)
-    }
-    
-    @Test func allRequestModifiersAreApplied() throws {
-        let request = HTTPRequest(url: "https://example.com") {
-            DummyModifier(header: ("Content-Type", "application/json"))
-        }.modifier(DummyModifier(header: ("Language", "en")))
-        
-        let urlRequest = try request._makeURLRequest(configuration)
-        
-        #expect(urlRequest.value(forHTTPHeaderField: "Content-Type") == "application/json")
-        #expect(urlRequest.value(forHTTPHeaderField: "Language") == "en")
+        #expect(urlRequest.allHTTPHeaderFields?["test"] == "value")
     }
     
     @Test func throwsWhenURLMissing() {

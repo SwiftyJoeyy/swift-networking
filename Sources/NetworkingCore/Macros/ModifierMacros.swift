@@ -53,7 +53,7 @@ import Foundation
 /// - Warning: For this macro to work your request must use the ``Request`` macro.
 @attached(peer)
 public macro Header(_ key: String = "") = #externalMacro(
-    module: "NetworkingMacros",
+    module: "NetworkingCoreMacros",
     type: "HeaderMacro"
 )
 
@@ -117,7 +117,7 @@ public macro Header(_ key: String = "") = #externalMacro(
 /// - Warning: For this macro to work your request must use the ``Request`` macro.
 @attached(peer)
 public macro Parameter(_ key: String = "") = #externalMacro(
-    module: "NetworkingMacros",
+    module: "NetworkingCoreMacros",
     type: "ParameterMacro"
 )
 

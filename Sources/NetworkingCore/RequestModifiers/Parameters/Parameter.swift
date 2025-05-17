@@ -7,9 +7,6 @@
 
 import Foundation
 
-/// A group of query parameters.
-public typealias ParametersGroup = Parameter.Group
-
 /// A query parameter.
 ///
 /// You can use the ``Parameter`` macro to define and add
@@ -28,14 +25,14 @@ public typealias ParametersGroup = Parameter.Group
 /// ```
 @frozen public struct Parameter: RequestParameter, Equatable, Hashable, Sendable {
     /// The key of the parameter.
-    public var key: String
+    public var name: String
     
     /// The values associated with the key.
     public var values: [String?]
     
     /// The ``URLQueryItem`` parameters.
     public var parameters: [URLQueryItem] {
-        return values.map({URLQueryItem(name: key, value: $0)})
+        return values.map({URLQueryItem(name: name, value: $0)})
     }
     
     /// Creates a new ``Parameter`` with a key and multiple values.
@@ -43,8 +40,8 @@ public typealias ParametersGroup = Parameter.Group
     /// - Parameters:
     ///  - key: The query parameter key.
     ///  - value: The values associated with the key.
-    @inlinable public init(_ key: String, values: [String?]) {
-        self.key = key
+    @inlinable public init(_ name: String, values: [String?]) {
+        self.name = name
         self.values = values
     }
     
@@ -53,43 +50,36 @@ public typealias ParametersGroup = Parameter.Group
     /// - Parameters:
     ///  - key: The query parameter key.
     ///  - value: A single optional value associated with the key.
-    @inlinable public init(_ key: String, value: String?) {
-        self.init(key, values: [value])
+    @inlinable public init(_ name: String, value: String?) {
+        self.init(name, values: [value])
     }
 }
 
-extension Parameter {
     /// A group of query parameters.
-    @frozen public struct Group: RequestParameter, Equatable, Hashable, Sendable {
-        /// The query parameters contained in this group.
-        public var parameters: [URLQueryItem]
-        
-        /// Creates a new ``ParametersGroup`` from an array of ``URLQueryItem``.
-        ///
-        /// - Parameter parameters: The query parameters.
-        @inlinable public init(_ parameters: [URLQueryItem]) {
-            self.parameters = parameters
-        }
-        
-        /// Creates a new ``Group`` from an array of optional ``URLQueryItem``.
-        ///
-        /// - Parameter parameters: The query parameters, with optional values.
-        @inlinable public init(_ parameters: [URLQueryItem?]) {
-            self.init(parameters.compactMap(\.self))
-        }
-        
-        /// Creates a new ``Group`` from an array of ``RequestParameter``.
-        ///
-        /// - Parameter parameters: The request parameters to be grouped.
-        @inlinable public init(_ parameters: [any RequestParameter]) {
-            self.init(parameters.flatMap(\.parameters))
-        }
-        
-        /// Creates a new ``Group`` using a builder closure for query parameters.
-        ///
-        /// - Parameter parameters: A builder closure returning a `ParametersGroup`.
-        @inlinable public init(@ParametersBuilder _ parameters: () -> ParametersGroup) {
-            self = parameters()
-        }
+@frozen public struct ParametersGroup: RequestParameter, Equatable, Hashable, Sendable {
+    /// The query parameters contained in this group.
+    public var parameters: [URLQueryItem]
+    
+    /// Creates a new ``ParametersGroup`` from an array of ``URLQueryItem``.
+    ///
+    /// - Parameter parameters: The query parameters.
+    @inlinable public init(_ parameters: [URLQueryItem]) {
+        self.parameters = parameters
+    }
+    
+    /// Creates a new ``ParametersGroup`` from an array of optional ``URLQueryItem``.
+    ///
+    /// - Parameter parameters: The query parameters, with optional values.
+    @inlinable public init(_ parameters: [URLQueryItem?]) {
+        self.init(parameters.compactMap(\.self))
+    }
+    
+    /// Creates a new ``ParametersGroup`` using ``ParametersBuilder``.
+    ///
+    /// - Parameter parameter: A builder returning headers.
+    @inlinable public init(
+        @ParametersBuilder parameter: () -> some RequestParameter
+    ) {
+        self.init(parameter().parameters)
     }
 }

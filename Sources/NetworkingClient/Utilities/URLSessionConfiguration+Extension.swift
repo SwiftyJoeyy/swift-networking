@@ -69,7 +69,7 @@ extension URLSessionConfiguration {
     /// - Parameter headers: The headers to be added.
     /// - Returns: The modified ``URLSessionConfiguration``.
     public func headers(
-        @HeadersBuilder headers: @Sendable () -> HeadersGroup
+        @HeadersBuilder headers: @Sendable () -> some RequestHeader
     ) -> Self {
         httpAdditionalHeaders = headers().headers
         return self

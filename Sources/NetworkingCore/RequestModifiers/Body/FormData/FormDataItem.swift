@@ -7,20 +7,12 @@
 
 import Foundation
 
-/// Builder used to construct an array of ``FormDataItem``.
-public typealias FormDataItemBuilder = AnyResultBuilder<any FormDataItem>
-
 /// Requirements for defining a form-data item used in multipart requests.
 public protocol FormDataItem {
-    /// The key associated with the form-data item.
-    var key: String {get}
-    
-    // TODO: - Consume content size
-    /// The size of the content, if known.
-    var contentSize: UInt64? {get}
+    associatedtype Header: RequestHeader
     
     /// The headers associated with the form-data item.
-    @HeadersBuilder var headers: HeadersGroup {get}
+    @HeadersBuilder var headers: Self.Header {get}
     
     /// Encodes and returns the form-data item as ``Data``.
     ///

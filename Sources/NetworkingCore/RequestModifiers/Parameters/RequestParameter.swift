@@ -62,17 +62,16 @@ extension RequestParameter {
     }
 }
 
-
 // MARK: - Modifier
 extension Request {
-    /// Adds additional query parameters to the request.
+    /// Appends additional query parameters to the request.
     ///
     /// ```
     /// @Request
     /// struct GoogleRequest {
     ///     var request: some Request {
     ///         HTTPRequest()
-    ///             .additionalParameters {
+    ///             .appendingParameters {
     ///                 Parameter("language", value: "en")
     ///                 Parameter("platforms", values: ["iOS", "iPadOS"])
     ///             }
@@ -97,9 +96,44 @@ extension Request {
     ///
     /// - Parameter parameters: A builder closure returning query parameters.
     /// - Returns: A request with the additional query parameters applied.
-    @inlinable public consuming func additionalParameters(
-        @ParametersBuilder _ parameters: () -> ParametersGroup
+    @inlinable public func appendingParameters(
+        @ParametersBuilder _ parameters: () -> some RequestParameter
     ) -> some Request {
         modifier(parameters())
+    }
+    
+    /// Appends an additional query parameter to the request.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     var request: some Request {
+    ///         HTTPRequest()
+    ///             .appendingParameter(Parameter("language", value: "en"))
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// You can use the ``Parameter`` macro to define and add
+    /// query parameters to a request in a concise and
+    /// readable manner, ensuring proper request configuration.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     @Parameter("device") var device: String // Automatically applied.
+    ///     @Parameter var language = "en"
+    ///     var request: some Request {
+    ///         // ...
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameter parameter: A query parameter.
+    /// - Returns: A request with the additional query parameters applied.
+    @inlinable public func appendingParameter(
+        _ parameter: some RequestParameter
+    ) -> some Request {
+        modifier(parameter)
     }
 }

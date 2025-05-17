@@ -8,7 +8,12 @@
 import Foundation
 
 /// HTTP request that can be customized with various modifiers.
-/// Use this as a base structure to define network requests.
+///
+/// ``HTTPRequest`` is a composable, generic structure used to define HTTP requests.
+/// It supports configuration through request modifiers and can be initialized
+/// with a base URL, a path, and additional modifiers such as headers, method, and body.
+///
+/// Use this as a base structure to construct HTTP requests.
 ///
 /// ```
 /// @Request
@@ -40,60 +45,72 @@ import Foundation
 ///     }
 /// }
 /// ```
-@frozen public struct HTTPRequest {
+///
+/// - Note: If the base URL is not provided at initialization, it must be available
+///   through ``ConfigurationValues.baseURL`` at the time of request execution.
+@frozen public struct HTTPRequest<Modifier: RequestModifier> {
     /// The request's identifier.
     public let id = "HTTPRequest"
     
     /// The base URL for the request.
     private let url: URL?
     
-    /// The request modifiers applied to this request.
-    public var _modifiers = [any RequestModifier]()
+    /// An optional path to append to the base URL.
+    private let path: String?
     
-    /// Creates a new ``HTTPRequest`` to be used for calling apis.
+    /// The request modifier that defines the request’s behavior.
+    public let modifier: Modifier
+}
+
+extension HTTPRequest {
+    /// Creates a new ``HTTPRequest``  with an optional base url, path and modifiers..
     ///
     /// - Parameters:
     ///  - url: The base URL of the request.
     ///  - path: The path to append to the base URL.
-    ///  - components: A builder closure that returns request modifiers.
+    ///  - components: A builder that provides the request modifiers to apply.
     public init(
         url: URL? = nil,
         path: String? = nil,
-        @RequestModifiersBuilder components: () -> [any RequestModifier] = {[ ]}
+        @ModifiersBuilder modifier: () -> Modifier = { EmptyModifier() }
     ) {
         self.url = url
-        self._modifiers = components()
-        if let path {
-            _modifiers.append(PathRequestModifier([path]))
-        }
+        self.path = path
+        self.modifier = modifier()
     }
     
-    /// Creates a new ``HTTPRequest`` to be used for calling apis.
+    /// Creates a new ``HTTPRequest`` with an optional base url, path and modifiers..
     ///
     /// - Parameters:
     ///  - url: The base URL of the request.
     ///  - path: The path to append to the base URL.
-    ///  - components: A builder closure that returns request modifiers.
-    @inlinable public init(
-        url: String,
+    ///  - components: A result builder that provides the request modifiers to apply.
+    @_disfavoredOverload @inlinable public init(
+        url: String? = nil,
         path: String? = nil,
-        @RequestModifiersBuilder components: () -> [any RequestModifier] = {[ ]}
+        @ModifiersBuilder modifier: () -> Modifier = { EmptyModifier() }
     ) {
         self.init(
-            url: URL(string: url),
+            url: url.flatMap({URL(string: $0)}),
             path: path,
-            components: components
+            modifier: modifier
         )
     }
 }
 
 // MARK: - Request
 extension HTTPRequest: Request {
+    /// The contents of the request.
     public typealias Contents = Never
     
-    /// Constructs a ``URLRequest`` using the given base url.
+    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
+    /// and the provided configuration context.
     ///
-    /// - Parameter baseURL: The base URL to use if the request does not have one.
+    /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
+    /// and applying all configured modifiers.
+    ///
+    /// - Parameter configurations: The context in which to evaluate the request, including
+    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
     public func _makeURLRequest(
         _ configurations: borrowing ConfigurationValues
@@ -102,14 +119,15 @@ extension HTTPRequest: Request {
         guard let url = url ?? baseURL else {
             throw NetworkingError.invalidRequestURL
         }
-        var request = URLRequest(url: url)
         
-        for component in _modifiers {
-            request = try component.modifying(
-                consume request,
+        var urlRequest = URLRequest(url: url)
+        if let path {
+            urlRequest = try PathRequestModifier([path]).modifying(
+                consume urlRequest,
                 with: configurations
             )
         }
-        return request
+        
+        return try modifier.modifying(urlRequest, with: configurations)
     }
 }

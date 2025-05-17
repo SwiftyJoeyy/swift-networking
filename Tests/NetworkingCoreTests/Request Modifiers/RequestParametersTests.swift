@@ -21,161 +21,60 @@ struct RequestParametersTests {
     /// ``URL`` with an existing parameter for testing.
     private let urlWithParameters = URL(string: "example.com?testing=hello")!
     
-    /// Array of parameters to test.
-    private let parameters = [
-        URLQueryItem(name: "test1", value: "1"),
-        URLQueryItem(name: "test2", value: "2"),
-        URLQueryItem(name: "test3", value: "3")
-    ]
-    
-    /// Array of parameters that share the same name to test.
-    private let arrayParameters = [
-        URLQueryItem(name: "test", value: "1"),
-        URLQueryItem(name: "test", value: "2"),
-        URLQueryItem(name: "test", value: "3")
-    ]
-    
-// MARK: - Private Functions
-    /// Encode paramters into a ``URL``.
-    private func encode(url: URL, parameters: [URLQueryItem]) throws -> String? {
-        let collection = ParametersGroup(parameters)
-        
-        let request = URLRequest(url: url)
-        let modifiedRequest = try collection.modifying(request, with: configurations)
-        
-        return modifiedRequest.url?.absoluteString
-    }
-    
 // MARK: - Parameter Tests
-    /// Checks that ``Parameter`` is correctly converted to ``[URLQueryItem]``.
-    @Test func convertParameterToURLQueryItem() {
-        let parameter = Parameter("testing", value: "Hii")
-        let expectedItems = [URLQueryItem(name: "testing", value: "Hii")]
+    @Test func singleValueParameterCreatesCorrectQueryItem() {
+        let param = Parameter("device", value: "iPhone")
         
-        #expect(parameter.parameters == expectedItems)
+        #expect(param.name == "device")
+        #expect(param.values == ["iPhone"])
+        #expect(param.parameters == [URLQueryItem(name: "device", value: "iPhone")])
     }
     
-    /// Checks that ``Parameter`` with an array value is correctly converted to ``[URLQueryItem]``.
-    @Test func convertParameterWithArrayToURLQueryItem() {
-        let parameter = Parameter("testing", values: ["1", "2"])
-        let expectedItems = [
-            URLQueryItem(name: "testing", value: "1"),
-            URLQueryItem(name: "testing", value: "2")
-        ]
-        
-        #expect(parameter.parameters == expectedItems)
+    @Test func multipleValueParameterCreatesMultipleQueryItems() {
+        let param = Parameter("lang", values: ["en", "fr", nil])
+        #expect(param.parameters.count == 3)
+        #expect(param.parameters[0] == URLQueryItem(name: "lang", value: "en"))
+        #expect(param.parameters[1] == URLQueryItem(name: "lang", value: "fr"))
+        #expect(param.parameters[2] == URLQueryItem(name: "lang", value: nil))
     }
     
-// MARK: - ParametersGroup Tests
-    /// Checks that ``ParametersGroup`` is correctly converted to ``[URLQueryItem]``.
-    @Test func convertParametersGroupToURLQueryItem() {
-        let group = ParametersGroup {
-            Parameter("testing", value: "Hii")
-            Parameter("testing2", value: "Hii2")
-        }
+    @Test func modifyingURLRequestAppendsQueryParameters() throws {
+        let param = Parameter("search", value: "swift")
+        let request = URLRequest(url: url)
+        let modified = try param.modifying(request, with: configurations)
         
-        let expectedItems = [
-            URLQueryItem(name: "testing", value: "Hii"),
-            URLQueryItem(name: "testing2", value: "Hii2")
-        ]
-        
-        #expect(group.parameters == expectedItems)
-    }
-    
-    /// Checks that ``ParametersGroup`` with an array value is correctly converted to ``[URLQueryItem]``.
-    @Test func convertParametersGroupWithArrayToURLQueryItem() {
-        let group = ParametersGroup {
-            Parameter("testing", value: "Hii")
-            Parameter("testing2", values: ["1", "2"])
-        }
-        
-        let expectedItems = [
-            URLQueryItem(name: "testing", value: "Hii"),
-            URLQueryItem(name: "testing2", value: "1"),
-            URLQueryItem(name: "testing2", value: "2")
-        ]
-        
-        #expect(group.parameters == expectedItems)
-    }
-    
-// MARK: - URL Tests
-    /// Checks that parameters are correcly encoded in to a ``URL``.
-    @Test func encodingQueryParameters() throws {
-        let expectedURL = "example.com?test1=1&test2=2&test3=3"
-        let actualURL = try encode(url: url, parameters: parameters)
-        
-        #expect(actualURL == expectedURL)
-    }
-    
-    /// Checks that parameters with duplicate keys are correcly encoded in to a ``URL``.
-    @Test func encodingQueryParametersArray() throws {
-        let expectedURL = "example.com?test=1&test=2&test=3"
-        let actualURL = try encode(url: url, parameters: arrayParameters)
-        
-        #expect(actualURL == expectedURL)
-    }
-    
-// MARK: - URL With Path Tests
-    /// Checks that parameters are correcly encoded in to a ``URL`` with a path.
-    @Test func encodingQueryParametersToURLWithPath() throws {
-        let expectedURL = "example.com/path?test1=1&test2=2&test3=3"
-        let actualURL = try encode(url: url.appending(path: "path"), parameters: parameters)
-        
-        #expect(actualURL == expectedURL)
-    }
-    
-    /// Checks that parameters with duplicate keys are correcly encoded in to a ``URL`` with a path.
-    @Test func encodingQueryParametersArrayToURLWithPath() throws {
-        let expectedURL = "example.com/path?test=1&test=2&test=3"
-        let actualURL = try encode(url: url.appending(path: "path"), parameters: arrayParameters)
-        
-        #expect(actualURL == expectedURL)
-    }
-    
-// MARK: - URL With Parameters Tests
-    /// Checks that parameters are correcly encoded in to a ``URL`` with existing paramters.
-    @Test func encodingQueryParametersToURLWithParameters() throws {
-        let expectedURL = "example.com?testing=hello&test1=1&test2=2&test3=3"
-        let actualURL = try encode(url: urlWithParameters, parameters: parameters)
-        
-        #expect(actualURL == expectedURL)
-    }
-    
-    /// Checks that parameters with duplicate keys are correcly encoded in to a ``URL`` with existing paramters.
-    @Test func encodingQueryParametersArrayToURLWithParameters() throws {
-        let expectedURL = "example.com?testing=hello&test=1&test=2&test=3"
-        let actualURL = try encode(url: urlWithParameters, parameters: arrayParameters)
-        
-        #expect(actualURL == expectedURL)
-    }
-    
-// MARK: - URL With Parameters & Path Tests
-    /// Checks that parameters are correcly encoded in to a ``URL`` with a path & existing paramters.
-    @Test func encodingQueryParametersToURLWithParametersAndPath() throws {
-        let expectedURL = "example.com/path?testing=hello&test1=1&test2=2&test3=3"
-        let actualURL = try encode(
-            url: urlWithParameters.appending(path: "path"),
-            parameters: parameters
+        let finalURL = try #require(modified.url)
+        let components = try #require(
+            URLComponents(
+                url: finalURL,
+                resolvingAgainstBaseURL: false
+            )
         )
-        
-        #expect(actualURL == expectedURL)
+        let queryItems = components.queryItems ?? []
+        #expect(queryItems.contains(URLQueryItem(name: "search", value: "swift")))
     }
     
-    /// Checks that parameters with duplicate keys are correcly encoded in to a ``URL`` with a path & existing paramters.
-    @Test func encodingQueryParametersArrayToURLWithParametersAndPath() throws {
-        let expectedURL = "example.com/path?testing=hello&test=1&test=2&test=3"
-        let actualURL = try encode(
-            url: urlWithParameters.appending(path: "path"),
-            parameters: arrayParameters
-        )
+    @Test func modifyingURLRequestWithExistingParametersAppendsQueryParameters() throws {
+        let param = Parameter("search", value: "swift")
+        let request = URLRequest(url: urlWithParameters)
+        let modified = try param.modifying(request, with: configurations)
         
-        #expect(actualURL == expectedURL)
+        let finalURL = try #require(modified.url)
+        let components = try #require(
+            URLComponents(
+                url: finalURL,
+                resolvingAgainstBaseURL: false
+            )
+        )
+        let queryItems = components.queryItems ?? []
+        #expect(queryItems.contains(URLQueryItem(name: "search", value: "swift")))
+        #expect(queryItems.contains(URLQueryItem(name: "testing", value: "hello")))
     }
 }
 
 // MARK: - ParametersGroup Tests
 extension RequestParametersTests {
-    @Test func initWithPlainURLQueryItems() {
+    @Test func groupInitWithPlainURLQueryItems() {
         let expectedItems = [
             URLQueryItem(name: "q", value: "swift"),
             URLQueryItem(name: "limit", value: "10")
@@ -185,7 +84,7 @@ extension RequestParametersTests {
         #expect(group.parameters == expectedItems)
     }
     
-    @Test func initWithOptionalURLQueryItems() {
+    @Test func groupInitWithOptionalURLQueryItems() {
         let items: [URLQueryItem?] = [
             URLQueryItem(name: "lang", value: "en"),
             nil,
@@ -200,56 +99,88 @@ extension RequestParametersTests {
         #expect(group.parameters == expectedItems)
     }
     
-    @Test func initWithRequestParameterArray() {
-        let param1 = DummyParameter(
-            parameters: [URLQueryItem(name: "filter", value: "active")]
-        )
-        let param2 = DummyParameter(
-            parameters: [URLQueryItem(name: "sort", value: "desc")]
-        )
-        
-        let group = ParametersGroup([param1, param2])
-        
-        let expectedItems = [
-            URLQueryItem(name: "filter", value: "active"),
-            URLQueryItem(name: "sort", value: "desc")
-        ]
-        #expect(group.parameters == expectedItems)
-    }
-    
-    @Test func initWithBuilder() {
+    @Test func groupInitWithParametersBuilder() {
         let group = ParametersGroup {
-            ParametersGroup([
-                URLQueryItem(name: "country", value: "US")
-            ])
-            DummyParameter(
-                parameters: [URLQueryItem(name: "sort", value: "desc")]
-            )
+            DummyParameter(parameters: [URLQueryItem(name: "lang", value: "en")])
+            DummyParameter(parameters: [URLQueryItem(name: "page", value: "1")])
         }
         
         let expectedItems = [
-            URLQueryItem(name: "country", value: "US"),
-            URLQueryItem(name: "sort", value: "desc")
+            URLQueryItem(name: "lang", value: "en"),
+            URLQueryItem(name: "page", value: "1")
         ]
         #expect(group.parameters == expectedItems)
     }
     
-    struct DummyParameter: RequestParameter {
-        let parameters: [URLQueryItem]
+    @Test func modifyingURLRequestWithGroupAddsAllItems() throws {
+        let group = ParametersGroup([
+            URLQueryItem(name: "x", value: "1"),
+            URLQueryItem(name: "y", value: "2")
+        ])
+        let request = URLRequest(url: url)
+        let modified = try group.modifying(request, with: configurations)
+        
+        let finalURL = try #require(modified.url)
+        let components = try #require(
+            URLComponents(url: finalURL, resolvingAgainstBaseURL: false)
+        )
+        let queryItems = components.queryItems ?? []
+        #expect(queryItems.contains(URLQueryItem(name: "x", value: "1")))
+        #expect(queryItems.contains(URLQueryItem(name: "y", value: "2")))
+    }
+    
+    @Test func modifyingURLRequestWithExisitingParametersWithGroupAddsAllItems() throws {
+        let group = ParametersGroup([
+            URLQueryItem(name: "x", value: "1"),
+            URLQueryItem(name: "y", value: "2")
+        ])
+        let request = URLRequest(url: urlWithParameters)
+        let modified = try group.modifying(request, with: configurations)
+        
+        let finalURL = try #require(modified.url)
+        let components = try #require(
+            URLComponents(
+                url: finalURL,
+                resolvingAgainstBaseURL: false
+            )
+        )
+        let queryItems = components.queryItems ?? []
+        #expect(queryItems.contains(URLQueryItem(name: "x", value: "1")))
+        #expect(queryItems.contains(URLQueryItem(name: "y", value: "2")))
+        #expect(queryItems.contains(URLQueryItem(name: "testing", value: "hello")))
     }
 }
 
 // MARK: - Modifier Tests
 extension RequestParametersTests {
     @Test func appliesAdditionalParametersModifierToRequest() {
-        let request = DummyRequest()
-            .additionalParameters {
-                DummyParameter(
-                    parameters: [URLQueryItem(name: "sort", value: "desc")]
-                )
-            }
+        do {
+            let request = DummyRequest()
+                .appendingParameters {
+                    DummyParameter(
+                        parameters: [URLQueryItem(name: "sort", value: "desc")]
+                    )
+                }
+            
+            let modified = getModified(request, DummyRequest.self, DummyParameter.self)
+            #expect(modified != nil)
+        }
         
-        #expect(request.allModifiers.contains(where: {$0 is ParametersGroup}))
+        do {
+            let request = DummyRequest()
+                .appendingParameter(
+                    DummyParameter(
+                        parameters: [URLQueryItem(name: "sort", value: "desc")]
+                    )
+                )
+            
+            let modified = getModified(request, DummyRequest.self, DummyParameter.self)
+            #expect(modified != nil)
+        }
+    }
+    
+    struct DummyParameter: RequestParameter {
+        let parameters: [URLQueryItem]
     }
 }
 

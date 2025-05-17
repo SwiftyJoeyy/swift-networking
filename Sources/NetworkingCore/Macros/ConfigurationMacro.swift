@@ -38,6 +38,6 @@ import Foundation
 @attached(peer, names: prefixed(ConfigurationKey_))
 @attached(accessor, names: named(get), named(set))
 public macro Config(forceUnwrapped: Bool = false) = #externalMacro(
-    module: "NetworkingMacros",
+    module: "NetworkingCoreMacros",
     type: "ConfigurationKeyMacro"
 )

@@ -63,7 +63,7 @@ extension Request {
     ///
     /// - Parameter timeoutInterval: The timeout duration in seconds.
     /// - Returns: A request with the specified timeout applied.
-    @inlinable public consuming func timeout(
+    @inlinable public func timeout(
         _ timeoutInterval: TimeInterval
     ) -> some Request {
         modifier(TimeoutRequestModifier(timeoutInterval))

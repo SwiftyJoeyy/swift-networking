@@ -35,7 +35,10 @@ extension DictionaryJSONEncoder: JSONEncodable {
             )
             return data
         }catch {
-            throw NetworkingError.JSONError.serializationFailed(dictionary: dictionary, error: error)
+            throw NetworkingError.JSONError.serializationFailed(
+                dictionary: dictionary,
+                error: error
+            )
         }
     }
 }

@@ -59,20 +59,15 @@ public protocol Request: CustomStringConvertible {
     /// The contents of the request.
     var request: Self.Contents {get}
     
-    /// All request modifiers applied to this request.
-    var allModifiers: [any RequestModifier] {get}
-    
-    
-    /// The request modifiers applied to this request.
+    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
+    /// and the provided configuration context.
     ///
-    /// - Warning: This property is private and should not be accessed externally.
-    var _modifiers: [any RequestModifier] {get set}
-    
-    /// Constructs a ``URLRequest`` using the given base url.
+    /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
+    /// and applying all configured modifiers.
     ///
-    /// - Parameter baseURL: The base URL to use if the request does not have one.
+    /// - Parameter configurations: The context in which to evaluate the request, including
+    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
-    /// - Warning: This method is private and should not be accessed externally.
     func _makeURLRequest(
         _ configurations: borrowing ConfigurationValues
     ) throws -> URLRequest
@@ -84,60 +79,29 @@ extension Request {
         return String(describing: Self.self)
     }
     
-    /// All request modifiers applied to this request, including any
-    /// inherited from its contained request.
-    public var allModifiers: [any RequestModifier] {
-        return _modifiers + request.allModifiers
-    }
-    
-    /// Constructs a ``URLRequest`` using the given base url.
+    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
+    /// and the provided configuration context.
     ///
-    /// - Parameter baseURL: The base URL to use if the request does not have one.
+    /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
+    /// and applying all configured modifiers.
+    ///
+    /// - Parameter configurations: The context in which to evaluate the request, including
+    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
-    public func _makeURLRequest(
+    @inlinable public func _makeURLRequest(
         _ configurations: borrowing ConfigurationValues
     ) throws -> URLRequest {
-        var configuredRequest = request
-        configuredRequest._modifiers.append(contentsOf: _modifiers)
-        return try configuredRequest._makeURLRequest(configurations)
+        return try request._makeURLRequest(configurations)
     }
 }
 
 // MARK: - CustomStringConvertible
 extension Request {
     public var description: String {
-        let modsString = _modifiers
-            .map({"    " + String(describing: $0)})
-            .joined(separator: ",\n")
         return """
         \(String(describing: Self.self)) {
           id = \(id),
-          request = \(String(describing: request)),
-          modifiers (\(_modifiers.count)) = [
-        \(modsString)
-          ]
-        }
-        """
-    }
-}
-
-// MARK: - CustomStringConvertible
-extension Request where Self.Contents == Never {
-    /// All request modifiers applied to this request.
-    public var allModifiers: [any RequestModifier] {
-        return _modifiers
-    }
-    
-    public var description: String {
-        let modsString = _modifiers
-            .map({"    " + String(describing: $0)})
-            .joined(separator: ",\n")
-        return """
-        \(String(describing: Self.self)) {
-          id = \(id),
-          modifiers (\(_modifiers.count)) = [
-        \(modsString)
-          ]
+          request = \(String(describing: request))
         }
         """
     }

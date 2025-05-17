@@ -16,9 +16,6 @@ import Foundation
     /// The request's identifier.
     public let id: String
     
-    /// The request modifiers applied to this request.
-    public var _modifiers = [any RequestModifier]()
-    
     /// The request builder used to type erase a request.
     private let requestBuilder: (
         _ configurations: borrowing ConfigurationValues
@@ -34,9 +31,14 @@ import Foundation
     }
     
 // MARK: - Functions
-    /// Constructs a ``URLRequest`` using the given base url.
+    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
+    /// and the provided configuration context.
     ///
-    /// - Parameter baseURL: The base URL to use if the request does not have one.
+    /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
+    /// and applying all configured modifiers.
+    ///
+    /// - Parameter configurations: The context in which to evaluate the request, including
+    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
     public func _makeURLRequest(
         _ configurations: borrowing ConfigurationValues

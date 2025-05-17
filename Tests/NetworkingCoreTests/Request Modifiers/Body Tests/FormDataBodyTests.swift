@@ -24,7 +24,6 @@ struct FormDataBodyTests {
         
         #expect(item.key == key)
         #expect(try item.data(configs) == content)
-        #expect(item.contentSize == UInt64(content.count))
     }
     
     @Test func initWithStringBody() throws {
@@ -50,7 +49,6 @@ struct FormDataBodyTests {
         
         #expect(item.key == key)
         #expect(try item.data(configs) == content)
-        #expect(item.contentSize == UInt64(content.count))
         
         let headers = item.headers.headers
         
@@ -60,12 +58,6 @@ struct FormDataBodyTests {
  
         let contentType = try #require(headers["Content-Type"])
         #expect(contentType == mimeType.preferredMIMEType)
-    }
-    
-    @Test func contentSizeIsCorrect() {
-        let content = Data(repeating: 0xFF, count: 1024)
-        let item = FormDataBody("data", data: content)
-        #expect(item.contentSize == 1024)
     }
     
     @Test func dataReturnsOriginalBody() throws {

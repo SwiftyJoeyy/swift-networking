@@ -57,13 +57,11 @@ struct PathRequestModifierTests {
 // MARK: - Modifier Tests
 extension PathRequestModifierTests {
     @Test func appliesPathModifierToRequest() {
-        let request = DummyRequest().appending(path: "somePath")
+        let request = DummyRequest()
+            .appending("somePath", "v2")
         
-        #expect(request.allModifiers.contains(where: {$0 is PathRequestModifier<String>}))
-        
-        let request2 = DummyRequest().appending(paths: "somePath")
-        
-        #expect(request2.allModifiers.contains(where: {$0 is PathRequestModifier<String>}))
+        let modified = getModified(request, DummyRequest.self, PathRequestModifier.self)
+        #expect(modified != nil)
     }
 }
 

@@ -195,8 +195,8 @@ extension RequestBodyTests {
                     result: .success(nil)
                 )
             }
-        
-        #expect(request.allModifiers.contains(where: {$0 is RequestBodyStub}))
+        let modified = getModified(request, DummyRequest.self, RequestBodyStub.self)
+        #expect(modified != nil)
     }
 }
 

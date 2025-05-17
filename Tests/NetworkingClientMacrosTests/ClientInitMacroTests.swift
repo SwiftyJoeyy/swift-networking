@@ -10,8 +10,8 @@ import MacrosKit
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
-#if canImport(NetworkingMacros)
-import NetworkingMacros
+#if canImport(NetworkingClientMacros)
+import NetworkingClientMacros
 
 final class ClientInitMacroTests: XCTestCase {
 // MARK: - Properties

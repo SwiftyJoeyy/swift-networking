@@ -68,7 +68,9 @@ extension Request {
     ///
     /// - Parameter body: The request body.
     /// - Returns: A request with the specified body applied.
-    @inlinable public func body(_ body: () -> some RequestBody) -> some Request {
+    @inlinable public func body(
+        _ body: () -> some RequestBody
+    ) -> some Request {
         modifier(body())
     }
 }

@@ -13,14 +13,14 @@ import Foundation
 /// or ``Request/appending(path:)``,
 /// or ``Request/appending(paths:)``
 /// instead of directly using this. 
-@usableFromInline internal struct PathRequestModifier<S: StringProtocol> {
+@usableFromInline internal struct PathRequestModifier {
     /// The list of paths to append.
-    private let paths: [S]
+    private let paths: [String]
     
     /// Creates a new ``PathRequestModifier`` with the specified paths.
     ///
     /// - Parameter paths: The paths to append to the request URL.
-    @usableFromInline internal init(_ paths: [S]) {
+    @usableFromInline internal init(_ paths: [String]) {
         self.paths = paths
     }
 }
@@ -42,7 +42,7 @@ extension PathRequestModifier: RequestModifier {
             if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *) {
                 request.url?.append(path: path)
             }else {
-                request.url?.appendPathComponent(String(path))
+                request.url?.appendPathComponent(path)
             }
         }
         return request
@@ -59,45 +59,6 @@ extension PathRequestModifier: CustomStringConvertible {
 
 // MARK: - Modifier
 extension Request {
-    /// Appends multiple paths to the request URL.
-    ///
-    /// ```
-    /// @Request
-    /// struct GoogleRequest {
-    ///     var request: some Request {
-    ///         HTTPRequest()
-    ///             .appending(paths: ["v2", "search"])
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// - Parameter paths: The paths to append.
-    /// - Returns: A request with the specified paths appended.
-    @inlinable public consuming func appending(
-        paths: [some StringProtocol]
-    ) -> some Request {
-        modifier(PathRequestModifier(paths))
-    }
-    
-    /// Appends multiple paths to the request URL.
-    ///
-    /// ```
-    /// @Request
-    /// struct GoogleRequest {
-    ///     var request: some Request {
-    ///         HTTPRequest()
-    ///             .appending(paths: "v2", "search")
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// - Parameter paths: The paths to append.
-    /// - Returns: A request with the specified paths appended.
-    @inlinable public consuming func appending<S: StringProtocol>(
-        paths: S...
-    ) -> some Request {
-        appending(paths: paths)
-    }
     
     /// Appends a path to the request URL.
     ///
@@ -113,9 +74,13 @@ extension Request {
     ///
     /// - Parameter path: The path to append.
     /// - Returns: A request with the specified path appended.
-    @inlinable public consuming func appending(
-        path: some StringProtocol
+    @inlinable public func appending<each S: StringProtocol>(
+        _ path: repeat each S
     ) -> some Request {
-        appending(paths: [path])
+        var paths = [String]()
+        for item in repeat (each path) {
+            paths.append(String(item))
+        }
+        return modifier(PathRequestModifier(paths))
     }
 }

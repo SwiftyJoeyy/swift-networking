@@ -63,7 +63,7 @@ extension Request {
     ///
     /// - Parameter httpMethod: The HTTP method to set.
     /// - Returns: A request with the specified HTTP method applied.
-    @inlinable public consuming func method(
+    @inlinable public func method(
         _ httpMethod: RequestMethod
     ) -> some Request {
         modifier(HTTPMethodRequestModifier(httpMethod))

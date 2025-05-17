@@ -68,13 +68,8 @@ extension FormDataBody {
 
 // MARK: - FormDataItem
 extension FormDataBody: FormDataItem {
-    /// The size of the content in bytes.
-    public var contentSize: UInt64? {
-        return body.map({UInt64($0.count)})
-    }
-    
     /// The headers associated with the form-data item.
-    public var headers: HeadersGroup {
+    public var headers: some RequestHeader {
         ContentDisposition(name: key, fileName: fileName)
         if let mimeType = mimeType?.preferredMIMEType {
             ContentType(.custom(mimeType))
@@ -100,7 +95,6 @@ extension FormDataBody: CustomStringConvertible {
           fileName = \(String(describing: fileName)),
           mimeType = \(String(describing: mimeType)),
           body = \(String(describing: body)),
-          contentSize = \(String(describing: contentSize)),
           headers = \(headers)
         }
         """

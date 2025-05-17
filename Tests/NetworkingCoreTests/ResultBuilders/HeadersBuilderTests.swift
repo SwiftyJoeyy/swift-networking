@@ -11,48 +11,60 @@ import Testing
 
 @Suite(.tags(.resultBuilders))
 struct HeadersBuilderTests {
-    private func build(@HeadersBuilder _ action: () -> HeadersGroup) -> [String: String] {
-        return action().headers
+    private func buildHeader(
+        @HeadersBuilder _ action: () -> some RequestHeader
+    ) -> some RequestHeader {
+        return action()
+    }
+    private func build(
+        @HeadersBuilder _ action: () -> some RequestHeader
+    ) -> [String: String] {
+        return buildHeader(action).headers
+    }
+    
+    @Test func buildBlockWithNoHeaders() {
+        let headers = build { }
+        
+        #expect(headers == [:])
+    }
+    
+    @Test func buildBlockWithOneHeader() {
+        let headers = build {
+            TestHeader(key: "A", value: "1")
+        }
+        
+        let expectedHeaders = ["A": "1"]
+        #expect(headers == expectedHeaders)
     }
     
     @Test func buildBlockWithMultipleHeaders() {
-        let headers = build {
-            TestHeader(key: "A", value: "1")
-            TestHeader(key: "B", value: "2")
-        }
-        
-        let expectedHeaders = ["A": "1", "B": "2"]
-        #expect(headers == expectedHeaders)
-    }
-
-    @Test func buildArray() {
-        let headersArray: [any RequestHeader] = [
-            TestHeader(key: "A", value: "1"),
-            TestHeader(key: "B", value: "2")
-        ]
-        let headers = build {
-            for header in headersArray {
-                header
+        do {
+            let headers = build {
+                TestHeader(key: "A", value: "1")
+                TestHeader(key: "B", value: "2")
             }
+            
+            let expectedHeaders = ["A": "1", "B": "2"]
+            #expect(headers == expectedHeaders)
         }
         
-        let expectedHeaders = ["A": "1", "B": "2"]
-        #expect(headers == expectedHeaders)
-    }
-
-    @Test func buildArrayWithKeyConflictUsesLastValue() {
-        let headersArray: [any RequestHeader] = [
-            TestHeader(key: "A", value: "1"),
-            TestHeader(key: "A", value: "2")
-        ]
-        let headers = build {
-            for header in headersArray {
-                header
+        do {
+            let headers = build {
+                TestHeader(key: "A", value: "1")
+                TestHeader(key: "B", value: "2")
+                TestHeader(key: "C", value: "3")
+                TestHeader(key: "D", value: "4")
+                TestHeader(key: "E", value: "5")
+                TestHeader(key: "F", value: "6")
+                TestHeader(key: "G", value: "7")
+                TestHeader(key: "H", value: "8")
+                TestHeader(key: "I", value: "9")
+                TestHeader(key: "J", value: "10")
             }
+            
+            let expectedHeaders = ["A": "1", "B": "2", "C": "3", "D": "4", "E": "5", "F": "6", "G": "7", "H": "8", "I": "9", "J": "10"]
+            #expect(headers == expectedHeaders)
         }
-        
-        let expectedHeaders = ["A": "2"]
-        #expect(headers == expectedHeaders)
     }
 
     @Test func buildOptionalHeader() {
@@ -131,6 +143,22 @@ struct HeadersBuilderTests {
             "C": "available"
         ]
         #expect(headers == expectedHeaders)
+    }
+    
+    @Test func headersModifyingURLRequest() throws {
+        let header = buildHeader {
+            if true {
+                TestHeader(key: "D", value: "val")
+            }
+            
+            TestHeader(key: "B", value: "val")
+        }
+        
+        let urlRequest = URLRequest(url: URL(string: "https://example.com")!)
+        let modified = try header.modifying(urlRequest, with: .mock)
+        
+        #expect(modified.allHTTPHeaderFields?["D"] == "val")
+        #expect(modified.allHTTPHeaderFields?["B"] == "val")
     }
 }
 

@@ -44,7 +44,7 @@ public actor Session: Configurable {
         sessionDelegate: SessionDelegate = SessionDelegate(),
         configuration: URLSessionConfiguration = .default,
         delegateQueue queue: OperationQueue? = nil,
-        tasksStorage: any TasksStorage = NetworkTasksStorage()
+        tasksStorage: some TasksStorage = NetworkTasksStorage()
     ) {
         self.delegate = sessionDelegate
         configurations = ConfigurationValues()
@@ -70,7 +70,7 @@ public actor Session: Configurable {
     public init(
         sessionDelegate: SessionDelegate = SessionDelegate(),
         delegateQueue queue: OperationQueue? = nil,
-        tasksStorage: any TasksStorage = NetworkTasksStorage(),
+        tasksStorage: some TasksStorage = NetworkTasksStorage(),
         configuration: () -> URLSessionConfiguration
     ) {
         self.init(

@@ -7,9 +7,6 @@
 
 import Foundation
 
-/// Result builder that constructs an array of request modifiers.
-public typealias RequestModifiersBuilder = AnyResultBuilder<any RequestModifier>
-
 /// Requirements for defining a request modifier. ``RequestModifier``
 /// are used to modify ``URLRequest`` objects before they are sent.
 ///
@@ -26,7 +23,7 @@ public typealias RequestModifiersBuilder = AnyResultBuilder<any RequestModifier>
 ///     }
 /// }
 /// ```
-public protocol RequestModifier: ~Copyable {
+public protocol RequestModifier {
     /// Modifies the given ``URLRequest`` and returns the updated version.
     ///
     /// - Parameters:
@@ -40,16 +37,21 @@ public protocol RequestModifier: ~Copyable {
     ) throws -> URLRequest
 }
 
-// TODO: - Add support for unique modifiers (ie: There should be only one RequestBody in the request mods)
 extension Request {
     /// Applies a request modifier to the request.
     ///
+    /// Use this to modify a ``Request``:
+    ///
+    /// ```swift
+    /// let signedRequest = UserInfoRequest()
+    ///     .modifier(AuthorizationToken("abc123"))
+    /// ```
+    ///
     /// - Parameter modifier: The modifier to apply.
     /// - Returns: The modified request.
-    @inlinable public consuming func modifier(
-        _ modifier: consuming some RequestModifier
-    ) -> Self {
-        _modifiers.append(modifier)
-        return self
+    @inlinable public func modifier<Modifier: RequestModifier>(
+        _ modifier: Modifier
+    ) -> some Request {
+        ModifiedRequest(request: self, modifier: modifier)
     }
 }

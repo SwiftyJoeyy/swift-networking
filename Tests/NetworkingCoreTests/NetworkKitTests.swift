@@ -9,6 +9,14 @@ import Testing
 import Foundation
 @testable import NetworkingCore
 
+func getModified<Req: Request, Mod: RequestModifier>(
+    _ request: some Request,
+    _ req: Req.Type,
+    _ mod: Mod.Type
+) -> ModifiedRequest<Req, Mod>? {
+    return request as? ModifiedRequest<Req, Mod>
+}
+
 ////@Test
 //func test() async throws {
 //    let client = MyClient()

@@ -82,17 +82,8 @@ extension FormDataFile {
 
 // MARK: - FormDataItem
 extension FormDataFile: FormDataItem {
-    /// The size of the file content in bytes, if available.
-    public var contentSize: UInt64? {
-        let fileAttributes = try? FileManager.default.attributesOfItem(
-            atPath: fileURL.path
-        )
-        let fileSize = fileAttributes?[.size] as? NSNumber
-        return fileSize?.uint64Value
-    }
-    
     /// The headers associated with the form-data item.
-    public var headers: HeadersGroup {
+    public var headers: some RequestHeader {
         let info = fileInfo()
         ContentDisposition(name: key, fileName: info.name)
         if let mimeType = info.mimeType?.preferredMIMEType {
@@ -192,8 +183,7 @@ extension FormDataFile: CustomStringConvertible {
           key = \(key),
           fileName = \(String(describing: fileName)),
           fileURL = \(fileURL),
-          mimeType = \(String(describing: mimeType))
-          contentSize = \(String(describing: contentSize)),
+          mimeType = \(String(describing: mimeType)),
           headers = \(headers)
         }
         """

@@ -1,14 +1,14 @@
 //
-//  AnyResultBuilder.swift
+//  FormDataItemBuilder.swift
 //  Networking
 //
-//  Created by Joe Maghzal on 1/16/25.
+//  Created by Joe Maghzal on 10/05/2025.
 //
 
 import Foundation
 
-@resultBuilder
-public struct AnyResultBuilder<Item> {
+@resultBuilder public struct FormDataItemBuilder {
+    public typealias Item = any FormDataItem
     public static func buildBlock(_ components: [Item]...) -> [Item] {
         return components.flatMap({$0})
     }

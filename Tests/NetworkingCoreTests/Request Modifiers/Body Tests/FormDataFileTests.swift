@@ -41,13 +41,6 @@ final class FormDataFileTests {
         #expect(filePathItem == urlItem)
     }
     
-    @Test func contentSize() {
-        let item = FormDataFile(key, fileURL: tempFileURL)
-        
-        let expectedSize = contents.data(using: .utf8)!.count
-        #expect(item.contentSize == UInt64(expectedSize))
-    }
-    
     @Test func dataReadsCorrectly() throws {
         let item = FormDataFile("file", fileURL: tempFileURL)
         let data = try #require(try item.data(configs))

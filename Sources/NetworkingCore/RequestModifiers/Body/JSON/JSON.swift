@@ -76,29 +76,31 @@ extension Data: JSONEncodable {
 ///     }
 /// }
 /// ```
-@frozen public struct JSON {
+@frozen public struct JSON<T: JSONEncodable> {
     /// The JSON encodable object.
-    @usableFromInline internal let encodable: any JSONEncodable
+    @usableFromInline internal let encodable: T
 
     /// Creates a new ``JSON`` from a ``JSONEncodable``.
     ///
     /// - Parameter encodable: The object to be encoded into JSON.
-    @inlinable public init(_ encodable: any JSONEncodable) {
+    @inlinable public init(encodable: T) {
         self.encodable = encodable
     }
     
     /// Creates a new ``JSON`` from raw JSON data.
     ///
     /// - Parameter data: The raw JSON data.
-    @inlinable public init(data: Data) {
-        self.init(data)
+    @inlinable public init(data: Data) where T == Data {
+        self.init(encodable: data)
     }
     
     /// Creates a new ``JSON`` from a dictionary.
     ///
     /// - Parameter dictionary: The dictionary to be encoded.
-    @inlinable public init(_ dictionary: Dictionary<String, any Sendable>) {
-        self.init(DictionaryJSONEncoder(dictionary: dictionary))
+    @inlinable public init(
+        _ dictionary: Dictionary<String, any Sendable>
+    ) where T == DictionaryJSONEncoder {
+        self.init(encodable: DictionaryJSONEncoder(dictionary: dictionary))
     }
     
     /// Creates a new ``JSON`` from an ``Encodable`` object.
@@ -106,11 +108,11 @@ extension Data: JSONEncodable {
     /// - Parameters:
     ///  - object: The object to be encoded.
     ///  - encoder: The ``JSONEncoder`` to use for encoding.
-    @inlinable public init(
-        _ object: some Encodable,
+    @inlinable public init<Object: Encodable>(
+        _ object: Object,
         encoder: JSONEncoder? = nil
-    ) {
-        self.init(CodableJSONEncoder(object, encoder: encoder))
+    ) where T == CodableJSONEncoder<Object> {
+        self.init(encodable: CodableJSONEncoder(object, encoder: encoder))
     }
 }
 

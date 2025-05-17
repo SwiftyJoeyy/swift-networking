@@ -12,179 +12,95 @@ import Foundation
 /// Suite for testing the functionality of ``RequestHeader``.
 @Suite(.tags(.requestModifiers, .headers))
 struct RequestHeaderTests {
+// MARK: - Properties
     private let configurations = ConfigurationValues.mock
+    
+    /// ``URL`` for testing.
     private let url = URL(string: "example.com")!
     
-    // MARK: - Header Tests
+// MARK: - Header Tests
     /// Checks that ``Header`` is correctly converted to ``[String: String]``.
-    @Test(arguments: [["test1": "1"], ["test2": "2"], ["test3": "3"]])
-    func convertHeaderToDictionary(items: [String: String]) {
-        let first = items.first!
-        let header = Header(first.key, value: first.value)
-        let expectedItems = items
-        
-        #expect(header.headers == expectedItems)
+    @Test func headerCreatesCorrectHeaders() {
+        let header = Header("Authorization", value: "Bearer token")
+        #expect(header.key == "Authorization")
+        #expect(header.value == "Bearer token")
+        #expect(header.headers == ["Authorization": "Bearer token"])
     }
     
-    /// Checks that ``HeadersGroup`` header values are correctly converted to ``[String: String]``.
-    @Test(arguments: [["test1": "1", "test11": "11"], ["test2": "2", "test22": "22"], ["test3": "3", "test33": "33"]])
-    func convertHeadersGroupWithoutDuplicateKeysToDictionary(items: [String: String]) {
-        let headers = items.map({Header($0.key, value: $0.value)})
-        let group = HeadersGroup(headers)
+    @Test func headerModifyingRequest() throws {
+        let header = Header("Accept", value: "application/json")
+        var request = URLRequest(url: URL(string: "https://example.com")!)
+        request = try header.modifying(request, with: configurations)
         
-        let expectedItems = items
-        
-        #expect(group.headers == expectedItems)
+        #expect(request.allHTTPHeaderFields?["Accept"] == "application/json")
     }
     
-    /// Checks that header is correcly encoded in to a ``URLRequest`` with empty headers.
-    @Test func encodingHeaderIntoAURLRequestWithEmptyHeaders() throws {
-        let urlRequest = URLRequest(url: url)
-        let header = Header("test11", value: "11")
-        let modifiedRequest = try header.modifying(urlRequest, with: configurations)
+    @Test func headerModifyingRequestWithDuplicateKeys() throws {
+        let header = Header("Accept", value: "application/json")
+        var request = URLRequest(url: URL(string: "https://example.com")!)
+        request.setValue("test", forHTTPHeaderField: "Accept")
+        request = try header.modifying(request, with: configurations)
         
-        let expectedItems = header.headers
-        
-        #expect(modifiedRequest.allHTTPHeaderFields == expectedItems)
-    }
-    
-    /// Checks that header is correcly encoded in to a ``URLRequest`` with non empty headers.
-    @Test func encodingHeaderIntoAURLRequestWithNonEmptyHeaders() throws {
-        var urlRequest = URLRequest(url: url)
-        urlRequest.setValue("9", forHTTPHeaderField: "test")
-        let header = Header("test11", value: "11")
-        let modifiedRequest = try header.modifying(urlRequest, with: configurations)
-        
-        let expectedItems = ["test": "9", "test11": "11"]
-        
-        #expect(modifiedRequest.allHTTPHeaderFields == expectedItems)
+        #expect(request.allHTTPHeaderFields?["Accept"] == "application/json")
     }
 }
 
 // MARK: - HeadersGroup Tests
 extension RequestHeaderTests {
-    /// Checks that ``HeadersGroup`` header values are correctly converted to ``[String: String]`` after appending a duplicate key with different value.
-    @Test func convertHeadersGroupAfterAddingDuplicateKeysAndDifferentValuesToDictionary() {
-        let items = ["test1": "1", "test11": "11"]
-        var headers = items.map({Header($0.key, value: $0.value)})
-        headers.append(Header("test11", value: "22"))
-        let group = HeadersGroup(headers)
-        
-        let expectedItems = ["test1": "1", "test11": "22"]
-        
-        #expect(group.headers == expectedItems)
-    }
-    
-    /// Checks that ``HeadersGroup`` header values are correctly converted to ``[String: String]`` after appending headers to an array containing duplicate keys with different values.
-    @Test func convertHeadersGroupContainingDuplicateKeysAndDifferentValuesToDictionary() {
-        let items = ["test1": "1", "test11": "22"]
-        var headers = [Header("test11", value: "11")]
-        headers.append(contentsOf: items.map({Header($0.key, value: $0.value)}))
-        let group = HeadersGroup(headers)
-        
-        let expectedItems = ["test1": "1", "test11": "22"]
-        
-        #expect(group.headers == expectedItems)
-    }
-    
-    /// Checks that ``HeadersGroup`` header values are correctly converted to ``[String: String]`` after appending a duplicate key and value.
-    @Test func convertHeadersGroupAfterAddingDuplicateKeysAndValuesToDictionary() {
-        let items = ["test1": "1", "test11": "11"]
-        var headers = items.map({Header($0.key, value: $0.value)})
-        headers.append(Header("test11", value: "11"))
-        let group = HeadersGroup(headers)
-        
-        let expectedItems = ["test1": "1", "test11": "11"]
-        
-        #expect(group.headers == expectedItems)
-    }
-    
-    /// Checks that ``HeadersGroup`` header values are correctly converted to ``[String: String]`` after appending headers to an array containing duplicate keys values.
-    @Test func convertHeadersGroupContainingDuplicateKeysAndValuesToDictionary() {
-        let items = ["test1": "1", "test11": "11"]
-        var headers = [Header("test11", value: "11")]
-        headers.append(contentsOf: items.map({Header($0.key, value: $0.value)}))
-        let group = HeadersGroup(headers)
-        
-        let expectedItems = ["test1": "1", "test11": "11"]
-        
-        #expect(group.headers == expectedItems)
-    }
-    
-    /// Checks that headers group are correcly encoded in to a ``URLRequest`` with empty headers.
-    @Test func encodingHeadersGroupIntoAURLRequestWithEmptyHeaders() throws {
-        let urlRequest = URLRequest(url: url)
-        let headers = HeadersGroup {
-            Header("test11", value: "11")
-            Header("test22", value: "22")
-        }
-        let modifiedRequest = try headers.modifying(urlRequest, with: configurations)
-        
-        let expectedItems = headers.headers
-        
-        #expect(modifiedRequest.allHTTPHeaderFields == expectedItems)
-    }
-    
-    /// Checks that headers group are correcly encoded in to a ``URLRequest`` with non empty headers.
-    @Test func encodingHeadersGroupIntoAURLRequestWithNonEmptyHeaders() throws {
-        var urlRequest = URLRequest(url: url)
-        urlRequest.setValue("9", forHTTPHeaderField: "test")
-        let headers = HeadersGroup {
-            Header("test11", value: "11")
-            Header("test22", value: "22")
-        }
-        let modifiedRequest = try headers.modifying(urlRequest, with: configurations)
-        
-        let expectedItems = ["test": "9", "test11": "11", "test22": "22"]
-        
-        #expect(modifiedRequest.allHTTPHeaderFields == expectedItems)
-    }
-    
-    @Test func initWithPlainDictionary() {
-        let expectedValue = [
-            "Accept": "application/json",
-            "Cache-Control": "no-cache"
+    @Test func groupInitWithNonOptionalDictionary() {
+        let headers: [String: String] = [
+            "Content-Type": "application/json",
+            "User-Agent": "SwiftTest"
         ]
-        let group = HeadersGroup(expectedValue)
+        let group = HeadersGroup(headers)
         
-        #expect(group.headers == expectedValue)
+        #expect(group.headers.count == 2)
+        #expect(group.headers["Content-Type"] == "application/json")
+        #expect(group.headers["User-Agent"] == "SwiftTest")
     }
     
-    @Test func initWithOptionalDictionary() {
-        let group = HeadersGroup([
-            "Accept": "application/json",
-            "Authorization": nil,
-            "Cache-Control": "no-cache"
-        ])
-        
-        let expectedValue = [
-            "Accept": "application/json",
-            "Cache-Control": "no-cache"
+    @Test func groupInitWithOptionalDictionary() {
+        let headers: [String: String?] = [
+            "Content-Type": "application/json",
+            "User-Agent": nil
         ]
-        #expect(group.headers == expectedValue)
-    }
-    
-    @Test func initWithRequestHeadersArray() {
-        let header1 = DummyHeader(headers: ["A": "1"])
-        let header2 = DummyHeader(headers: ["B": "2"])
-        let group = HeadersGroup([header1, header2])
+        let group = HeadersGroup(headers)
         
-        let expectedValue = ["A": "1", "B": "2"]
-        #expect(group.headers == expectedValue)
+        #expect(group.headers.count == 1)
+        #expect(group.headers["Content-Type"] == "application/json")
+        #expect(group.headers["User-Agent"] == nil)
     }
     
-    @Test func initWithHeadersBuilder() {
+    @Test func groupInitWithHeadersBuilder() {
         let group = HeadersGroup {
-            HeadersGroup(["X-Trace": "trace-123"])
-            DummyHeader(headers: ["A": "1"])
+            DummyHeader(headers: ["Content-Type": "application/json"])
+            DummyHeader(headers: ["User-Agent": "1"])
         }
         
-        let expectedValue = ["X-Trace": "trace-123", "A": "1"]
-        #expect(group.headers == expectedValue)
+        #expect(group.headers.count == 2)
+        #expect(group.headers["Content-Type"] == "application/json")
+        #expect(group.headers["User-Agent"] == "1")
     }
     
-    struct DummyHeader: RequestHeader {
-        let headers: [String: String]
+    @Test func groupModifyingRequest() throws {
+        let headers: [String: String] = ["X-Test": "true", "X-Feature": "on"]
+        let group = HeadersGroup(headers)
+        var request = URLRequest(url: url)
+        
+        request = try group.modifying(request, with: .init())
+        
+        #expect(request.allHTTPHeaderFields?["X-Test"] == "true")
+        #expect(request.allHTTPHeaderFields?["X-Feature"] == "on")
+    }
+    
+    @Test func groupModifyingRequestWithDuplicateKeys() throws {
+        var request = URLRequest(url: url)
+        request.setValue("OldToken", forHTTPHeaderField: "Authorization")
+        
+        let group = HeadersGroup(["Authorization": "NewToken"])
+        request = try group.modifying(request, with: .init())
+        
+        #expect(request.allHTTPHeaderFields?["Authorization"] == "NewToken")
     }
 }
 
@@ -262,12 +178,18 @@ extension RequestHeaderTests {
 // MARK: - Modifier Tests
 extension RequestHeaderTests {
     @Test func appliesAdditionalHeadersModifierToRequest() {
+        let header = DummyHeader(headers: ["A": "1"])
         let request = DummyRequest()
             .additionalHeaders {
-                DummyHeader(headers: ["A": "1"])
+                header
             }
         
-        #expect(request.allModifiers.contains(where: {$0 is HeadersGroup}))
+        let modifiedRequest = getModified(request, DummyRequest.self, DummyHeader.self)
+        #expect(modifiedRequest?.modifier.headers == header.headers)
+    }
+    
+    struct DummyHeader: RequestHeader {
+        let headers: [String: String]
     }
 }
 

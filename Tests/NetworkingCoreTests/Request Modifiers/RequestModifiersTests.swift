@@ -25,7 +25,8 @@ import Testing
 @Test(.tags(.requestModifiers)) func applyingTHTTPMethodModifierToRequest() throws {
     let request = DummyRequest().method(.get)
     
-    #expect(request.allModifiers.contains(where: {$0 is HTTPMethodRequestModifier}))
+    let modified = getModified(request, DummyRequest.self, HTTPMethodRequestModifier.self)
+    #expect(modified != nil)
 }
 
 
@@ -45,7 +46,8 @@ import Testing
 @Test(.tags(.requestModifiers)) func applyingTimeoutIntervalModifierToRequest() throws {
     let request = DummyRequest().timeout(90)
     
-    #expect(request.allModifiers.contains(where: {$0 is TimeoutRequestModifier}))
+    let modified = getModified(request, DummyRequest.self, TimeoutRequestModifier.self)
+    #expect(modified != nil)
 }
 
 
@@ -73,7 +75,8 @@ func applyingCachePolityToURLRequest(policy: URLRequest.CachePolicy) throws {
 @Test(.tags(.requestModifiers)) func applyingCachePolicyModifierToRequest() throws {
     let request = DummyRequest().cachePolicy(.reloadIgnoringCacheData)
     
-    #expect(request.allModifiers.contains(where: {$0 is CachePolicyRequestModifier}))
+    let modified = getModified(request, DummyRequest.self, CachePolicyRequestModifier.self)
+    #expect(modified != nil)
 }
 
 extension Tag {

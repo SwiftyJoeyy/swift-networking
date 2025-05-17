@@ -11,39 +11,76 @@ import Testing
 
 @Suite(.tags(.resultBuilders))
 struct ParametersBuilderTests {
-    private func build(@ParametersBuilder _ action: () -> ParametersGroup) -> [URLQueryItem] {
-        return action().parameters
+    private func buildParam(
+        @ParametersBuilder _ action: () -> some RequestParameter
+    ) -> some RequestParameter {
+        return action()
+    }
+    private func build(
+        @ParametersBuilder _ action: () -> some RequestParameter
+    ) -> [URLQueryItem] {
+        return buildParam(action).parameters
+    }
+    
+    @Test func buildBlockWithNoParameters() {
+        let params = build { }
+        
+        #expect(params == [])
+    }
+    
+    @Test func buildBlockWithOneParameter() {
+        let params = build {
+            TestParameter(name: "A", value: "1")
+        }
+        
+        let expectedParams = [
+            URLQueryItem(name: "A", value: "1")
+        ]
+        #expect(params == expectedParams)
     }
     
     @Test func buildBlockWithMultipleParameters() {
-        let params = build {
-            TestParameter(name: "A", value: "1")
-            TestParameter(name: "B", value: "2")
-        }
-        
-        let expectedParams = [
-            URLQueryItem(name: "A", value: "1"),
-            URLQueryItem(name: "B", value: "2")
-        ]
-        #expect(params == expectedParams)
-    }
-
-    @Test func buildArray() {
-        let paramsArray: [any RequestParameter] = [
-            TestParameter(name: "A", value: "1"),
-            TestParameter(name: "B", value: "2")
-        ]
-        let params = build {
-            for param in paramsArray {
-                param
+        do {
+            let params = build {
+                TestParameter(name: "A", value: "1")
+                TestParameter(name: "B", value: "2")
             }
+            
+            let expectedParams = [
+                URLQueryItem(name: "A", value: "1"),
+                URLQueryItem(name: "B", value: "2")
+            ]
+            #expect(params == expectedParams)
         }
         
-        let expectedParams = [
-            URLQueryItem(name: "A", value: "1"),
-            URLQueryItem(name: "B", value: "2")
-        ]
-        #expect(params == expectedParams)
+        do {
+            let params = build {
+                TestParameter(name: "A", value: "1")
+                TestParameter(name: "B", value: "2")
+                TestParameter(name: "C", value: "3")
+                TestParameter(name: "D", value: "4")
+                TestParameter(name: "E", value: "5")
+                TestParameter(name: "F", value: "6")
+                TestParameter(name: "G", value: "7")
+                TestParameter(name: "H", value: "8")
+                TestParameter(name: "I", value: "9")
+                TestParameter(name: "J", value: "10")
+            }
+            
+            let expectedParams = [
+                URLQueryItem(name: "A", value: "1"),
+                URLQueryItem(name: "B", value: "2"),
+                URLQueryItem(name: "C", value: "3"),
+                URLQueryItem(name: "D", value: "4"),
+                URLQueryItem(name: "E", value: "5"),
+                URLQueryItem(name: "F", value: "6"),
+                URLQueryItem(name: "G", value: "7"),
+                URLQueryItem(name: "H", value: "8"),
+                URLQueryItem(name: "I", value: "9"),
+                URLQueryItem(name: "J", value: "10"),
+            ]
+            #expect(params == expectedParams)
+        }
     }
 
     @Test func buildOptionalParameter() {
@@ -122,6 +159,30 @@ struct ParametersBuilderTests {
             URLQueryItem(name: "C", value: "available")
         ]
         #expect(params == expectedParams)
+    }
+    
+    @Test func paramsModifyingURLRequest() throws {
+        let param = buildParam {
+            if true {
+                TestParameter(name: "D", value: "val")
+            }
+            
+            TestParameter(name: "B", value: "val")
+        }
+        
+        let urlRequest = URLRequest(url: URL(string: "https://example.com")!)
+        let modified = try param.modifying(urlRequest, with: .mock)
+        
+        let finalURL = try #require(modified.url)
+        let components = try #require(
+            URLComponents(
+                url: finalURL,
+                resolvingAgainstBaseURL: false
+            )
+        )
+        let queryItems = components.queryItems ?? []
+        #expect(queryItems.contains(URLQueryItem(name: "D", value: "val")))
+        #expect(queryItems.contains(URLQueryItem(name: "B", value: "val")))
     }
 }
 

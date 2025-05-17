@@ -30,14 +30,12 @@ import Foundation
 @attached(member, conformances: NetworkClient, names: named(_session), named(init))
 @attached(memberAttribute)
 public macro Client() = #externalMacro(
-    module: "NetworkingMacros",
+    module: "NetworkingClientMacros",
     type: "ClientMacro"
 )
 
-#if hasFeature(BodyMacros)
 @attached(body)
 public macro ClientInit() = #externalMacro(
-    module: "NetworkingMacros",
+    module: "NetworkingClientMacros",
     type: "ClientInitMacro"
 )
-#endif

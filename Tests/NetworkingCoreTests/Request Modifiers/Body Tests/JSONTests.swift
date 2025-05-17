@@ -15,46 +15,31 @@ struct JSONTests {
     private let configurations = ConfigurationValues.mock
     
     @Test func setsContentTypeToApplicationJSON() throws {
-        let encodables: [any JSONEncodable] = [
-            CodableJSONEncoder(DataMock()),
-            DictionaryJSONEncoder(dictionary: ["test": "value"]),
-            "Test Body".data(using: .utf8)!
-        ]
         let urlRequest = URLRequest(url: url)
+        let data = "Test Body".data(using: .utf8)
+        let modifier = JSON(encodable: JSONEncodableMock(data: data))
         
-        for encodable in encodables {
-            let modifier = JSON(encodable)
-            
-            let modifiedRequest = try modifier.modifying(
-                urlRequest,
-                with: configurations
-            )
-            
-            let contentType = modifiedRequest.allHTTPHeaderFields?["Content-Type"]
-            #expect(contentType == BodyContentType.applicationJson.value)
-        }
+        let modifiedRequest = try modifier.modifying(
+            urlRequest,
+            with: configurations
+        )
+        
+        let contentType = modifiedRequest.allHTTPHeaderFields?["Content-Type"]
+        #expect(contentType == BodyContentType.applicationJson.value)
     }
     
     @Test func setsHTTPBodyToEncodedData() throws {
-        let encodables: [any JSONEncodable] = [
-            CodableJSONEncoder(DataMock()),
-            DictionaryJSONEncoder(dictionary: ["test": "value"]),
-            "Test Body".data(using: .utf8)!
-        ]
         let urlRequest = URLRequest(url: url)
+        let expectedData = "Test Body".data(using: .utf8)
+        let modifier = JSON(encodable: JSONEncodableMock(data: expectedData))
         
-        for encodable in encodables {
-            let expectedData = try encodable.encoded(for: configurations)
-            let modifier = JSON(encodable)
-            
-            let modifiedRequest = try modifier.modifying(
-                urlRequest,
-                with: configurations
-            )
-            
-            let data = modifiedRequest.httpBody
-            #expect(data == expectedData)
-        }
+        let modifiedRequest = try modifier.modifying(
+            urlRequest,
+            with: configurations
+        )
+        
+        let data = modifiedRequest.httpBody
+        #expect(data == expectedData)
     }
     
     @Test func initWithData() throws {
@@ -130,6 +115,16 @@ struct JSONTests {
 extension JSONTests {
     struct DataMock: Codable, Equatable {
         var testName = UUID()
+    }
+    
+    struct JSONEncodableMock: JSONEncodable {
+        let data: Data?
+        
+        func encoded(
+            for configurations: borrowing ConfigurationValues
+        ) throws -> Data? {
+            return data
+        }
     }
 }
 

@@ -91,7 +91,7 @@ extension Request {
     /// - Parameter headers: A builder closure returning header parameters.
     /// - Returns: A request with the additional headers applied.
     @inlinable public func additionalHeaders(
-        @HeadersBuilder _ headers: () -> HeadersGroup
+        @HeadersBuilder _ headers: () -> some RequestHeader
     ) -> some Request {
         modifier(headers())
     }

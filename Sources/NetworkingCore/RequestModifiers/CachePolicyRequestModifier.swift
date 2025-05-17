@@ -63,7 +63,7 @@ extension Request {
     ///
     /// - Parameter cachePolicy: The cache policy to set.
     /// - Returns: A request with the specified cache policy applied.
-    @inlinable public consuming func cachePolicy(
+    @inlinable public func cachePolicy(
         _ cachePolicy: URLRequest.CachePolicy
     ) -> some Request {
         modifier(CachePolicyRequestModifier(cachePolicy))

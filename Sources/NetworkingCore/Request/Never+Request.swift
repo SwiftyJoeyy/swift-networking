@@ -15,16 +15,6 @@ extension Never: Request {
         return "Never"
     }
     
-    /// The request modifiers applied to this request.
-    ///
-    /// - Warning: This should not be accessed directly.
-    public var _modifiers: [any RequestModifier] {
-        get {
-            fatalError("Should not be called directly!!")
-        }
-        set { }
-    }
-    
     /// Accessing this property will always result in a fatal error.
     ///
     /// - Warning: This should not be accessed directly.
@@ -39,5 +29,13 @@ extension Request where Self.Contents == Never {
     /// - Warning: This should not be accessed directly.
     public var request: Never {
         fatalError("Should not be called directly!!")
+    }
+    
+    public var description: String {
+        return """
+        \(String(describing: Self.self)) {
+          id = \(id)
+        }
+        """
     }
 }
