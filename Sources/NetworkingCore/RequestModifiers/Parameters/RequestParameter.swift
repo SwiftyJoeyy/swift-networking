@@ -26,8 +26,7 @@ extension RequestParameter {
     ///  
     /// - Returns: The modified ``URLRequest`` with query parameters added.
     public func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *) {
             request.url?.append(queryItems: parameters)

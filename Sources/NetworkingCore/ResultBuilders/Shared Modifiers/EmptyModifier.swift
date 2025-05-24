@@ -14,11 +14,15 @@ import Foundation
 // MARK: - RequestModifier
 extension EmptyModifier: RequestModifier {
     @inlinable public func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         return request
     }
+}
+
+// MARK: - _DynamicConfigurable
+extension EmptyModifier: _DynamicConfigurable {
+    @inlinable public func _accept(_ values: ConfigurationValues) { }
 }
 
 // MARK: - CustomStringConvertible

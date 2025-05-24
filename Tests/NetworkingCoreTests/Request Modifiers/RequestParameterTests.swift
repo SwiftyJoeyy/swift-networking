@@ -13,8 +13,6 @@ import Foundation
 @Suite(.tags(.requestModifiers, .parameters))
 struct RequestParameterTests {
 // MARK: - Properties
-    private let configurations = ConfigurationValues.mock
-    
     /// ``URL`` for testing.
     private let url = URL(string: "example.com")!
     
@@ -41,7 +39,7 @@ struct RequestParameterTests {
     @Test func modifyingURLRequestAppendsQueryParameters() throws {
         let param = Parameter("search", value: "swift")
         let request = URLRequest(url: url)
-        let modified = try param.modifying(request, with: configurations)
+        let modified = try param.modifying(request)
         
         let finalURL = try #require(modified.url)
         let components = try #require(
@@ -57,7 +55,7 @@ struct RequestParameterTests {
     @Test func modifyingURLRequestWithExistingParametersAppendsQueryParameters() throws {
         let param = Parameter("search", value: "swift")
         let request = URLRequest(url: urlWithParameters)
-        let modified = try param.modifying(request, with: configurations)
+        let modified = try param.modifying(request)
         
         let finalURL = try #require(modified.url)
         let components = try #require(
@@ -118,7 +116,7 @@ extension RequestParameterTests {
             URLQueryItem(name: "y", value: "2")
         ])
         let request = URLRequest(url: url)
-        let modified = try group.modifying(request, with: configurations)
+        let modified = try group.modifying(request)
         
         let finalURL = try #require(modified.url)
         let components = try #require(
@@ -135,7 +133,7 @@ extension RequestParameterTests {
             URLQueryItem(name: "y", value: "2")
         ])
         let request = URLRequest(url: urlWithParameters)
-        let modified = try group.modifying(request, with: configurations)
+        let modified = try group.modifying(request)
         
         let finalURL = try #require(modified.url)
         let components = try #require(

@@ -16,8 +16,6 @@ import UniformTypeIdentifiers
 @Suite(.tags(.requestModifiers, .headers))
 struct RequestHeaderTests {
 // MARK: - Properties
-    private let configurations = ConfigurationValues.mock
-    
     /// ``URL`` for testing.
     private let url = URL(string: "example.com")!
     
@@ -33,7 +31,7 @@ struct RequestHeaderTests {
     @Test func headerModifyingRequest() throws {
         let header = Header("Accept", value: "application/json")
         var request = URLRequest(url: URL(string: "https://example.com")!)
-        request = try header.modifying(request, with: configurations)
+        request = try header.modifying(request)
         
         #expect(request.allHTTPHeaderFields?["Accept"] == "application/json")
     }
@@ -42,7 +40,7 @@ struct RequestHeaderTests {
         let header = Header("Accept", value: "application/json")
         var request = URLRequest(url: URL(string: "https://example.com")!)
         request.setValue("test", forHTTPHeaderField: "Accept")
-        request = try header.modifying(request, with: configurations)
+        request = try header.modifying(request)
         
         #expect(request.allHTTPHeaderFields?["Accept"] == "application/json")
     }
@@ -90,7 +88,7 @@ extension RequestHeaderTests {
         let group = HeadersGroup(headers)
         var request = URLRequest(url: url)
         
-        request = try group.modifying(request, with: .init())
+        request = try group.modifying(request)
         
         #expect(request.allHTTPHeaderFields?["X-Test"] == "true")
         #expect(request.allHTTPHeaderFields?["X-Feature"] == "on")
@@ -101,7 +99,7 @@ extension RequestHeaderTests {
         request.setValue("OldToken", forHTTPHeaderField: "Authorization")
         
         let group = HeadersGroup(["Authorization": "NewToken"])
-        request = try group.modifying(request, with: .init())
+        request = try group.modifying(request)
         
         #expect(request.allHTTPHeaderFields?["Authorization"] == "NewToken")
     }

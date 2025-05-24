@@ -92,14 +92,15 @@ public actor Session: Configurable {
     /// - Parameter request: The request to be performed.
     /// - Returns: A ``DataTask`` configured with the session and request.
     nonisolated public func dataTask(
-        _ request: consuming some Request
+        _ request: borrowing some Request
     ) throws -> DataTask {
-        return DataTask(
+        let task = DataTask(
             id: request.id,
-            request: try request._makeURLRequest(configurations),
-            session: self,
-            configurations: configurations
+            request: try request._makeURLRequest(with: configurations),
+            session: self
         )
+        task._accept(configurations)
+        return task
     }
     
     /// Creates a ``DownloadTask`` from a ``Request``.
@@ -107,14 +108,15 @@ public actor Session: Configurable {
     /// - Parameter request: The request to be performed.
     /// - Returns: A ``DownloadTask`` configured with the session and request.
     nonisolated public func downloadTask(
-        _ request: consuming some Request
+        _ request: borrowing some Request
     ) throws -> DownloadTask {
-        return DownloadTask(
+        let task = DownloadTask(
             id: request.id,
-            request: try request._makeURLRequest(configurations),
-            session: self,
-            configurations: configurations
+            request: try request._makeURLRequest(with: configurations),
+            session: self
         )
+        task._accept(configurations)
+        return task
     }
     
     /// Sets a configuration value using a key path.

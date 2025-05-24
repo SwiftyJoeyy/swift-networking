@@ -24,8 +24,7 @@ extension RequestHeader {
     ///  
     /// - Returns: The modified ``URLRequest`` with headers added.
     public func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         if var headersFields = request.allHTTPHeaderFields {
             for header in headers {

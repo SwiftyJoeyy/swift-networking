@@ -13,6 +13,9 @@ import Foundation
     public typealias Contents = Never
     
 // MARK: - Properties
+    /// The configuration values available to this instance.
+    @Configurations private var configurations
+    
     /// The request's identifier.
     public let id: String
     
@@ -26,23 +29,31 @@ import Foundation
     public init(_ request: some Request) {
         self.id = request.id
         self.requestBuilder = { configurations in
-            try request._makeURLRequest(configurations)
+            request._accept(configurations)
+            return try request._makeURLRequest()
         }
     }
     
 // MARK: - Functions
-    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
-    /// and the provided configuration context.
+    /// Constructs a ``URLRequest`` from this request.
     ///
     /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
     /// and applying all configured modifiers.
     ///
-    /// - Parameter configurations: The context in which to evaluate the request, including
-    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
-    public func _makeURLRequest(
-        _ configurations: borrowing ConfigurationValues
-    ) throws -> URLRequest {
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _makeURLRequest() throws -> URLRequest {
         return try requestBuilder(configurations)
+    }
+    
+    /// Applies new configuration values to the erased request.
+    ///
+    /// This method is called internally to inject values during evaluation. You typically
+    /// do not call this method directly.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _accept(_ values: ConfigurationValues) {
+        _configurations._accept(values)
     }
 }

@@ -49,6 +49,9 @@ import Foundation
 /// - Note: If the base URL is not provided at initialization, it must be available
 ///   through ``ConfigurationValues.baseURL`` at the time of request execution.
 @frozen public struct HTTPRequest<Modifier: RequestModifier> {
+    /// The configuration values available to this instance.
+    @Configurations private var configurations
+    
     /// The request's identifier.
     public let id = "HTTPRequest"
     
@@ -103,18 +106,14 @@ extension HTTPRequest: Request {
     /// The contents of the request.
     public typealias Contents = Never
     
-    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
-    /// and the provided configuration context.
+    /// Constructs a ``URLRequest`` from this ``HTTPRequest``.
     ///
     /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
     /// and applying all configured modifiers.
     ///
-    /// - Parameter configurations: The context in which to evaluate the request, including
-    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
-    public func _makeURLRequest(
-        _ configurations: borrowing ConfigurationValues
-    ) throws -> URLRequest {
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _makeURLRequest() throws -> URLRequest {
         let baseURL = configurations.baseURL
         guard let url = url ?? baseURL else {
             throw NetworkingError.invalidRequestURL
@@ -122,12 +121,24 @@ extension HTTPRequest: Request {
         
         var urlRequest = URLRequest(url: url)
         if let path {
-            urlRequest = try PathRequestModifier([path]).modifying(
-                consume urlRequest,
-                with: configurations
-            )
+            urlRequest = try PathRequestModifier([path])
+                .modifying(consume urlRequest)
         }
         
-        return try modifier.modifying(urlRequest, with: configurations)
+        return try modifier.modifying(urlRequest)
+    }
+    
+    /// Applies the given configuration values to the request.
+    ///
+    /// This method forwards the provided `ConfigurationValues` to the associated
+    /// request modifier and to this instance’s internal configuration storage.
+    /// Use this to propagate inherited configuration values through the request
+    /// chain.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _accept(_ values: ConfigurationValues) {
+        modifier._accept(values)
+        _configurations._accept(values)
     }
 }

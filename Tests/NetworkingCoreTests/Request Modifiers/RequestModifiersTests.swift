@@ -15,10 +15,7 @@ import Testing
     let urlRequest = URLRequest(url: URL(string: "example.com")!)
     
     let modifier = HTTPMethodRequestModifier(method)
-    let newRequest = try modifier.modifying(
-        urlRequest,
-        with: ConfigurationValues.mock
-    )
+    let newRequest = try modifier.modifying(urlRequest)
     
     #expect(newRequest.httpMethod == method.rawValue)
 }
@@ -46,10 +43,7 @@ import Testing
     let urlRequest = URLRequest(url: URL(string: "example.com")!)
     
     let modifier = TimeoutRequestModifier(timeout)
-    let newRequest = try modifier.modifying(
-        urlRequest,
-        with: ConfigurationValues.mock
-    )
+    let newRequest = try modifier.modifying(urlRequest)
     
     #expect(newRequest.timeoutInterval == timeout)
 }
@@ -85,10 +79,7 @@ func applyingCachePolityToURLRequest(policy: URLRequest.CachePolicy) throws {
     let urlRequest = URLRequest(url: URL(string: "example.com")!)
     
     let modifier = CachePolicyRequestModifier(policy)
-    let newRequest = try modifier.modifying(
-        urlRequest,
-        with: ConfigurationValues.mock
-    )
+    let newRequest = try modifier.modifying(urlRequest)
     
     #expect(newRequest.cachePolicy == policy)
 }

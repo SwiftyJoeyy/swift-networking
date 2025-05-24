@@ -22,14 +22,25 @@ import Foundation
 // MARK: - RequestModifier
 extension _ConditionalModifier: RequestModifier where TrueContent: RequestModifier, FalseContent: RequestModifier {
     @inlinable public func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         switch storage {
             case .trueContent(let mod):
-                return try mod.modifying(request, with: configurations)
+                return try mod.modifying(request)
             case .falseContent(let mod):
-                return try mod.modifying(request, with: configurations)
+                return try mod.modifying(request)
+        }
+    }
+}
+
+// MARK: - _DynamicConfigurable
+extension _ConditionalModifier: _DynamicConfigurable where TrueContent: _DynamicConfigurable, FalseContent: _DynamicConfigurable {
+    @inlinable public func _accept(_ values: ConfigurationValues) {
+        switch storage {
+            case .trueContent(let mod):
+                mod._accept(values)
+            case .falseContent(let mod):
+                mod._accept(values)
         }
     }
 }

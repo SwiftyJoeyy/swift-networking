@@ -17,9 +17,7 @@ struct MockRequest: Request {
         typealias Contents = Never
         let id = "NestedRequest"
         
-        func _makeURLRequest(
-            _ configurations: borrowing ConfigurationValues
-        ) throws -> URLRequest {
+        func _makeURLRequest() throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com")!)
             request.httpMethod = "GET"
             return request

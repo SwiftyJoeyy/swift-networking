@@ -22,7 +22,7 @@ public protocol ConfigurationKey: Sendable {
 /// Each key has a default value that is used if a custom value is not provided.
 public struct ConfigurationValues: Sendable, CustomStringConvertible {
     /// The configuration values storage.
-    private var values = [String: any Sendable]()
+    private var box = ProperiesBox()
     
     /// Creates a new ``ConfigurationValues``.
     @inlinable public init() { }
@@ -35,22 +35,34 @@ public struct ConfigurationValues: Sendable, CustomStringConvertible {
     /// - Parameter key: The type of the configuration key.
     public subscript<K: ConfigurationKey>(_ key: K.Type) -> K.Value {
         get {
-            guard let value = values[String(describing: key)] else {
+            guard let value = box.values[String(describing: key)] else {
                 return K.defaultValue
             }
             return unsafeBitCast(value, to: K.Value.self)
         }
         set {
-            values[String(describing: key)] = newValue
+            ensureUniqueBox()
+            box.values[String(describing: key)] = newValue
         }
+    }
+    
+    /// Ensures that the `box` reference is uniquely owned before mutation.
+    ///
+    /// - Note: This method should be called before any mutation of the underlying
+    ///   `box` to avoid unintended shared state.
+    ///
+    /// - SeeAlso: `isKnownUniquelyReferenced(_:)`
+    @inline(__always) private mutating func ensureUniqueBox() {
+        guard !isKnownUniquelyReferenced(&box) else {return}
+        box = ProperiesBox(values: box.values)
     }
     
     /// A string that represents the contents of the environment values instance.
     public var description: String {
-        guard !values.isEmpty else {
+        guard !box.values.isEmpty else {
             return "\(String(describing: Self.self)) = []"
         }
-        let valuesString = values
+        let valuesString = box.values
             .map({"  \($0) : \($1)"})
             .joined(separator: ",\n")
         return """
@@ -61,7 +73,22 @@ public struct ConfigurationValues: Sendable, CustomStringConvertible {
     }
 }
 
-// TODO: - Implement a robust universal Configurations system to apply configurations to Request, Task, Client, RequestModifier.
+extension ConfigurationValues {
+    /// A type that stores configuration key-value pairs.
+    internal final class ProperiesBox: @unchecked Sendable {
+        /// The stored configuration values.
+        internal var values: [String: any Sendable]
+        
+        /// Creates a new box with the specified initial values.
+        ///
+        /// - Parameter values: A dictionary of configuration values.
+        ///   Defaults to an empty dictionary.
+        internal init(values: [String: any Sendable] = [:]) {
+            self.values = values
+        }
+    }
+}
+
 extension ConfigurationValues {
     /// The decoder used for decoding responses.
     @Config public internal(set) var decoder = JSONDecoder()

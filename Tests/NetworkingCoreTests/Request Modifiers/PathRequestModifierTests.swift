@@ -11,13 +11,11 @@ import Testing
 
 @Suite(.tags(.requestModifiers, .path))
 struct PathRequestModifierTests {
-    private let configurations = ConfigurationValues.mock
-    
     @Test func appendingSinglePathComponent() throws {
         var request = URLRequest(url: URL(string: "https://example.com")!)
         let modifier = PathRequestModifier(["test"])
         
-        request = try modifier.modifying(request, with: configurations)
+        request = try modifier.modifying(request)
         let url = request.url?.absoluteString
         
         #expect(url == "https://example.com/test")
@@ -27,7 +25,7 @@ struct PathRequestModifierTests {
         var request = URLRequest(url: URL(string: "https://example.com")!)
         let modifier = PathRequestModifier(["test", "path", "123"])
         
-        request = try modifier.modifying(request, with: configurations)
+        request = try modifier.modifying(request)
         let url = request.url?.absoluteString
         
         #expect(url == "https://example.com/test/path/123")
@@ -37,7 +35,7 @@ struct PathRequestModifierTests {
         var request = URLRequest(url: URL(string: "https://example.com/base")!)
         let modifier = PathRequestModifier(["additional"])
         
-        request = try modifier.modifying(request, with: configurations)
+        request = try modifier.modifying(request)
         let url = request.url?.absoluteString
         
         #expect(url == "https://example.com/base/additional")
@@ -47,7 +45,7 @@ struct PathRequestModifierTests {
         var request = URLRequest(url: URL(string: "https://example.com")!)
         let modifier = PathRequestModifier([""])
         
-        request = try modifier.modifying(request, with: configurations)
+        request = try modifier.modifying(request)
         let url = request.url?.absoluteString
         
         #expect(url == "https://example.com/")

@@ -18,13 +18,19 @@ import Foundation
 // MARK: - RequestModifier
 extension _OptionalModifier: RequestModifier where Modifier: RequestModifier {
     @inlinable public func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         guard let storage else {
             return request
         }
-        return try storage.modifying(request, with: configurations)
+        return try storage.modifying(request)
+    }
+}
+
+// MARK: - _DynamicConfigurable
+extension _OptionalModifier: _DynamicConfigurable where Modifier: _DynamicConfigurable {
+    @inlinable public func _accept(_ values: ConfigurationValues) {
+        storage?._accept(values)
     }
 }
 

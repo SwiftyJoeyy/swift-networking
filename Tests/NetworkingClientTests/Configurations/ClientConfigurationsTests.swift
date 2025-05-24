@@ -154,10 +154,7 @@ extension ClientConfigurableTests {
         func requiresRefresh() -> Bool {
             return false
         }
-        func modifying(
-            _ request: consuming URLRequest,
-            with configurations: borrowing ConfigurationValues
-        ) throws -> URLRequest {
+        func modifying(_ request: consuming URLRequest) throws -> URLRequest {
             return request
         }
     }

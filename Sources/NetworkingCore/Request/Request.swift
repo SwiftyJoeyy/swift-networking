@@ -49,7 +49,7 @@ import Foundation
 ///
 /// - Warning: Use the ``Request`` macro to define requests,
 /// do not manually conform to this protocol.
-public protocol Request: CustomStringConvertible {
+public protocol Request: _DynamicConfigurable, CustomStringConvertible {
     /// The contents of the request.
     associatedtype Contents: Request
     
@@ -59,18 +59,14 @@ public protocol Request: CustomStringConvertible {
     /// The contents of the request.
     var request: Self.Contents {get}
     
-    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
-    /// and the provided configuration context.
+    /// Constructs a ``URLRequest`` from this request
     ///
     /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
     /// and applying all configured modifiers.
     ///
-    /// - Parameter configurations: The context in which to evaluate the request, including
-    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
-    func _makeURLRequest(
-        _ configurations: borrowing ConfigurationValues
-    ) throws -> URLRequest
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    func _makeURLRequest() throws -> URLRequest
 }
 
 extension Request {
@@ -79,19 +75,42 @@ extension Request {
         return String(describing: Self.self)
     }
     
-    /// Constructs a ``URLRequest`` from this ``HTTPRequest``
-    /// and the provided configuration context.
+    /// Constructs a ``URLRequest`` from this request.
     ///
     /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
     /// and applying all configured modifiers.
     ///
-    /// - Parameter configurations: The context in which to evaluate the request, including
-    ///   fallback values like ``ConfigurationValues/baseURL``.
     /// - Returns: The configured ``URLRequest``.
-    @inlinable public func _makeURLRequest(
-        _ configurations: borrowing ConfigurationValues
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    @inlinable public func _makeURLRequest() throws -> URLRequest {
+        return try request._makeURLRequest()
+    }
+    
+    /// Applies the given configuration values to the underlying request.
+    ///
+    /// This method forwards the provided ``ConfigurationValues`` to the
+    /// encapsulated request. Use this to ensure the request is evaluated
+    /// within the correct configuration context.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    @inlinable public func _accept(_ values: ConfigurationValues) {
+        request._accept(values)
+    }
+    
+    /// Constructs a ``URLRequest`` from the underlying request using the given configuration.
+    ///
+    /// Applies the provided ``ConfigurationValues`` to the request before building
+    /// the final ``URLRequest``. This ensures that the request is evaluated within
+    /// the correct configuration context.
+    ///
+    /// - Parameter values: The configuration context used to evaluate the request.
+    /// - Returns: A fully configured ``URLRequest``.
+    @inline(__always) package func _makeURLRequest(
+        with values: ConfigurationValues
     ) throws -> URLRequest {
-        return try request._makeURLRequest(configurations)
+        _accept(values)
+        return try _makeURLRequest()
     }
 }
 

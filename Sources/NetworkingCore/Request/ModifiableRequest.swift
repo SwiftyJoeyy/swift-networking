@@ -49,16 +49,27 @@ protocol ModifiableRequest: Request {
 extension ModifiableRequest {
     /// Creates a ``URLRequest`` by applying the modifier to the base request.
     ///
-    /// This method first calls `_makeURLRequest(_:)` on the underlying request,
+    /// This method first calls `_makeURLRequest()` on the underlying request,
     /// then passes the result to the ``modifier`` for further transformation.
     ///
-    /// - Parameter configurations: The configuration values used when building the request.
     /// - Returns: A modified ``URLRequest`` ready to be sent.
-    @inlinable public func _makeURLRequest(
-        _ configurations: borrowing ConfigurationValues
-    ) throws -> URLRequest {
-        let urlRequest = try request._makeURLRequest(configurations)
-        return try modifier.modifying(urlRequest, with: configurations)
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    @inlinable public func _makeURLRequest() throws -> URLRequest {
+        let urlRequest = try request._makeURLRequest()
+        return try modifier.modifying(urlRequest)
+    }
+    
+    /// Applies the given configuration values to the request and its modifier.
+    ///
+    /// This method forwards the provided `ConfigurationValues` to both the
+    /// underlying `request` and its associated `modifier`. It is used to
+    /// propagate configuration context through compositional request layers.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    @inlinable public func _accept(_ values: ConfigurationValues) {
+        request._accept(values)
+        modifier._accept(values)
     }
 }
 

@@ -35,8 +35,7 @@ extension PathRequestModifier: RequestModifier {
     ///  
     /// - Returns: The modified ``URLRequest`` with paths appended.
     @usableFromInline internal func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         for path in paths {
             if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *) {

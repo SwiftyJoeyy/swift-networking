@@ -32,8 +32,7 @@ extension CachePolicyRequestModifier: RequestModifier {
     ///  
     /// - Returns: The modified ``URLRequest`` with the cache policy set.
     @usableFromInline internal func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         request.cachePolicy = cachePolicy
         return request

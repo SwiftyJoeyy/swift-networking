@@ -32,8 +32,7 @@ extension TimeoutRequestModifier: RequestModifier {
     ///  
     /// - Returns: The modified `URLRequest` with the timeout set.
     @usableFromInline internal func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         request.timeoutInterval = timeoutInterval
         return request

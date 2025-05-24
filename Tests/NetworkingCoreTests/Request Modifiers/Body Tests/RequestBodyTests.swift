@@ -12,7 +12,6 @@ import Testing
 @Suite(.tags(.requestModifiers, .body))
 struct RequestBodyTests {
     private let url = URL(string: "example.com")!
-    private let configurations = ConfigurationValues.mock
     
 // MARK: - ContentType Tests
     @Test(arguments: [
@@ -28,10 +27,7 @@ struct RequestBodyTests {
             result: .success(body)
         )
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let contentType = modifiedRequest.allHTTPHeaderFields?["Content-Type"]
         #expect(contentType == expectedContentType.headers["Content-Type"])
@@ -40,17 +36,14 @@ struct RequestBodyTests {
     @Test func requestBodyOverwritesContentType() throws {
         var urlRequest = URLRequest(url: url)
         urlRequest = try ContentType(.applicationFormURLEncoded)
-            .modifying(urlRequest, with: configurations)
+            .modifying(urlRequest)
         let expectedContentType = ContentType(.applicationJson)
         let modifier = RequestBodyStub(
             contentType: expectedContentType,
             result: .success(Data())
         )
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let contentType = modifiedRequest.allHTTPHeaderFields?["Content-Type"]
         #expect(contentType == expectedContentType.headers["Content-Type"])
@@ -59,14 +52,11 @@ struct RequestBodyTests {
     @Test func requestBodyWithoutContentTypeWithExistingContentType() throws {
         var urlRequest = URLRequest(url: url)
         urlRequest = try ContentType(.applicationFormURLEncoded)
-            .modifying(urlRequest, with: configurations)
+            .modifying(urlRequest)
         let expectedHeaders = urlRequest.allHTTPHeaderFields
         let modifier = RequestBodyStub(contentType: nil, result: .success(nil))
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let headers = modifiedRequest.allHTTPHeaderFields
         #expect(headers == expectedHeaders)
@@ -81,10 +71,7 @@ struct RequestBodyTests {
             result: .success(expectedBody)
         )
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let body = modifiedRequest.httpBody
         #expect(body == expectedBody)
@@ -98,10 +85,7 @@ struct RequestBodyTests {
             result: .success(expectedBody)
         )
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let body = modifiedRequest.httpBody
         #expect(body == expectedBody)
@@ -116,10 +100,7 @@ struct RequestBodyTests {
             result: .success(expectedBody)
         )
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let body = modifiedRequest.httpBody
         #expect(body == expectedBody)
@@ -132,10 +113,7 @@ struct RequestBodyTests {
             result: .success(nil)
         )
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         #expect(modifiedRequest == urlRequest)
     }
@@ -148,10 +126,7 @@ struct RequestBodyTests {
             result: .success(nil)
         )
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         #expect(modifiedRequest == urlRequest)
     }
@@ -162,10 +137,7 @@ struct RequestBodyTests {
         let modifier = RequestBodyStub(contentType: nil, result: .failure(expectedError))
         
         #expect(throws: expectedError) {
-            try modifier.modifying(
-                urlRequest,
-                with: configurations
-            )
+            try modifier.modifying(urlRequest)
         }
     }
 }
@@ -190,7 +162,7 @@ extension RequestBodyTests {
         let contentType: ContentType?
         let result: Result<Data?, any Error>
     
-        func body(for configurations: borrowing ConfigurationValues) throws -> Data? {
+        func body() throws -> Data? {
             return try result.get()
         }
     }

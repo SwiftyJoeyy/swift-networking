@@ -169,7 +169,7 @@ struct HeadersBuilderTests {
         }
         
         let urlRequest = URLRequest(url: URL(string: "https://example.com")!)
-        let modified = try header.modifying(urlRequest, with: .mock)
+        let modified = try header.modifying(urlRequest)
         
         #expect(modified.allHTTPHeaderFields?.count == 3)
         #expect(modified.allHTTPHeaderFields?["D"] == "val")

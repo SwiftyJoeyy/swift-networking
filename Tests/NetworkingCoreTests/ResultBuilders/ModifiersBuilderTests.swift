@@ -219,7 +219,7 @@ struct ModifiersBuilderTests {
         }
         
         let urlRequest = URLRequest(url: URL(string: "https://example.com")!)
-        let modified = try modifier.modifying(urlRequest, with: .mock)
+        let modified = try modifier.modifying(urlRequest)
         
         #expect(modified.allHTTPHeaderFields?.count == 4)
         #expect(modified.allHTTPHeaderFields?["String"] == "true")
@@ -232,10 +232,7 @@ struct ModifiersBuilderTests {
 extension ModifiersBuilderTests {
     struct TestModifier<T>: RequestModifier {
         var header = (key: "", value: "")
-        func modifying(
-            _ request: consuming URLRequest,
-            with configurations: borrowing ConfigurationValues
-        ) throws -> URLRequest {
+        func modifying(_ request: consuming URLRequest) throws -> URLRequest {
             var modified = request
             modified.setValue(header.value, forHTTPHeaderField: header.key)
             return modified

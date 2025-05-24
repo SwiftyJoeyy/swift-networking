@@ -11,8 +11,6 @@ import Testing
 
 @Suite(.tags(.request))
 struct AnyRequestTests {
-    private let configurations = ConfigurationValues.mock
-    
     @Test func anyRequestStoresRequestID() {
         let id = "mock-id"
         let request = MockRequest(id: id, path: "", method: .get)
@@ -24,7 +22,7 @@ struct AnyRequestTests {
         let request = MockRequest(id: "mock-id", path: "/mock", method: .post)
         let erased = AnyRequest(request)
         
-        let urlRequest = try erased._makeURLRequest(configurations)
+        let urlRequest = try erased._makeURLRequest()
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/mock")
         #expect(urlRequest.httpMethod == "POST")
@@ -37,7 +35,7 @@ extension AnyRequestTests {
         let path: String
         let method: RequestMethod
         
-        func _makeURLRequest(_ configurations: borrowing ConfigurationValues) throws -> URLRequest {
+        func _makeURLRequest() throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com\(path)")!)
             request.httpMethod = method.rawValue
             return request

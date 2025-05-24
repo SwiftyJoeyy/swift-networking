@@ -27,9 +27,6 @@ extension AuthenticationInterceptor {
         if credential.requiresRefresh() {
             try await refresh(with: session)
         }
-        return try credential.modifying(
-            consume request,
-            with: task.configurations
-        )
+        return try credential.modifying(consume request)
     }
 }

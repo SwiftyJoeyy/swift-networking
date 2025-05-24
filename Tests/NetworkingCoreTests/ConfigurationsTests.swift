@@ -123,14 +123,6 @@ extension ConfigurationsTests {
     }
 }
 
-extension ConfigurationValues {
-    static let mock: ConfigurationValues = {
-        var values = ConfigurationValues()
-        values.baseURL = URL(string: "example.com")
-        return values
-    }()
-}
-
 extension Tag {
     @Tag internal static var configurations: Self
 }

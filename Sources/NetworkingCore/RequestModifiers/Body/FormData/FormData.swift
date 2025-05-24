@@ -9,6 +9,8 @@ import Foundation
 
 /// A multipart form-data request body.
 @frozen public struct FormData {
+    @Configurations private var configurations
+    
     /// The boundary string used for separating form-data parts.
     private let boundary: String
     
@@ -42,9 +44,7 @@ extension FormData: RequestBody {
     /// Encodes the form-data body into ``Data``.
     ///
     /// - Returns: The encoded form-data.
-    public func body(
-        for configurations: borrowing ConfigurationValues
-    ) throws -> Data? {
+    public func body() throws -> Data? {
         var data = Data()
         
         let firstBoundary = BoundaryFactory.makeBoundary(.first, for: boundary)
@@ -69,6 +69,14 @@ extension FormData: RequestBody {
         data.append(lastBoundary)
         
         return data
+    }
+    
+    /// Applies configuration values to the modifier.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _accept(_ values: ConfigurationValues) {
+        _configurations._accept(values)
     }
 }
 

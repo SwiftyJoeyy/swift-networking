@@ -11,81 +11,78 @@ import Testing
 
 @Suite(.tags(.request))
 struct HTTPRequestTests {
-    private let configurations = ConfigurationValues.mock
+    private let url = URL(string: "https://example.com")
     
     @Test func initWithStringURLOnly() throws {
-        let request = HTTPRequest(url: "https://example.com")
+        let request = HTTPRequest(url: url)
         
-        let urlRequest = try request._makeURLRequest(configurations)
+        let urlRequest = try request._makeURLRequest()
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
     }
     
     @Test func initWithStringURLAndPath() throws {
-        let request = HTTPRequest(url: "https://example.com", path: "test")
+        let request = HTTPRequest(url: url, path: "test")
         
-        let urlRequest = try request._makeURLRequest(configurations)
+        let urlRequest = try request._makeURLRequest()
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/test")
     }
     
     @Test func initWithURLOnly() throws {
-        let request = HTTPRequest(url: URL(string: "https://example.com"))
+        let request = HTTPRequest(url: url)
         
-        let urlRequest = try request._makeURLRequest(configurations)
+        let urlRequest = try request._makeURLRequest()
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
     }
     
     @Test func initWithURLAndPath() throws {
-        let request = HTTPRequest(
-            url: URL(string: "https://example.com"),
-            path: "test"
-        )
+        let request = HTTPRequest(url: url, path: "test")
         
-        let urlRequest = try request._makeURLRequest(configurations)
+        let urlRequest = try request._makeURLRequest()
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/test")
     }
     
     @Test func requestWithModifiers() throws {
-        let request = HTTPRequest(
-            url: URL(string: "https://example.com")
-        ) {
+        let request = HTTPRequest(url: url) {
             DummyModifier(header: ("test", "value"))
         }
         
-        let urlRequest = try request._makeURLRequest(configurations)
+        let urlRequest = try request._makeURLRequest()
         
         #expect(urlRequest.allHTTPHeaderFields?["test"] == "value")
     }
     
     @Test func throwsWhenURLMissing() {
         let request = HTTPRequest()
-        var configuration = ConfigurationValues.mock
-        configuration.baseURL = nil
         
         #expect(throws: NetworkingError.invalidRequestURL) {
-            _ = try request._makeURLRequest(configuration)
+            _ = try request._makeURLRequest()
         }
     }
     
     @Test func baseURLFromConfiguration() throws {
-        var configuration = ConfigurationValues.mock
-        configuration.baseURL = URL(string: "https://fallback.com")
-        let request = HTTPRequest()
+        var configurations = ConfigurationValues()
+        configurations.baseURL = URL(string: "https://fallback.com")
         
-        let urlRequest = try request._makeURLRequest(configuration)
+        let request = HTTPRequest()
+        request._accept(configurations)
+        
+        let urlRequest = try request._makeURLRequest()
         
         assert(urlRequest.url?.absoluteString == "https://fallback.com")
     }
     
     @Test func baseURLFromConfigurationWithPath() throws {
-        var configuration = ConfigurationValues.mock
-        configuration.baseURL = URL(string: "https://fallback.com")
-        let request = HTTPRequest(path: "test")
+        var configurations = ConfigurationValues()
+        configurations.baseURL = URL(string: "https://fallback.com")
         
-        let urlRequest = try request._makeURLRequest(configuration)
+        let request = HTTPRequest(path: "test")
+        request._accept(configurations)
+        
+        let urlRequest = try request._makeURLRequest()
         
         assert(urlRequest.url?.absoluteString == "https://fallback.com/test")
     }
@@ -94,10 +91,7 @@ struct HTTPRequestTests {
 extension HTTPRequestTests {
     struct DummyModifier: RequestModifier {
         let header: (String, String)
-        func modifying(
-            _ request: consuming URLRequest,
-            with config: borrowing ConfigurationValues
-        ) throws -> URLRequest {
+        func modifying(_ request: consuming URLRequest) throws -> URLRequest {
             request.setValue(header.1, forHTTPHeaderField: header.0)
             return request
         }

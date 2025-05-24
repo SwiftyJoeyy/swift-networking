@@ -115,6 +115,7 @@ struct SessionTests {
 
 extension SessionTests {
     struct TestRequest: Request {
+        @Configurations private var configurations
         typealias Contents = Never
         var id = "TestRequest"
         var _modifiers = [any RequestModifier]()
@@ -123,10 +124,11 @@ extension SessionTests {
             return _modifiers
         }
         
-        func _makeURLRequest(
-            _ configurations: borrowing ConfigurationValues
-        ) throws -> URLRequest {
+        func _makeURLRequest() throws -> URLRequest {
             return URLRequest(url: configurations.baseURL ?? URL(string: "fallback.com")!)
+        }
+        func _accept(_ values: ConfigurationValues) {
+            _configurations._accept(values)
         }
     }
 }

@@ -23,18 +23,22 @@ import Foundation
 ///     }
 /// }
 /// ```
-public protocol RequestModifier {
+public protocol RequestModifier: _DynamicConfigurable {
     /// Modifies the given ``URLRequest`` and returns the updated version.
     ///
     /// - Parameters:
     ///  - request: The original request to modify.
-    ///  - configurations: The network configurations.
     ///
     /// - Returns: The ``URLRequest`` with the modifier applied to it.
-    func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
-    ) throws -> URLRequest
+    func modifying(_ request: consuming URLRequest) throws -> URLRequest
+}
+
+extension RequestModifier {
+    /// Applies configuration values to the modifier.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _accept(_ values: ConfigurationValues) { }
 }
 
 extension Request {

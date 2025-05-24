@@ -185,7 +185,7 @@ struct ParametersBuilderTests {
         }
         
         let urlRequest = URLRequest(url: URL(string: "https://example.com")!)
-        let modified = try param.modifying(urlRequest, with: .mock)
+        let modified = try param.modifying(urlRequest)
         
         let finalURL = try #require(modified.url)
         let components = try #require(

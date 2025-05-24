@@ -12,17 +12,14 @@ import Testing
 @Suite(.tags(.requestModifiers, .body, .json))
 struct JSONTests {
     private let url = URL(string: "example.com")!
-    private let configurations = ConfigurationValues.mock
+    private let configurations = ConfigurationValues()
     
     @Test func setsContentTypeToApplicationJSON() throws {
         let urlRequest = URLRequest(url: url)
         let data = "Test Body".data(using: .utf8)
         let modifier = JSON(encodable: JSONEncodableMock(data: data))
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let contentType = modifiedRequest.allHTTPHeaderFields?["Content-Type"]
         #expect(contentType == BodyContentType.applicationJson.value)
@@ -33,10 +30,7 @@ struct JSONTests {
         let expectedData = "Test Body".data(using: .utf8)
         let modifier = JSON(encodable: JSONEncodableMock(data: expectedData))
         
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
+        let modifiedRequest = try modifier.modifying(urlRequest)
         
         let data = modifiedRequest.httpBody
         #expect(data == expectedData)
@@ -46,7 +40,7 @@ struct JSONTests {
         let expectedData = "Test Body".data(using: .utf8)!
         let modifier = JSON(data: expectedData)
         
-        let body = try modifier.body(for: configurations)
+        let body = try modifier.body()
         #expect(body! == expectedData)
     }
     
@@ -54,7 +48,7 @@ struct JSONTests {
         let item = DataMock()
         let modifier = JSON(item)
         
-        let body = try modifier.body(for: configurations)
+        let body = try modifier.body()
         let decoded = try JSONDecoder().decode(DataMock.self, from: body!)
         #expect(decoded == item)
     }
@@ -63,7 +57,7 @@ struct JSONTests {
         let dictionary: [String: any Sendable] = ["key": "value", "number": "42"]
         let modifier = JSON(dictionary)
         
-        let data = try modifier.body(for: configurations)
+        let data = try modifier.body()
         let jsonObject = try JSONSerialization.jsonObject(
             with: data!,
             options: []

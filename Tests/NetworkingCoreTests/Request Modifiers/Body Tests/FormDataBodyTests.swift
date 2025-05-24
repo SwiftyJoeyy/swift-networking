@@ -15,7 +15,7 @@ import Testing
 @Suite(.tags(.requestModifiers, .body, .formData))
 struct FormDataBodyTests {
 // MARK: - Properties
-    private let configs = ConfigurationValues.mock
+    private let configurations = ConfigurationValues()
     
 // MARK: - Tests
     @Test func initWithDataBody() throws {
@@ -25,7 +25,7 @@ struct FormDataBodyTests {
         let item = FormDataBody(key, data: content)
         
         #expect(item.key == key)
-        #expect(try item.data(configs) == content)
+        #expect(try item.data(configurations) == content)
     }
     
     @Test func initWithStringBody() throws {
@@ -54,7 +54,7 @@ struct FormDataBodyTests {
         )
         
         #expect(item.key == key)
-        #expect(try item.data(configs) == content)
+        #expect(try item.data(configurations) == content)
         
         let headers = item.headers.headers
         
@@ -69,7 +69,7 @@ struct FormDataBodyTests {
     @Test func dataReturnsOriginalBody() throws {
         let content = "Hello World".data(using: .utf8)!
         let item = FormDataBody("greeting", data: content)
-        let encoded = try item.data(configs)
+        let encoded = try item.data(configurations)
         #expect(encoded == content)
     }
     

@@ -32,8 +32,7 @@ extension HTTPMethodRequestModifier: RequestModifier {
     ///  
     /// - Returns: The modified ``URLRequest``.
     @usableFromInline internal func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
         request.httpMethod = httpMethod.rawValue
         return request

@@ -11,8 +11,6 @@ import Testing
 
 @Suite(.tags(.requestModifiers, .body, .formData))
 struct FormDataTests {
-    private let configurations = ConfigurationValues.mock
-    
     @Test func formDataWithSingleItem() throws {
         
         let formData = FormData {
@@ -25,7 +23,7 @@ struct FormDataTests {
             )
         }
         
-        let body = try #require(try formData.body(for: configurations))
+        let body = try #require(try formData.body())
         let bodyString = try #require(String(data: body, encoding: .utf8))
         
         #expect(bodyString.contains("--network.kit.boundary."))
@@ -47,7 +45,7 @@ struct FormDataTests {
             )
         }
         
-        let body = try #require(try formData.body(for: configurations))
+        let body = try #require(try formData.body())
         let bodyString = try #require(String(data: body, encoding: .utf8))
         
         #expect(bodyString.contains("name=\"field1\""))
@@ -66,7 +64,7 @@ struct FormDataTests {
             )
         }
         
-        let body = try #require(try formData.body(for: configurations))
+        let body = try #require(try formData.body())
         let bodyString = try #require(String(data: body, encoding: .utf8))
         
         #expect(bodyString.contains("--\(boundary)"))
@@ -90,7 +88,7 @@ struct FormDataTests {
     @Test func emptyFormData() throws {
         let formData = FormData { }
         
-        let body = try formData.body(for: configurations)
+        let body = try formData.body()
         
         #expect(body == nil)
     }
@@ -106,7 +104,7 @@ struct FormDataTests {
             )
         }
         
-        let body = try formData.body(for: configurations)
+        let body = try formData.body()
         #expect(body == nil)
     }
     

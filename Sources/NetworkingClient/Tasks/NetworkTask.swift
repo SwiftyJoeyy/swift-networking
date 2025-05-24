@@ -47,8 +47,7 @@ open class NetworkTask<T: Sendable>: NetworkingTask, Configurable, @unchecked Se
     // TODO: - Add a way to notify the user of the received metrics.
     
     /// The active configuration values for this task.
-    @preconcurrency nonisolated(unsafe)
-    public private(set) var configurations: ConfigurationValues
+    @Configurations @preconcurrency public var configurations
     
     /// The session to use for networking.
     private let session: Session
@@ -67,12 +66,10 @@ open class NetworkTask<T: Sendable>: NetworkingTask, Configurable, @unchecked Se
     public init(
         id: String,
         request: consuming URLRequest,
-        session: Session,
-        configurations: ConfigurationValues
+        session: Session
     ) {
         self.id = id
         self.session = session
-        self.configurations = configurations
         self.state = NetworkTaskState(request: request)
     }
     
@@ -142,7 +139,7 @@ open class NetworkTask<T: Sendable>: NetworkingTask, Configurable, @unchecked Se
         _ keyPath: WritableKeyPath<ConfigurationValues, V>,
         _ value: V
     ) -> Self {
-        configurations[keyPath: keyPath] = value
+//        configurations[keyPath: keyPath] = value
         return self
     }
     
@@ -222,6 +219,16 @@ open class NetworkTask<T: Sendable>: NetworkingTask, Configurable, @unchecked Se
             }
         }
         await state.resetTask()
+    }
+}
+
+extension NetworkTask: _DynamicConfigurable {
+    /// Applies the given configuration values to this task.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _accept(_ values: ConfigurationValues) {
+        _configurations._accept(values)
     }
 }
 

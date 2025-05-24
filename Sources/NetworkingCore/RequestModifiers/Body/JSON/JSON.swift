@@ -77,6 +77,8 @@ extension Data: JSONEncodable {
 /// }
 /// ```
 @frozen public struct JSON<T: JSONEncodable> {
+    @Configurations private var configurations
+    
     /// The JSON encodable object.
     @usableFromInline internal let encodable: T
 
@@ -126,10 +128,16 @@ extension JSON: RequestBody {
     /// Encodes the JSON body.
     ///
     /// - Returns: The encoded JSON data.
-    public func body(
-        for configurations: borrowing ConfigurationValues
-    ) throws -> Data? {
+    public func body() throws -> Data? {
         return try encodable.encoded(for: configurations)
+    }
+    
+    /// Applies configuration values to the modifier.
+    ///
+    /// - Parameter values: The configuration values to apply.
+    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    public func _accept(_ values: ConfigurationValues) {
+        _configurations._accept(values)
     }
 }
 

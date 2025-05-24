@@ -16,7 +16,7 @@ public protocol RequestBody: RequestModifier {
     /// Encodes and returns the request body as ``Data``.
     ///
     /// - Returns: The encoded body data.
-    func body(for configurations: borrowing ConfigurationValues) throws -> Data?
+    func body() throws -> Data?
 }
 
 // MARK: - RequestModifier
@@ -29,19 +29,15 @@ extension RequestBody {
     ///  
     /// - Returns: The modified ``URLRequest`` with the body set.
     public func modifying(
-        _ request: consuming URLRequest,
-        with configurations: borrowing ConfigurationValues
+        _ request: consuming URLRequest
     ) throws -> URLRequest {
-        let body = try body(for: configurations)
+        let body = try body()
         guard let body else {
             return request
         }
         
         if let contentType {
-            request = try contentType.modifying(
-                consume request,
-                with: configurations
-            )
+            request = try contentType.modifying(consume request)
         }
         request.httpBody = body
         return request

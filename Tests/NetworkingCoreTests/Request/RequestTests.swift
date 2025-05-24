@@ -11,11 +11,9 @@ import Testing
 
 @Suite(.tags(.request))
 struct RequestTests {
-    private let configurations = ConfigurationValues.mock
-    
     @Test func buildsURLRequest() throws {
         let request = MockRequest()
-        let urlRequest = try request._makeURLRequest(configurations)
+        let urlRequest = try request._makeURLRequest()
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
         #expect(urlRequest.httpMethod == "GET")
