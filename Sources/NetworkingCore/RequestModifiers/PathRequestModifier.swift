@@ -53,7 +53,11 @@ extension PathRequestModifier: RequestModifier {
 extension PathRequestModifier: CustomStringConvertible {
     @usableFromInline internal var description: String {
         let pathsString = paths.map({"\"\($0)\""}).joined(separator: ", ")
-        return "PathRequestModifier(paths: [\(pathsString)])"
+        return """
+        PathRequestModifier = {
+            paths = [\(pathsString)]
+        }
+        """
     }
 }
 

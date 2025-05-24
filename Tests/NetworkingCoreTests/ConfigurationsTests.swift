@@ -71,6 +71,35 @@ struct ConfigurationsTests {
     }
 }
 
+// MARK: - Description Tests
+extension ConfigurationsTests {
+    @Test func descriptionIsEmptyForNoValues() {
+        let configurations = ConfigurationValues()
+        let result = configurations.description
+        
+        #expect(result == "ConfigurationValues = []")
+    }
+    
+    @Test func descriptionIncludesAllValues() {
+        var configurations = ConfigurationValues()
+       
+        do {
+            let expectedValue = "Custom Value"
+            configurations[MockKey.self] = expectedValue
+        }
+        
+        do {
+            let expectedValue = "Custom Value2"
+            configurations[OptionalMockKey.self] = expectedValue
+        }
+        
+        let result = configurations.description
+        
+        #expect(result.contains("MockKey : Custom Value"))
+        #expect(result.contains("OptionalMockKey : Optional(\"Custom Value2\")"))
+    }
+}
+
 extension ConfigurationsTests {
     struct TestConfigurable: Configurable {
         var configurationValues = ConfigurationValues()

@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
+#endif
 import Testing
 @testable import NetworkingCore
 
@@ -38,7 +40,11 @@ struct FormDataBodyTests {
         let key = "profile"
         let content = "binarydata".data(using: .utf8)!
         let fileName = "image.png"
+#if canImport(UniformTypeIdentifiers)
         let mimeType = UTType.png
+#else
+        let mimeType = "image/png"
+#endif
         
         let item = FormDataBody(
             key,
@@ -57,7 +63,7 @@ struct FormDataBodyTests {
         #expect(contentDisposition.contains("filename=\"\(fileName)\""))
  
         let contentType = try #require(headers["Content-Type"])
-        #expect(contentType == mimeType.preferredMIMEType)
+        #expect(contentType.contains("image/png"))
     }
     
     @Test func dataReturnsOriginalBody() throws {
@@ -76,5 +82,37 @@ struct FormDataBodyTests {
         
         let contentType = headers["Content-Type"]
         #expect(contentType == nil)
+    }
+    
+// MARK: - Description Tests
+    @Test func descriptionIncludesAllFields() {
+        let key = "document"
+        let fileName = "doc.txt"
+        let data = "test-body".data(using: .utf8)!
+#if canImport(UniformTypeIdentifiers)
+        let mimeType = UTType.plainText
+    #else
+        let mimeType = "plaintext"
+#endif
+        let body = FormDataBody(
+            key,
+            data: data,
+            fileName: fileName,
+            mimeType: mimeType
+        )
+        
+        
+        let result = body.description
+        
+#if canImport(UniformTypeIdentifiers)
+        let contentType = ContentType(.mime(mimeType))
+#else
+        let contentType = ContentType(.custom(mimeType))
+#endif
+        
+        #expect(result.contains("key = \(key)"))
+        #expect(result.contains("fileName = \(fileName)"))
+        #expect(result.contains("mimeType = \(mimeType.description)"))
+        #expect(result.contains(contentType.type.value))
     }
 }

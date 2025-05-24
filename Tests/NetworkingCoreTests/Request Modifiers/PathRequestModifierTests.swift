@@ -1,5 +1,5 @@
 //
-//  URLPathTests.swift
+//  PathRequestModifierTests.swift
 //  Networking
 //
 //  Created by Joe Maghzal on 4/4/25.
@@ -51,6 +51,22 @@ struct PathRequestModifierTests {
         let url = request.url?.absoluteString
         
         #expect(url == "https://example.com/")
+    }
+}
+
+// MARK: - Description Tests
+extension PathRequestModifierTests {
+    @Test func descriptionWithEmptyPaths() {
+        let modifier = PathRequestModifier([])
+        let result = modifier.description
+        
+        #expect(result.contains("paths = []"))
+    }
+    @Test func descriptionIncludesAllPaths() {
+        let modifier = PathRequestModifier(["users", "123", "profile"])
+        let result = modifier.description
+        
+        #expect(result.contains("paths = [\"users\", \"123\", \"profile\"]"))
     }
 }
 

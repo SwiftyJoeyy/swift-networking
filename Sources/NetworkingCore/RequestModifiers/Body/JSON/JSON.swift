@@ -137,7 +137,7 @@ extension JSON: CustomStringConvertible {
     public var description: String {
         return """
         JSON = {
-          contentType = \(String(describing: contentType)),
+          contentType = \(contentType?.description ?? "nil"),
           body = \(String(describing: encodable))
         }
         """

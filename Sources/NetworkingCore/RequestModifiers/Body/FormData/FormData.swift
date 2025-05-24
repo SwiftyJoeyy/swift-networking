@@ -78,7 +78,7 @@ extension FormData: CustomStringConvertible {
         let bodyString = inputs.map({"    " + String(describing: $0)})
         return """
         FormData = {
-          contentType = \(String(describing: contentType)),
+          contentType = \(contentType?.headers.first?.value ?? "nil"),
           boundary = \(boundary),
           body (\(inputs.count)) = [
         \(bodyString)

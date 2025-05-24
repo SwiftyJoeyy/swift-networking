@@ -11,6 +11,7 @@ import Testing
 
 @Suite(.tags(.resultBuilders))
 struct ParametersBuilderTests {
+// MARK: - Functions
     private func buildParam(
         @ParametersBuilder _ action: () -> some RequestParameter
     ) -> some RequestParameter {
@@ -22,6 +23,7 @@ struct ParametersBuilderTests {
         return buildParam(action).parameters
     }
     
+// MARK: - Tests
     @Test func buildBlockWithNoParameters() {
         let params = build { }
         
@@ -132,7 +134,7 @@ struct ParametersBuilderTests {
     
     @Test func buildLimitedAvailability() {
         let params = build {
-            if #available(macOS 16.0, *) {
+            if #available(macOS 30.0, *) {
                 TestParameter(name: "A", value: "available")
             }else {
                 TestParameter(name: "A", value: "unavailable")
@@ -148,7 +150,7 @@ struct ParametersBuilderTests {
                 TestParameter(name: "C", value: "available")
             }
             
-            if #available(macOS 16.0, *) {
+            if #available(macOS 30.0, *) {
                 TestParameter(name: "D", value: "unavailable")
             }
         }
@@ -165,6 +167,18 @@ struct ParametersBuilderTests {
         let param = buildParam {
             if true {
                 TestParameter(name: "D", value: "val")
+            }else {
+                TestParameter(name: "A", value: "val")
+            }
+            
+            if false {
+                TestParameter(name: "E", value: "val")
+            }else {
+                TestParameter(name: "F", value: "val")
+            }
+            
+            if #available(macOS 30.0, *) {
+                TestParameter(name: "C", value: "val")
             }
             
             TestParameter(name: "B", value: "val")
@@ -180,9 +194,42 @@ struct ParametersBuilderTests {
                 resolvingAgainstBaseURL: false
             )
         )
-        let queryItems = components.queryItems ?? []
+        let queryItems = try #require(components.queryItems)
+        #expect(queryItems.count == 3)
         #expect(queryItems.contains(URLQueryItem(name: "D", value: "val")))
         #expect(queryItems.contains(URLQueryItem(name: "B", value: "val")))
+        #expect(queryItems.contains(URLQueryItem(name: "F", value: "val")))
+    }
+    
+    @Test func parameterDescription() throws {
+        let param = buildParam {
+            if true {
+                TestParameter(name: "D", value: "val")
+            }else {
+                TestParameter(name: "A", value: "val")
+            }
+            
+            if false {
+                TestParameter(name: "E", value: "val")
+            }else {
+                TestParameter(name: "F", value: "val")
+            }
+            
+            if #available(macOS 30.0, *) {
+                TestParameter(name: "C", value: "val")
+            }
+            
+            TestParameter(name: "B", value: "val")
+        }
+        
+        let result = param.description
+        
+        #expect(result.contains("D : val"))
+        #expect(result.contains("B : val"))
+        #expect(result.contains("F : val"))
+        #expect(!result.contains("C : val"))
+        #expect(!result.contains("A : val"))
+        #expect(!result.contains("E : val"))
     }
 }
 

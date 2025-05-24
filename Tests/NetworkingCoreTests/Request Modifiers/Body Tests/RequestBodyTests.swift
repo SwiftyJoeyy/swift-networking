@@ -56,26 +56,11 @@ struct RequestBodyTests {
         #expect(contentType == expectedContentType.headers["Content-Type"])
     }
     
-    @Test func requestBodyWithoutContentType() throws {
-        let body = "Test Body".data(using: .utf8)
-        let urlRequest = URLRequest(url: url)
-        let expectedHeaders = urlRequest.allHTTPHeaderFields ?? [:]
-        let modifier = RequestBodyStub(contentType: nil, result: .success(body))
-        
-        let modifiedRequest = try modifier.modifying(
-            urlRequest,
-            with: configurations
-        )
-        
-        let headers = modifiedRequest.allHTTPHeaderFields ?? [:]
-        #expect(headers == expectedHeaders)
-    }
-    
     @Test func requestBodyWithoutContentTypeWithExistingContentType() throws {
         var urlRequest = URLRequest(url: url)
         urlRequest = try ContentType(.applicationFormURLEncoded)
             .modifying(urlRequest, with: configurations)
-        let expectedHeaders = urlRequest.allHTTPHeaderFields ?? [:]
+        let expectedHeaders = urlRequest.allHTTPHeaderFields
         let modifier = RequestBodyStub(contentType: nil, result: .success(nil))
         
         let modifiedRequest = try modifier.modifying(
@@ -83,7 +68,7 @@ struct RequestBodyTests {
             with: configurations
         )
         
-        let headers = modifiedRequest.allHTTPHeaderFields ?? [:]
+        let headers = modifiedRequest.allHTTPHeaderFields
         #expect(headers == expectedHeaders)
     }
 

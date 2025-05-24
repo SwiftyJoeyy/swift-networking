@@ -6,7 +6,9 @@
 //
 
 import Foundation
+#if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
+#endif
 
 /// A form-data item containing a file, used in multipart requests.
 @frozen public struct FormDataFile: Equatable, Hashable {
@@ -23,7 +25,7 @@ import UniformTypeIdentifiers
     private let fileName: String?
     
     /// The MIME type of the file, if specified.
-    private let mimeType: UTType?
+    private let mimeType: MimeType?
     
     /// The file manager used for file-related operations.
     private let fileManager: FileManager
@@ -44,7 +46,7 @@ extension FormDataFile {
         _ key: String,
         fileURL: URL,
         fileName: String? = nil,
-        mimeType: UTType? = nil,
+        mimeType: MimeType? = nil,
         fileManager: FileManager = .default
     ) {
         self.key = key
@@ -67,7 +69,7 @@ extension FormDataFile {
         _ key: String,
         filePath: String,
         fileName: String? = nil,
-        mimeType: UTType? = nil,
+        mimeType: MimeType? = nil,
         fileManager: FileManager = .default
     ) {
         self.init(
@@ -86,8 +88,12 @@ extension FormDataFile: FormDataItem {
     public var headers: some RequestHeader {
         let info = fileInfo()
         ContentDisposition(name: key, fileName: info.name)
-        if let mimeType = info.mimeType?.preferredMIMEType {
+        if let mimeType = info.mimeType {
+#if canImport(UniformTypeIdentifiers)
+            ContentType(.mime(mimeType))
+#else
             ContentType(.custom(mimeType))
+#endif
         }
     }
     
@@ -131,14 +137,17 @@ extension FormDataFile {
     /// Retrieves file metadata such as its name and MIME type.
     ///
     /// - Returns: A tuple containing the file name and MIME type.
-    private func fileInfo() -> (name: String?, mimeType: UTType?) {
+    private func fileInfo() -> (name: String?, mimeType: MimeType?) {
         let name = fileName ?? fileURL.lastPathComponent
         
         var fileMimeType = mimeType
+#if canImport(UniformTypeIdentifiers)
         if fileMimeType == nil {
+            
             let fileExtension = fileURL.pathExtension
             fileMimeType = UTType(filenameExtension: fileExtension)
         }
+#endif
         
         return (name: name, mimeType: fileMimeType)
     }
@@ -181,10 +190,10 @@ extension FormDataFile: CustomStringConvertible {
         return """
         FormDataFile = {
           key = \(key),
-          fileName = \(String(describing: fileName)),
+          fileName = \(fileName ?? "nil"),
           fileURL = \(fileURL),
-          mimeType = \(String(describing: mimeType)),
-          headers = \(headers)
+          mimeType = \(mimeType?.description ?? "nil"),
+          headers = \(headers.headers)
         }
         """
     }

@@ -11,12 +11,12 @@ import Testing
 
 @Suite(.tags(.request))
 struct HTTPRequestTests {
-    private let configuration = ConfigurationValues.mock
+    private let configurations = ConfigurationValues.mock
     
     @Test func initWithStringURLOnly() throws {
         let request = HTTPRequest(url: "https://example.com")
         
-        let urlRequest = try request._makeURLRequest(configuration)
+        let urlRequest = try request._makeURLRequest(configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
     }
@@ -24,7 +24,7 @@ struct HTTPRequestTests {
     @Test func initWithStringURLAndPath() throws {
         let request = HTTPRequest(url: "https://example.com", path: "test")
         
-        let urlRequest = try request._makeURLRequest(configuration)
+        let urlRequest = try request._makeURLRequest(configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/test")
     }
@@ -32,7 +32,7 @@ struct HTTPRequestTests {
     @Test func initWithURLOnly() throws {
         let request = HTTPRequest(url: URL(string: "https://example.com"))
         
-        let urlRequest = try request._makeURLRequest(configuration)
+        let urlRequest = try request._makeURLRequest(configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
     }
@@ -43,7 +43,7 @@ struct HTTPRequestTests {
             path: "test"
         )
         
-        let urlRequest = try request._makeURLRequest(configuration)
+        let urlRequest = try request._makeURLRequest(configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/test")
     }
@@ -55,7 +55,7 @@ struct HTTPRequestTests {
             DummyModifier(header: ("test", "value"))
         }
         
-        let urlRequest = try request._makeURLRequest(configuration)
+        let urlRequest = try request._makeURLRequest(configurations)
         
         #expect(urlRequest.allHTTPHeaderFields?["test"] == "value")
     }

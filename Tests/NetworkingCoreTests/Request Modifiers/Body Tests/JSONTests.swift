@@ -72,6 +72,18 @@ struct JSONTests {
         #expect(jsonObject == dictionary as? [String: String])
     }
     
+    @Test func jsonDescription() {
+        let data = "Hello".data(using: .utf8)
+        let encoder = JSONEncodableMock(data: data)
+        let json = JSON(encodable: encoder)
+        
+        let result = json.description
+        
+        let contentType = ContentType(.applicationJson)
+        #expect(result.contains("contentType = \(contentType.description)"))
+        #expect(result.contains("body = JSONEncodableMock"))
+    }
+    
 // MARK: - CodableJSONEncoder Tests
     @Test func codableJSONEncoderEncodesValidObject() throws {
         let sample = DataMock()
@@ -81,6 +93,15 @@ struct JSONTests {
         let decoded = try configurations.decoder.decode(DataMock.self, from: data!)
         
         #expect(decoded == sample)
+    }
+    
+    @Test func codableJSONEncoderThrowsErrorForInvalidObject() throws {
+        let sample = DataMock(test: .infinity)
+        let encodable = CodableJSONEncoder(sample)
+        
+        try #require(throws: NetworkingError.JSONError.self) {
+            _ = try encodable.encoded(for: configurations)
+        }
     }
     
     @Test func codableJSONEncoderEncodesUsingCustomEncoder() throws {
@@ -97,6 +118,15 @@ struct JSONTests {
         #expect(decoded == sample)
     }
     
+    @Test func codableEncoderDescription() {
+        let object = DataMock(test: 10)
+        let encoder = CodableJSONEncoder(object)
+        
+        let result = encoder.description
+        
+        #expect(result.contains("CodableJSONEncoder = DataMock(test: \(object.test)"))
+    }
+
 // MARK: - DictionaryJSONEncoder Tests
     @Test func dictionaryJSONEncoderEncodesDictionaryCorrectly() throws {
         let dictionary: [String: String] = ["key": "value", "number": "42"]
@@ -110,11 +140,40 @@ struct JSONTests {
         
         #expect(jsonObject == dictionary)
     }
+    
+    @Test func dictionaryJSONEncoderFailsForInvalidDictionary() throws {
+        let dictionary: [String: Date] = ["key": Date()]
+        let encodable = DictionaryJSONEncoder(dictionary: dictionary)
+        
+        try #require(throws: NetworkingError.JSONError.self) {
+            _ = try encodable.encoded(for: configurations)
+        }
+    }
+    
+    @Test func dictEncoderDescriptionnIsEmptyWhenDictionaryIsEmpty() {
+        let encoder = DictionaryJSONEncoder(dictionary: [:])
+        let result = encoder.description
+        
+        #expect(result == "DictionaryJSONEncoder = []")
+    }
+    
+    @Test func dictEncoderDescriptionContainsAllKeys() {
+        let encoder = DictionaryJSONEncoder(dictionary: [
+            "name": "Alice",
+            "email": "alice@example.com"
+        ])
+        let result = encoder.description
+        
+        #expect(result.contains("name"))
+        #expect(result.contains("email"))
+        #expect(result.starts(with: "DictionaryJSONEncoder"))
+        #expect(result.contains("(\(encoder.dictionary.count))"))
+    }
 }
 
 extension JSONTests {
     struct DataMock: Codable, Equatable {
-        var testName = UUID()
+        var test = Double.random(in: 0...100)
     }
     
     struct JSONEncodableMock: JSONEncodable {

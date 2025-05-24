@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(UniformTypeIdentifiers)
+import UniformTypeIdentifiers
+#endif
 
 /// A `Content-Type` header modifier.
 @frozen public struct ContentType: RequestHeader, Equatable, Hashable, Sendable {
@@ -40,6 +43,11 @@ import Foundation
     
     /// Custom content type.
     case custom(String)
+    
+#if canImport(UniformTypeIdentifiers)
+    /// Mime Type
+    case mime(UTType)
+#endif
 
     /// The corresponding string value of the content type.
     public var value: String {
@@ -52,6 +60,10 @@ import Foundation
                 return "multipart/form-data; boundary=\(boundary)"
             case .custom(let type):
                 return type
+#if canImport(UniformTypeIdentifiers)
+            case .mime(let type):
+                return type.preferredMIMEType ?? "Unsupported"
+#endif
         }
     }
 }

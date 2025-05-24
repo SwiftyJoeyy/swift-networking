@@ -7,6 +7,9 @@
 
 import Testing
 import Foundation
+#if canImport(UniformTypeIdentifiers)
+import UniformTypeIdentifiers
+#endif
 @testable import NetworkingCore
 
 /// Suite for testing the functionality of ``RequestHeader``.
@@ -172,6 +175,48 @@ extension RequestHeaderTests {
         
         #expect(header.type.value == type)
         #expect(header.headers["Content-Type"] == type)
+    }
+    
+#if canImport(UniformTypeIdentifiers)
+    @Test func supportedMimeContentType() {
+        let type = UTType.plainText
+        let header = ContentType(.mime(type))
+        
+        let value = type.preferredMIMEType
+        
+        #expect(header.type.value == value)
+        #expect(header.headers["Content-Type"] == value)
+    }
+    
+    @Test func unsupportedMimeContentType() {
+        let type = UTType.text
+        let header = ContentType(.mime(type))
+        
+        let value = "Unsupported"
+        
+        #expect(header.type.value == value)
+        #expect(header.headers["Content-Type"] == value)
+    }
+#endif
+}
+
+// MARK: - Description Tests
+extension RequestHeaderTests {
+    @Test func descriptionIsEmptyForNoHeaders() {
+        let header = DummyHeader(headers: [:])
+        let result = header.description
+        
+        #expect(result.contains("DummyHeader = []"))
+    }
+    
+    @Test func descriptionIncludesHeaders() {
+        let header = DummyHeader(headers: ["X-Test": "Value", "Auth": "Bearer xyz"])
+        let result = header.description
+        
+        #expect(result.contains("X-Test"))
+        #expect(result.contains("Value"))
+        #expect(result.contains("Auth"))
+        #expect(result.contains("Bearer xyz"))
     }
 }
 

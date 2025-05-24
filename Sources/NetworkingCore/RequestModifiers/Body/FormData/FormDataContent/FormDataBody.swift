@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UniformTypeIdentifiers
 
 /// A single form-data content item used in a multipart request.
 @frozen public struct FormDataBody: Equatable, Hashable {
@@ -20,7 +19,7 @@ import UniformTypeIdentifiers
     private let fileName: String?
     
     /// The MIME type of the content, if specified.
-    private let mimeType: UTType?
+    private let mimeType: MimeType?
 }
 
 // MARK: - Initializers
@@ -36,7 +35,7 @@ extension FormDataBody {
         _ key: String,
         data: Data?,
         fileName: String? = nil,
-        mimeType: UTType? = nil
+        mimeType: MimeType? = nil
     ) {
         self.key = key
         self.body = data
@@ -55,7 +54,7 @@ extension FormDataBody {
         _ key: String,
         body: String?,
         fileName: String? = nil,
-        mimeType: UTType? = nil
+        mimeType: MimeType? = nil
     ) {
         self.init(
             key,
@@ -71,8 +70,12 @@ extension FormDataBody: FormDataItem {
     /// The headers associated with the form-data item.
     public var headers: some RequestHeader {
         ContentDisposition(name: key, fileName: fileName)
-        if let mimeType = mimeType?.preferredMIMEType {
+        if let mimeType {
+#if canImport(UniformTypeIdentifiers)
+            ContentType(.mime(mimeType))
+#else
             ContentType(.custom(mimeType))
+#endif
         }
     }
     
@@ -90,12 +93,12 @@ extension FormDataBody: FormDataItem {
 extension FormDataBody: CustomStringConvertible {
     public var description: String {
         return """
-        FormDataFile = {
+        FormDataBody = {
           key = \(key),
-          fileName = \(String(describing: fileName)),
-          mimeType = \(String(describing: mimeType)),
+          fileName = \(fileName ?? "nil"),
+          mimeType = \(mimeType?.description ?? "nil")),
           body = \(String(describing: body)),
-          headers = \(headers)
+          headers = \(headers.description)
         }
         """
     }

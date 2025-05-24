@@ -52,7 +52,7 @@ extension RequestParameter {
             return "\(String(describing: Self.self)) = []"
         }
         let paramsString = parameters
-            .map({"  \($0.name) : \(String(describing: $0.value))"})
+            .map({"  \($0.name) : \($0.value ?? "nil")"})
             .joined(separator: ",\n")
         return """
         \(String(describing: Self.self)) (\(parameters.count)) = [

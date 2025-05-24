@@ -50,10 +50,16 @@ extension _TupleModifier: RequestModifier where M0: RequestModifier, M1: Request
 extension _TupleModifier: CustomStringConvertible where M0: CustomStringConvertible, M1: CustomStringConvertible, M2: CustomStringConvertible, M3: CustomStringConvertible, M4: CustomStringConvertible, M5: CustomStringConvertible, M6: CustomStringConvertible, M7: CustomStringConvertible, M8: CustomStringConvertible, M9: CustomStringConvertible {
     
     public var description: String {
-        [
+        let values = [
             value.0.description, value.1.description, value.2.description, value.3.description, value.4.description,
             value.5.description, value.6.description, value.7.description, value.8.description, value.9.description
-        ].joined(separator: " ")
+        ].joined(separator: ", ")
+        
+        return """
+        \(String(describing: Self.self)) = {
+            [\(values)]
+        }
+        """
     }
 }
 

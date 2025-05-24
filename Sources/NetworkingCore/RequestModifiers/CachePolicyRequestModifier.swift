@@ -43,7 +43,11 @@ extension CachePolicyRequestModifier: RequestModifier {
 // MARK: - CustomStringConvertible
 extension CachePolicyRequestModifier: CustomStringConvertible {
     @usableFromInline internal var description: String {
-        "CachePolicyRequestModifier(cachePolicy: \(cachePolicy))"
+        return """
+        CachePolicyRequestModifier {
+            cachePolicy = \(cachePolicy)
+        }
+        """
     }
 }
 

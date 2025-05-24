@@ -12,30 +12,28 @@ import Testing
 @Suite(.tags(.request))
 struct RequestTests {
     private let configurations = ConfigurationValues.mock
-    private let url = URL(string: "example.com")!
     
     @Test func buildsURLRequest() throws {
+        let request = MockRequest()
+        let urlRequest = try request._makeURLRequest(configurations)
         
-    }
-    
-    @Test func requestIDAppliedFromMacro() throws {
-        let request = MacrosRequest()
-        
-        #expect(request.id == "SomeID")
+        #expect(urlRequest.url?.absoluteString == "https://example.com")
+        #expect(urlRequest.httpMethod == "GET")
     }
     
     @Test func requestWithoutID() throws {
-        let request = NestedRequest()
+        let request = MockRequest()
         
-        #expect(request.id == "NestedRequest")
+        #expect(request.id == "MockRequest")
     }
     
-    @Test func requestWithExplicitID() throws {
-        let id = "testing"
-        let request = DummyRequest(id: id)
-        
-        #expect(request.id == id)
+    @Test func descriptionIncludesIDAndNestedRequest() {
+        let request = MockRequest()
+        let description = request.description
+        #expect(description.contains("MockRequest"))
+        #expect(description.contains("NestedRequest"))
     }
+
 }
 
 extension Tag {

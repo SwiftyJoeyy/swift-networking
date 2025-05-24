@@ -28,6 +28,9 @@ extension DictionaryJSONEncoder: JSONEncodable {
     public func encoded(
         for configurations: borrowing ConfigurationValues
     ) throws -> Data? {
+        guard JSONSerialization.isValidJSONObject(dictionary) else {
+            throw NetworkingError.JSONError.invalidObject(dictionary: dictionary)
+        }
         do {
             let data = try JSONSerialization.data(
                 withJSONObject: dictionary,

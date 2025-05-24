@@ -7,7 +7,9 @@
 
 import Foundation
 import Testing
+#if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
+#endif
 @testable import NetworkingCore
 
 @Suite(.tags(.requestModifiers, .body, .formData))
@@ -78,7 +80,7 @@ final class FormDataFileTests {
     
 // MARK: - Mime Type Tests
     @Test func headersIncludeImplicitMimeType() throws {
-        let expectedMimeType = UTType.plainText
+        let expectedMimeType = "text/plain"
         let expectedFileName = "testing.txt"
         let item = FormDataFile(
             key,
@@ -88,11 +90,15 @@ final class FormDataFileTests {
         let headers = item.headers.headers
         
         let contentType = try #require(headers["Content-Type"])
-        #expect(contentType == expectedMimeType.preferredMIMEType)
+        #expect(contentType == expectedMimeType)
     }
     
     @Test func headersIncludeExplicitMimeType() throws {
-        let expectedMimeType = UTType.realityFile
+#if canImport(UniformTypeIdentifiers)
+        let expectedMimeType = UTType.plainText
+#else
+        let expectedMimeType = "text/plain"
+#endif
         let expectedFileName = "testing.txt"
         let item = FormDataFile(
             key,
@@ -103,7 +109,7 @@ final class FormDataFileTests {
         let headers = item.headers.headers
         
         let contentType = try #require(headers["Content-Type"])
-        #expect(contentType == expectedMimeType.preferredMIMEType)
+        #expect(contentType == "text/plain")
     }
     
 // MARK: - Errors Tests
@@ -148,5 +154,35 @@ final class FormDataFileTests {
             }
             return url == tempDirectory
         })
+    }
+    
+// MARK: - Description Tests
+    @Test func descriptionIncludesAllFields() {
+        let key = "profileImage"
+#if canImport(UniformTypeIdentifiers)
+        let mimeType = UTType.png
+#else
+        let mimeType = "png"
+#endif
+        let file = FormDataFile(
+            key,
+            fileURL: tempFileURL,
+            fileName: fileName,
+            mimeType: mimeType
+        )
+        
+        let result = file.description
+        
+#if canImport(UniformTypeIdentifiers)
+        let contentType = ContentType(.mime(mimeType))
+#else
+        let contentType = ContentType(.custom(mimeType))
+#endif
+        
+        #expect(result.contains("key = \(key)"))
+        #expect(result.contains("fileName = \(fileName)"))
+        #expect(result.contains("fileURL = \(tempFileURL!)"))
+        #expect(result.contains("mimeType = \(mimeType.description)"))
+        #expect(result.contains(contentType.type.value))
     }
 }

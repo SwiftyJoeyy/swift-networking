@@ -11,6 +11,7 @@ import Testing
 
 @Suite(.tags(.resultBuilders))
 struct HeadersBuilderTests {
+// MARK: - Functions
     private func buildHeader(
         @HeadersBuilder _ action: () -> some RequestHeader
     ) -> some RequestHeader {
@@ -22,6 +23,7 @@ struct HeadersBuilderTests {
         return buildHeader(action).headers
     }
     
+// MARK: - Tests
     @Test func buildBlockWithNoHeaders() {
         let headers = build { }
         
@@ -116,7 +118,7 @@ struct HeadersBuilderTests {
     
     @Test func buildLimitedAvailability() {
         let headers = build {
-            if #available(macOS 16.0, *) {
+            if #available(macOS 30.0, *) {
                 TestHeader(key: "A", value: "available")
             }else {
                 TestHeader(key: "A", value: "unavailable")
@@ -132,7 +134,7 @@ struct HeadersBuilderTests {
                 TestHeader(key: "C", value: "available")
             }
             
-            if #available(macOS 16.0, *) {
+            if #available(macOS 30.0, *) {
                 TestHeader(key: "D", value: "unavailable")
             }
         }
@@ -149,6 +151,18 @@ struct HeadersBuilderTests {
         let header = buildHeader {
             if true {
                 TestHeader(key: "D", value: "val")
+            }else {
+                TestHeader(key: "A", value: "val")
+            }
+            
+            if false {
+                TestHeader(key: "E", value: "val")
+            }else {
+                TestHeader(key: "F", value: "val")
+            }
+            
+            if #available(macOS 30.0, *) {
+                TestHeader(key: "C", value: "val")
             }
             
             TestHeader(key: "B", value: "val")
@@ -157,8 +171,41 @@ struct HeadersBuilderTests {
         let urlRequest = URLRequest(url: URL(string: "https://example.com")!)
         let modified = try header.modifying(urlRequest, with: .mock)
         
+        #expect(modified.allHTTPHeaderFields?.count == 3)
         #expect(modified.allHTTPHeaderFields?["D"] == "val")
         #expect(modified.allHTTPHeaderFields?["B"] == "val")
+        #expect(modified.allHTTPHeaderFields?["F"] == "val")
+    }
+    
+    @Test func headerDescription() throws {
+        let header = buildHeader {
+            if true {
+                TestHeader(key: "D", value: "val")
+            }else {
+                TestHeader(key: "A", value: "val")
+            }
+            
+            if false {
+                TestHeader(key: "E", value: "val")
+            }else {
+                TestHeader(key: "F", value: "val")
+            }
+            
+            if #available(macOS 30.0, *) {
+                TestHeader(key: "C", value: "val")
+            }
+            
+            TestHeader(key: "B", value: "val")
+        }
+        
+        let result = header.description
+        
+        #expect(result.contains("D : val"))
+        #expect(result.contains("B : val"))
+        #expect(result.contains("F : val"))
+        #expect(!result.contains("C : val"))
+        #expect(!result.contains("A : val"))
+        #expect(!result.contains("E : val"))
     }
 }
 

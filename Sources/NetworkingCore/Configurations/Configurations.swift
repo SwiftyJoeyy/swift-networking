@@ -51,7 +51,7 @@ public struct ConfigurationValues: Sendable, CustomStringConvertible {
             return "\(String(describing: Self.self)) = []"
         }
         let valuesString = values
-            .map({"  \($0): \($1)"})
+            .map({"  \($0) : \($1)"})
             .joined(separator: ",\n")
         return """
         \(String(describing: Self.self)) = [

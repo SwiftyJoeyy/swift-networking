@@ -1,5 +1,5 @@
 //
-//  RequestParametersTests.swift
+//  RequestParameterTests.swift
 //  Networking
 //
 //  Created by Joe Maghzal on 2/11/25.
@@ -11,7 +11,7 @@ import Foundation
 
 /// Suite for testing the functionality of ``RequestParameter``.
 @Suite(.tags(.requestModifiers, .parameters))
-struct RequestParametersTests {
+struct RequestParameterTests {
 // MARK: - Properties
     private let configurations = ConfigurationValues.mock
     
@@ -50,7 +50,7 @@ struct RequestParametersTests {
                 resolvingAgainstBaseURL: false
             )
         )
-        let queryItems = components.queryItems ?? []
+        let queryItems = try #require(components.queryItems)
         #expect(queryItems.contains(URLQueryItem(name: "search", value: "swift")))
     }
     
@@ -66,14 +66,14 @@ struct RequestParametersTests {
                 resolvingAgainstBaseURL: false
             )
         )
-        let queryItems = components.queryItems ?? []
+        let queryItems = try #require(components.queryItems)
         #expect(queryItems.contains(URLQueryItem(name: "search", value: "swift")))
         #expect(queryItems.contains(URLQueryItem(name: "testing", value: "hello")))
     }
 }
 
 // MARK: - ParametersGroup Tests
-extension RequestParametersTests {
+extension RequestParameterTests {
     @Test func groupInitWithPlainURLQueryItems() {
         let expectedItems = [
             URLQueryItem(name: "q", value: "swift"),
@@ -124,7 +124,7 @@ extension RequestParametersTests {
         let components = try #require(
             URLComponents(url: finalURL, resolvingAgainstBaseURL: false)
         )
-        let queryItems = components.queryItems ?? []
+        let queryItems = try #require(components.queryItems)
         #expect(queryItems.contains(URLQueryItem(name: "x", value: "1")))
         #expect(queryItems.contains(URLQueryItem(name: "y", value: "2")))
     }
@@ -144,15 +144,38 @@ extension RequestParametersTests {
                 resolvingAgainstBaseURL: false
             )
         )
-        let queryItems = components.queryItems ?? []
+        let queryItems = try #require(components.queryItems)
         #expect(queryItems.contains(URLQueryItem(name: "x", value: "1")))
         #expect(queryItems.contains(URLQueryItem(name: "y", value: "2")))
         #expect(queryItems.contains(URLQueryItem(name: "testing", value: "hello")))
     }
 }
 
+// MARK: - Description Tests
+extension RequestParameterTests {
+    @Test func descriptionIsEmptyForNoParameters() {
+        let param = DummyParameter(parameters: [])
+        let result = param.description
+        
+        #expect(result.contains("DummyParameter = []"))
+    }
+    
+    @Test func testDescriptionContainsParameters() {
+        let param = DummyParameter(parameters: [
+            URLQueryItem(name: "lang", value: "en"),
+            URLQueryItem(name: "page", value: "3"),
+            URLQueryItem(name: "font", value: "nil")
+        ])
+        let result = param.description
+        
+        #expect(result.contains("lang : en"))
+        #expect(result.contains("page : 3"))
+        #expect(result.contains("font : nil"))
+    }
+}
+
 // MARK: - Modifier Tests
-extension RequestParametersTests {
+extension RequestParameterTests {
     @Test func appliesAdditionalParametersModifierToRequest() {
         do {
             let request = DummyRequest()

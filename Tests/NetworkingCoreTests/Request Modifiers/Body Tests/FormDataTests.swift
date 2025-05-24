@@ -109,17 +109,36 @@ struct FormDataTests {
         let body = try formData.body(for: configurations)
         #expect(body == nil)
     }
+    
+// MARK: - Description Tests
+    @Test func descriptionIncludesAllFields() {
+        let boundary = UUID().uuidString
+        let formData = FormData(boundary: boundary) {
+            MockFormDataItem(
+                key: "username",
+                content: nil,
+                headerValues: [
+                    "Content-Disposition": "form-data; name=\"username\""
+                ]
+            )
+        }
+        
+        let result = formData.description
+        
+        let contentType = BodyContentType.multipartFormData(boundary: boundary)
+        #expect(result.contains("contentType = \(contentType.value)"))
+        #expect(result.contains("boundary = \(boundary)"))
+        #expect(result.contains("body (1)"))
+        #expect(result.contains("MockFormDataItem"))
+    }
 }
 
 extension FormDataTests {
-    struct MockFormDataItem: FormDataItem {
+    struct MockFormDataItem: FormDataItem, CustomStringConvertible {
         let key: String
         let content: Data?
         let headerValues: [String: String]
         
-        var contentSize: UInt64? {
-            return nil
-        }
         var headers: HeadersGroup {
             HeadersGroup(headerValues)
         }
@@ -127,6 +146,10 @@ extension FormDataTests {
             _ configurations: borrowing ConfigurationValues
         ) throws -> Data? {
             content
+        }
+        
+        var description: String {
+            return "MockFormDataItem"
         }
     }
 }
