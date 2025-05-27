@@ -9,13 +9,11 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 package enum RequestMacro {
-    private static let requirement = "request"
-    
     private static func validateRequest(
         declaration: some DeclGroupSyntax
     ) throws {
         let hasRequestRequirement = declaration.memberBlock.members.contains {
-            return $0.decl.as(VariableDeclSyntax.self)?.name?.text == requirement
+            return $0.decl.as(VariableDeclSyntax.self)?.name?.text == "request"
         }
         if !hasRequestRequirement {
             throw RequestMacroError.missingRequestDeclaration
@@ -64,7 +62,7 @@ extension RequestMacro: MemberMacro {
         if !reqMods.isEmpty {
             declarations.append(
                 DeclarationsFactory.makeModDecl(
-                    modifiers: declaration.modifiers,
+                    modifiers: declaration.modifiers.filter({$0.name.isAccessLevel}),
                     reqMods: reqMods
                 )
             )
@@ -85,6 +83,9 @@ extension RequestMacro: MemberMacro {
                 )
             )
         }
+        if let funcDecl = DynamicConfigDeclFactory.make(for: declaration) {
+            declarations.append(DeclSyntax(funcDecl))
+        }
         return declarations
     }
 }
@@ -98,20 +99,15 @@ extension RequestMacro: ExtensionMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        do {
-            try validateRequest(declaration: declaration)
-            var declarations = [
-                DeclarationsFactory.makeExtensionDecl(type, name: "Request")
-            ]
-            
-            if !getModifiers(declaration: declaration).isEmpty {
-                declarations.append(
-                    DeclarationsFactory.makeExtensionDecl(type, name: "ModifiableRequest")
-                )
-            }
-            return declarations
-        }catch {
-            return []
+        var declarations = [
+            DeclarationsFactory.makeExtensionDecl(type, name: "Request")
+        ]
+        
+        if !getModifiers(declaration: declaration).isEmpty {
+            declarations.append(
+                DeclarationsFactory.makeExtensionDecl(type, name: "ModifiableRequest")
+            )
         }
+        return declarations
     }
 }

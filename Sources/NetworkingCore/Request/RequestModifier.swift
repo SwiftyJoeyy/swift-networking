@@ -56,6 +56,6 @@ extension Request {
     @inlinable public func modifier<Modifier: RequestModifier>(
         _ modifier: Modifier
     ) -> some Request {
-        ModifiedRequest(request: self, modifier: modifier)
+        return ModifiedRequest(request: self, modifier: modifier)
     }
 }

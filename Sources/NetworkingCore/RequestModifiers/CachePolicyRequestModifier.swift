@@ -10,7 +10,7 @@ import Foundation
 /// Request modifier for setting the cache policy for a ``URLRequest``.
 ///
 /// - Note: Use ``Request/cachePolicy(_:)`` instead of directly using this.
-@usableFromInline internal struct CachePolicyRequestModifier {
+@RequestModifier @usableFromInline internal struct CachePolicyRequestModifier {
     /// The cache policy to apply to the request.
     private let cachePolicy: URLRequest.CachePolicy
     
@@ -20,10 +20,7 @@ import Foundation
     @usableFromInline internal init(_ cachePolicy: URLRequest.CachePolicy) {
         self.cachePolicy = cachePolicy
     }
-}
 
-// MARK: - RequestModifier
-extension CachePolicyRequestModifier: RequestModifier {
     /// Modifies the given ``URLRequest`` by setting its cache policy.
     ///
     /// - Parameters:

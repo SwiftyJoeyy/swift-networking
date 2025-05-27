@@ -48,10 +48,17 @@ import Foundation
 /// - Note: This macros is needed for the ``Header`` & ``Parameter``
 /// macros to work.
 @attached(extension, conformances: Request, ModifiableRequest)
-@attached(member, conformances: Request, names: named(modifier), named(id))
+@attached(member, conformances: Request, names: named(modifier), named(id), named(_accept))
 public macro Request(_ id: String = "") = #externalMacro(
     module: "NetworkingCoreMacros",
     type: "RequestMacro"
 )
 
 // TODO: - Add support for mods builder in init for composable requests
+
+@attached(extension, conformances: RequestModifier)
+@attached(member, conformances: RequestModifier, names: named(_accept))
+public macro RequestModifier() = #externalMacro(
+    module: "NetworkingCoreMacros",
+    type: "RequestModifierMacro"
+)

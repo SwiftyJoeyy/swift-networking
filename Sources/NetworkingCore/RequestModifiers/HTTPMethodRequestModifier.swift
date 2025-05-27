@@ -10,7 +10,7 @@ import Foundation
 /// Request modifier for setting the HTTP method of a ``URLRequest``.
 ///
 /// - Note: Use ``Request/method(_:)`` instead of directly using this.
-@usableFromInline internal struct HTTPMethodRequestModifier {
+@RequestModifier @usableFromInline internal struct HTTPMethodRequestModifier {
     /// The HTTP method to apply to the request.
     private let httpMethod: RequestMethod
     
@@ -20,10 +20,7 @@ import Foundation
     @usableFromInline internal init(_ httpMethod: RequestMethod) {
         self.httpMethod = httpMethod
     }
-}
 
-// MARK: - RequestModifier
-extension HTTPMethodRequestModifier: RequestModifier {
     /// Modifies the given ``URLRequest`` by setting its HTTP method.
     ///
     /// - Parameters:

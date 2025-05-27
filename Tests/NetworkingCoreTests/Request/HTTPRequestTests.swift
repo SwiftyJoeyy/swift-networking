@@ -89,7 +89,7 @@ struct HTTPRequestTests {
 }
 
 extension HTTPRequestTests {
-    struct DummyModifier: RequestModifier {
+    @RequestModifier struct DummyModifier {
         let header: (String, String)
         func modifying(_ request: consuming URLRequest) throws -> URLRequest {
             request.setValue(header.1, forHTTPHeaderField: header.0)

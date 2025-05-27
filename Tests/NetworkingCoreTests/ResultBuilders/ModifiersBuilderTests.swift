@@ -230,7 +230,7 @@ struct ModifiersBuilderTests {
 }
 
 extension ModifiersBuilderTests {
-    struct TestModifier<T>: RequestModifier {
+    @RequestModifier struct TestModifier<T> {
         var header = (key: "", value: "")
         func modifying(_ request: consuming URLRequest) throws -> URLRequest {
             var modified = request

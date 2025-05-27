@@ -62,7 +62,7 @@ import Foundation
     private let path: String?
     
     /// The request modifier that defines the request’s behavior.
-    public let modifier: Modifier
+    private let modifier: Modifier
 }
 
 extension HTTPRequest {
@@ -130,7 +130,7 @@ extension HTTPRequest: Request {
     
     /// Applies the given configuration values to the request.
     ///
-    /// This method forwards the provided `ConfigurationValues` to the associated
+    /// This method forwards the provided ``ConfigurationValues`` to the associated
     /// request modifier and to this instance’s internal configuration storage.
     /// Use this to propagate inherited configuration values through the request
     /// chain.

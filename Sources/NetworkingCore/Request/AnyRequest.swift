@@ -13,25 +13,17 @@ import Foundation
     public typealias Contents = Never
     
 // MARK: - Properties
-    /// The configuration values available to this instance.
-    @Configurations private var configurations
+    /// The request builder used to type erase a request.
+    private let storage: AnyRequestStorageBase
     
     /// The request's identifier.
     public let id: String
-    
-    /// The request builder used to type erase a request.
-    private let requestBuilder: (
-        _ configurations: borrowing ConfigurationValues
-    ) throws -> URLRequest
     
 // MARK: - Initializer
     /// Create an instance that type-erases `request`.
     public init(_ request: some Request) {
         self.id = request.id
-        self.requestBuilder = { configurations in
-            request._accept(configurations)
-            return try request._makeURLRequest()
-        }
+        self.storage = AnyRequestStorage(request: request)
     }
     
 // MARK: - Functions
@@ -43,7 +35,7 @@ import Foundation
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     public func _makeURLRequest() throws -> URLRequest {
-        return try requestBuilder(configurations)
+        return try storage.makeURLRequest()
     }
     
     /// Applies new configuration values to the erased request.
@@ -54,6 +46,52 @@ import Foundation
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     public func _accept(_ values: ConfigurationValues) {
-        _configurations._accept(values)
+        storage.accept(values)
+    }
+}
+
+extension AnyRequest {
+    /// An abstract base class for type-erased request storage.
+    @usableFromInline internal class AnyRequestStorageBase {
+        /// Creates a ``URLRequest`` from the underlying request.
+        ///
+        /// - Returns: A configured ``URLRequest``.
+        internal func makeURLRequest() throws -> URLRequest {
+            fatalError("Subclasses must override this method.")
+        }
+        
+        /// Applies the specified configuration values to the underlying request.
+        ///
+        /// - Parameter values: The configuration values to apply.
+        internal func accept(_ values: ConfigurationValues) {
+            fatalError("Subclasses must override this method.")
+        }
+    }
+    
+    /// A concrete storage type for a specific ``Request`` instance.
+    fileprivate final class AnyRequestStorage<R: Request>: AnyRequestStorageBase {
+        /// The wrapped request.
+        private let request: R
+        
+        /// Creates a new instance that wraps the given request.
+        ///
+        /// - Parameter request: The request to wrap.
+        fileprivate init(request: R) {
+            self.request = request
+        }
+        
+        /// Builds a ``URLRequest`` from the wrapped request.
+        ///
+        /// - Returns: A configured ``URLRequest``.
+        fileprivate override func makeURLRequest() throws -> URLRequest {
+            return try request._makeURLRequest()
+        }
+        
+        /// Applies the specified configuration values to the wrapped request.
+        ///
+        /// - Parameter values: The configuration values to apply.
+        fileprivate override func accept(_ values: ConfigurationValues) {
+            request._accept(values)
+        }
     }
 }

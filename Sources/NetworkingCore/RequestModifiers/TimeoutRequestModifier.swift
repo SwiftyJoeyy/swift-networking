@@ -10,7 +10,7 @@ import Foundation
 /// Request modifier for setting the timeout interval for a ``URLRequest``
 ///
 /// - Note: Use ``Request/timeout(_:)`` instead of directly using this.
-@usableFromInline internal struct TimeoutRequestModifier {
+@RequestModifier @usableFromInline internal struct TimeoutRequestModifier {
     /// The timeout interval in seconds.
     private let timeoutInterval: TimeInterval
     
@@ -20,10 +20,7 @@ import Foundation
     @usableFromInline internal init(_ timeoutInterval: TimeInterval) {
         self.timeoutInterval = timeoutInterval
     }
-}
 
-// MARK: - RequestModifier
-extension TimeoutRequestModifier: RequestModifier {
     /// Modifies the given ``URLRequest`` by setting its timeout interval.
     ///
     /// - Parameters:

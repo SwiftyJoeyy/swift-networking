@@ -13,7 +13,7 @@ import Foundation
 /// or ``Request/appending(path:)``,
 /// or ``Request/appending(paths:)``
 /// instead of directly using this. 
-@usableFromInline internal struct PathRequestModifier {
+@RequestModifier @usableFromInline internal struct PathRequestModifier {
     /// The list of paths to append.
     private let paths: [String]
     
@@ -23,10 +23,7 @@ import Foundation
     @usableFromInline internal init(_ paths: [String]) {
         self.paths = paths
     }
-}
 
-// MARK: - RequestModifier
-extension PathRequestModifier: RequestModifier {
     /// Modifies the given ``URLRequest`` by appending paths to its URL.
     ///
     /// - Parameters:

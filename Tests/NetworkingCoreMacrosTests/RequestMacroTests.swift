@@ -626,6 +626,12 @@ final class RequestMacroTests: XCTestCase {
                 @Header("Content-Language") var contentLanguage: String
                 @Header("Content-Type") var contentType: String
             }
+            
+            extension TestRequest: Request {
+            }
+            
+            extension TestRequest: ModifiableRequest {
+            }
             """,
             diagnostics: expectedDiagnostics,
             macros: testMacros

@@ -63,7 +63,7 @@ extension ModifiedRequestTests {
         }
     }
     
-    struct MockModifier: RequestModifier {
+    @RequestModifier struct MockModifier {
         func modifying(_ request: consuming URLRequest) throws -> URLRequest {
             var modified = request
             modified.setValue("true", forHTTPHeaderField: "X-Modified")

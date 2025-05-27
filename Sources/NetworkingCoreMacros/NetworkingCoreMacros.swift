@@ -16,6 +16,7 @@ internal struct NetworkingCoreMacros: CompilerPlugin {
         RequestMacro.self,
         HeaderMacro.self,
         ParameterMacro.self,
-        ConfigurationKeyMacro.self
+        ConfigurationKeyMacro.self,
+        RequestModifierMacro.self
     ]
 }

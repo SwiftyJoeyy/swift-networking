@@ -117,7 +117,7 @@ extension ModifiableRequest {
 /// ```
 @frozen public struct ModifiedRequest<Content: Request, Modifier: RequestModifier>: ModifiableRequest {
     /// The identifier of the underlying request.
-    @inlinable public var id: String {
+    public var id: String {
         return request.id
     }
     
