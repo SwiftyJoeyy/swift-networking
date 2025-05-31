@@ -26,13 +26,8 @@ extension RequestHeader {
     public func modifying(
         _ request: consuming URLRequest
     ) throws -> URLRequest {
-        if var headersFields = request.allHTTPHeaderFields {
-            for header in headers {
-                headersFields[header.key] = header.value
-            }
-            request.allHTTPHeaderFields = headersFields
-        }else {
-            request.allHTTPHeaderFields = headers
+        for header in headers {
+            request.setValue(header.value, forHTTPHeaderField: header.key)
         }
         return request
     }

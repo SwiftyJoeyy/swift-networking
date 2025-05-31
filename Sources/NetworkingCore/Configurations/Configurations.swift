@@ -35,14 +35,14 @@ public struct ConfigurationValues: Sendable, CustomStringConvertible {
     /// - Parameter key: The type of the configuration key.
     public subscript<K: ConfigurationKey>(_ key: K.Type) -> K.Value {
         get {
-            guard let value = box.values[String(describing: key)] else {
+            guard let value = box.value(for: ObjectIdentifier(key)) else {
                 return K.defaultValue
             }
             return unsafeBitCast(value, to: K.Value.self)
         }
         set {
             ensureUniqueBox()
-            box.values[String(describing: key)] = newValue
+            box.setValue(newValue, for: ObjectIdentifier(key))
         }
     }
     
@@ -54,15 +54,16 @@ public struct ConfigurationValues: Sendable, CustomStringConvertible {
     /// - SeeAlso: `isKnownUniquelyReferenced(_:)`
     @inline(__always) private mutating func ensureUniqueBox() {
         guard !isKnownUniquelyReferenced(&box) else {return}
-        box = ProperiesBox(values: box.values)
+        box = ProperiesBox(values: box.allValues())
     }
     
     /// A string that represents the contents of the environment values instance.
     public var description: String {
-        guard !box.values.isEmpty else {
+        let values = box.allValues()
+        guard !values.isEmpty else {
             return "\(String(describing: Self.self)) = []"
         }
-        let valuesString = box.values
+        let valuesString = values
             .map({"  \($0) : \($1)"})
             .joined(separator: ",\n")
         return """
@@ -75,16 +76,36 @@ public struct ConfigurationValues: Sendable, CustomStringConvertible {
 
 extension ConfigurationValues {
     /// A type that stores configuration key-value pairs.
-    internal final class ProperiesBox: @unchecked Sendable {
+    fileprivate final class ProperiesBox: @unchecked Sendable {
+        private var lock = os_unfair_lock_s()
+        
         /// The stored configuration values.
-        internal var values: [String: any Sendable]
+        private var values: [ObjectIdentifier: any Sendable]
         
         /// Creates a new box with the specified initial values.
         ///
         /// - Parameter values: A dictionary of configuration values.
         ///   Defaults to an empty dictionary.
-        internal init(values: [String: any Sendable] = [:]) {
+        fileprivate init(values: [ObjectIdentifier: any Sendable] = [:]) {
             self.values = values
+        }
+        
+        fileprivate func setValue(_ value: any Sendable, for key: ObjectIdentifier) {
+            os_unfair_lock_lock(&lock)
+            defer { os_unfair_lock_unlock(&lock) }
+            values[key] = value
+        }
+        
+        fileprivate func value(for key: ObjectIdentifier) -> (any Sendable)? {
+            os_unfair_lock_lock(&lock)
+            defer { os_unfair_lock_unlock(&lock) }
+            return values[key]
+        }
+        
+        fileprivate func allValues() -> [ObjectIdentifier: any Sendable] {
+            os_unfair_lock_lock(&lock)
+            defer { os_unfair_lock_unlock(&lock) }
+            return values
         }
     }
 }

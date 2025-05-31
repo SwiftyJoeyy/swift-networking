@@ -35,7 +35,7 @@ import Foundation
 /// which is applied to the resulting ``URLRequest`` before sending.
 ///
 /// - Note: Prefer using ``ModifiedRequest`` over creating custom ``ModifiableRequest``s.
-protocol ModifiableRequest: Request {
+public protocol ModifiableRequest: Request {
     /// The type of modifier applied to the request.
     associatedtype Modifier: RequestModifier
     
@@ -54,9 +54,9 @@ extension ModifiableRequest {
     ///
     /// - Returns: A modified ``URLRequest`` ready to be sent.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @inlinable public func _makeURLRequest() throws -> URLRequest {
+    public func _makeURLRequest() throws -> URLRequest {
         let urlRequest = try request._makeURLRequest()
-        return try modifier.modifying(urlRequest)
+        return try modifier.modifying(consume urlRequest)
     }
     
     /// Applies the given configuration values to the request and its modifier.
@@ -67,7 +67,7 @@ extension ModifiableRequest {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @inlinable public func _accept(_ values: ConfigurationValues) {
+    public func _accept(_ values: ConfigurationValues) {
         request._accept(values)
         modifier._accept(values)
     }

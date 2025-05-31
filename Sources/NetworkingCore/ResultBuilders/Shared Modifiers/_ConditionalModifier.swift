@@ -14,28 +14,28 @@ import Foundation
     }
     public let storage: Self.Storage
     
-    @inlinable public init(storage: Self.Storage) {
+    public init(storage: Self.Storage) {
         self.storage = storage
     }
 }
 
 // MARK: - RequestModifier
 extension _ConditionalModifier: RequestModifier where TrueContent: RequestModifier, FalseContent: RequestModifier {
-    @inlinable public func modifying(
+    public func modifying(
         _ request: consuming URLRequest
     ) throws -> URLRequest {
         switch storage {
             case .trueContent(let mod):
-                return try mod.modifying(request)
+                return try mod.modifying(consume request)
             case .falseContent(let mod):
-                return try mod.modifying(request)
+                return try mod.modifying(consume request)
         }
     }
 }
 
 // MARK: - _DynamicConfigurable
 extension _ConditionalModifier: _DynamicConfigurable where TrueContent: _DynamicConfigurable, FalseContent: _DynamicConfigurable {
-    @inlinable public func _accept(_ values: ConfigurationValues) {
+    public func _accept(_ values: ConfigurationValues) {
         switch storage {
             case .trueContent(let mod):
                 mod._accept(values)
@@ -59,7 +59,7 @@ extension _ConditionalModifier: CustomStringConvertible where TrueContent: Custo
 
 // MARK: - RequestHeader
 extension _ConditionalModifier: RequestHeader where TrueContent: RequestHeader, FalseContent: RequestHeader {
-    @inlinable public var headers: [String : String] {
+    public var headers: [String : String] {
         switch storage {
             case .trueContent(let header):
                 return header.headers
@@ -71,7 +71,7 @@ extension _ConditionalModifier: RequestHeader where TrueContent: RequestHeader, 
 
 // MARK: - RequestParameter
 extension _ConditionalModifier: RequestParameter where TrueContent: RequestParameter, FalseContent: RequestParameter {
-    @inlinable public var parameters: [URLQueryItem] {
+    public var parameters: [URLQueryItem] {
         switch storage {
             case .trueContent(let parameter):
                 return parameter.parameters

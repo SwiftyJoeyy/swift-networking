@@ -8,7 +8,7 @@
 import Foundation
 
 /// A type-erased request.
-@frozen public struct AnyRequest: Request {
+@frozen public struct AnyRequest: Request, Sendable {
     /// The contents of the request.
     public typealias Contents = Never
     
@@ -17,12 +17,13 @@ import Foundation
     private let storage: AnyRequestStorageBase
     
     /// The request's identifier.
-    public let id: String
+    public var id: String {
+        return storage.id
+    }
     
 // MARK: - Initializer
     /// Create an instance that type-erases `request`.
     public init(_ request: some Request) {
-        self.id = request.id
         self.storage = AnyRequestStorage(request: request)
     }
     
@@ -52,26 +53,36 @@ import Foundation
 
 extension AnyRequest {
     /// An abstract base class for type-erased request storage.
-    @usableFromInline internal class AnyRequestStorageBase {
+    @usableFromInline internal class AnyRequestStorageBase: @unchecked Sendable {
+        /// The request's identifier.
+        internal var id: String {
+            fatalError("Subclasses must override this member.")
+        }
+        
         /// Creates a ``URLRequest`` from the underlying request.
         ///
         /// - Returns: A configured ``URLRequest``.
         internal func makeURLRequest() throws -> URLRequest {
-            fatalError("Subclasses must override this method.")
+            fatalError("Subclasses must override this member.")
         }
         
         /// Applies the specified configuration values to the underlying request.
         ///
         /// - Parameter values: The configuration values to apply.
         internal func accept(_ values: ConfigurationValues) {
-            fatalError("Subclasses must override this method.")
+            fatalError("Subclasses must override this member.")
         }
     }
     
     /// A concrete storage type for a specific ``Request`` instance.
-    fileprivate final class AnyRequestStorage<R: Request>: AnyRequestStorageBase {
+    fileprivate final class AnyRequestStorage<R: Request>: AnyRequestStorageBase, @unchecked Sendable {
         /// The wrapped request.
         private let request: R
+        
+        /// The request's identifier.
+        fileprivate override var id: String {
+            return request.id
+        }
         
         /// Creates a new instance that wraps the given request.
         ///

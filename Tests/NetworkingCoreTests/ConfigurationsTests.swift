@@ -95,8 +95,8 @@ extension ConfigurationsTests {
         
         let result = configurations.description
         
-        #expect(result.contains("MockKey : Custom Value"))
-        #expect(result.contains("OptionalMockKey : Optional(\"Custom Value2\")"))
+        #expect(result.contains("Custom Value"))
+        #expect(result.contains("Optional(\"Custom Value2\")"))
     }
 }
 

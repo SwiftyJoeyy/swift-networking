@@ -10,7 +10,7 @@ import SwiftSyntaxMacrosTestSupport
 import XCTest
 
 #if canImport(NetworkingCoreMacros)
-import NetworkingCoreMacros
+@testable import NetworkingCoreMacros
 
 final class ConfigurationKeyMacroTests: XCTestCase {
 // MARK: - Properties

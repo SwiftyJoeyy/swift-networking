@@ -125,7 +125,7 @@ extension HTTPRequest: Request {
                 .modifying(consume urlRequest)
         }
         
-        return try modifier.modifying(urlRequest)
+        return try modifier.modifying(consume urlRequest)
     }
     
     /// Applies the given configuration values to the request.

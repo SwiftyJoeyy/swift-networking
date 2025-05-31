@@ -7,7 +7,7 @@
 
 import SwiftSyntax
 
-enum DynamicConfigDeclFactory {
+internal enum DynamicConfigDeclFactory {
     private static func getConfigsDeclName(
         declaration: some DeclGroupSyntax
     ) -> TokenSyntax? {
@@ -25,7 +25,7 @@ enum DynamicConfigDeclFactory {
         return nil
     }
     
-    static func make(
+    internal static func make(
         for declaration: some DeclGroupSyntax
     ) -> FunctionDeclSyntax? {
         guard let declName = getConfigsDeclName(declaration: declaration) else {
@@ -61,7 +61,7 @@ enum DynamicConfigDeclFactory {
 }
 
 extension TokenSyntax {
-    var isAccessLevel: Bool {
+    internal var isAccessLevel: Bool {
         switch tokenKind {
             case .keyword(let keyword):
                 return keyword == .public || keyword == .internal || keyword == .fileprivate || keyword == .private || keyword == .fileprivate || keyword == .open || keyword == .package

@@ -11,7 +11,7 @@ import SwiftSyntaxMacrosTestSupport
 import XCTest
 
 #if canImport(NetworkingCoreMacros)
-import NetworkingCoreMacros
+@testable import NetworkingCoreMacros
 
 final class RequestMacroTests: XCTestCase {
 // MARK: - Properties
@@ -572,6 +572,39 @@ final class RequestMacroTests: XCTestCase {
         }
         """,
         macros: testMacros
+        )
+    }
+    
+// MARK: - Configurations Tests
+    func testRequestMacroWithConfigurations() {
+        assertMacroExpansion(
+            """
+            @Request
+            struct TestRequest {
+                @Configurations var configs
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                @Configurations var configs
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                let id = "TestRequest"
+            
+                func _accept(_ values: ConfigurationValues) {
+                    _configs._accept(values)
+                }
+            }
+            
+            extension TestRequest: Request {
+            }
+            """,
+            macros: testMacros
         )
     }
 

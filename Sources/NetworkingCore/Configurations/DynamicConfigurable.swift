@@ -64,6 +64,13 @@ public protocol _DynamicConfigurable {
     public func _accept(_ values: ConfigurationValues) {
         content.values = values
     }
+    
+    package func setValue<V>(
+        _ value: V,
+        for keyPath: WritableKeyPath<ConfigurationValues, V>
+    ) {
+        content.values[keyPath: keyPath] = value
+    }
 }
 
 extension Configurations {
@@ -71,14 +78,14 @@ extension Configurations {
     ///
     /// This internal type enables reference semantics, allowing configurations to be
     /// efficiently shared and updated across instances.
-    internal final class Content {
+    fileprivate final class Content {
         /// The current configuration values.
-        internal var values: ConfigurationValues
+        fileprivate var values: ConfigurationValues
         
         /// Creates a new instance with the specified initial values.
         ///
         /// - Parameter values: The initial configuration values. Defaults to a new instance.
-        init(values: ConfigurationValues = ConfigurationValues()) {
+        fileprivate init(values: ConfigurationValues = ConfigurationValues()) {
             self.values = values
         }
     }
