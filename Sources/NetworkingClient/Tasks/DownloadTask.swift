@@ -48,12 +48,12 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///
     /// - Returns: A tuple containing the downloaded ``URL`` and ``URLResponse``.
     open override func _execute(
-        _ request: borrowing URLRequest,
+        _ urlRequest: borrowing URLRequest,
         session: Session
     ) async throws -> DownloadResponse {
         progress = 0
         return try await session.session.download(
-            for: request,
+            for: urlRequest,
             delegate: session.delegate
         )
     }
@@ -111,7 +111,7 @@ extension DownloadTask {
     /// - Returns: The resume data.
     @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
     public func cancelByProducingResumeData() async -> Data? {
-        let downloadTask = await _sessionTask as? URLSessionDownloadTask
+        let downloadTask = await sessionTask as? URLSessionDownloadTask
         return await downloadTask?.cancelByProducingResumeData()
     }
 }

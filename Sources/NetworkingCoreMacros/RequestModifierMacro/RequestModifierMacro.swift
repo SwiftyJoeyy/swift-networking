@@ -7,6 +7,7 @@
 
 import SwiftSyntax
 import SwiftSyntaxMacros
+import SwiftDiagnostics
 
 package enum RequestModifierMacro { }
 
@@ -33,6 +34,21 @@ extension RequestModifierMacro: ExtensionMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
+//        let conformsToRequest = declaration.memberBlock.members
+//            .contains { member in
+//                guard let funcDecl = member.decl.as(FunctionDeclSyntax.self) else {
+//                    return false
+//                }
+//                return funcDecl.name.text == "modifying"
+//            }
+//        if !conformsToRequest {
+//            let typeName = declaration.typeName?.text ?? ""
+//            let diagnostic = Diagnostic(
+//                node: node,
+//                message: Message.invalidConformance(typeName: typeName)
+//            )
+//            context.diagnose(diagnostic)
+//        }
         let inheritedType = InheritedTypeSyntax(
             type: IdentifierTypeSyntax(name: "RequestModifier")
         )

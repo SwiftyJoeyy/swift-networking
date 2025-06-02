@@ -16,8 +16,8 @@ public protocol NetworkingTask: Sendable {
     /// A unique identifier for this task.
     var id: String {get}
     
-    /// The underlying ``URLRequest`` associated with this task.
-    var request: URLRequest {get async}
+//    /// The underlying ``URLRequest`` associated with this task.
+//    var request: URLRequest {get async}
     
     /// The number of retry attempts made for this task.
     var retryCount: Int {get async}

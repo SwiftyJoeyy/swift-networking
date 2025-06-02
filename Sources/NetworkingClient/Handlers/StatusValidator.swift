@@ -8,52 +8,46 @@
 import Foundation
 import NetworkingCore
 
-public protocol StatusValidator: Sendable {
-    var validStatuses: Set<ResponseStatus> {get}
+public protocol StatusValidator: ResponseInterceptor, Sendable {
     func validate(
         _ task: some NetworkingTask,
-        status: ResponseStatus
+        status: ResponseStatus,
+        with context: borrowing Context
     ) async throws
 }
 
 extension StatusValidator {
-    public func validate(
+    public func intercept(
         _ task: some NetworkingTask,
-        status: ResponseStatus
-    ) async throws { }
-    
-    internal func _validate(
-        _ task: any NetworkingTask,
-        status: ResponseStatus
-    ) async throws {
-        let valid = validStatuses.contains(status)
-        guard !valid else {return}
-        if status == .unauthorized {
-            throw NetworkingError.ClientError.unauthorized
+        for session: Session,
+        with context: borrowing Context
+    ) async throws -> RequestContinuation {
+        guard let status = context.status,
+              context.error == nil
+        else {
+            return .continue
         }
-        try await validate(task, status: status)
-        throw NetworkingError.ClientError.unacceptableStatusCode(status)
-    }
-}
-
-extension StatusValidator where Self == DefaultStatusValidator {
-    public static var none: Self {
-        return DefaultStatusValidator(validStatuses: [])
+        
+        do {
+            try await validate(task, status: status, with: context)
+        }catch {
+            return .failure(error)
+        }
+        return .continue
     }
 }
 
 public struct DefaultStatusValidator: StatusValidator {
     public typealias Handler = @Sendable (
+        _ task: any NetworkingTask,
         _ status: ResponseStatus,
-        _ task: any NetworkingTask
-    ) async -> (any Error)?
+        _ context: borrowing Context
+    ) async throws -> Void
     
-// MARK: - Properties
+    private let validStatuses: Set<ResponseStatus>
     private let handler: Handler?
-    public let validStatuses: Set<ResponseStatus>
     
-// MARK: - Initializer
-    internal init(
+    public init(
         validStatuses: Set<ResponseStatus> = ResponseStatus.validStatuses,
         _ handler: Handler? = nil
     ) {
@@ -61,12 +55,42 @@ public struct DefaultStatusValidator: StatusValidator {
         self.handler = handler
     }
     
-// MARK: - StatusValidator
     public func validate(
         _ task: some NetworkingTask,
-        status: ResponseStatus
+        status: ResponseStatus,
+        with context: borrowing Context
     ) async throws {
-        guard let error = await handler?(status, task) else {return}
-        throw error
+        if !validStatuses.contains(status) {
+            throw NetworkingError.ClientError.unacceptableStatusCode(status)
+        }
+        try await handler?(task, status, context)
+    }
+}
+
+extension Configurable {
+    /// Sets the validator used to validate HTTP response statuses.
+    public func validate(_ validator: some StatusValidator) -> Self {
+        return configuration(\.statusValidator, validator)
+    }
+    
+    /// Sets the validator used to validate HTTP response statuses.
+    public func unvalidated() -> Self {
+        return configuration(\.statusValidator, nil)
+    }
+    
+    /// Sets the validator used to validate HTTP response statuses.
+    ///
+    /// - Parameters:
+    ///   - statuses: A set of valid response statuses.
+    ///   - handler: An optional closure executed when a status needs validation.
+    public func validate(
+        for statuses: Set<ResponseStatus> = ResponseStatus.validStatuses,
+        _ handler: DefaultStatusValidator.Handler? = nil
+    ) -> Self {
+        let validator = DefaultStatusValidator(
+            validStatuses: statuses,
+            handler
+        )
+        return validate(validator)
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NetworkingCore
 
 /// The state of a network task, including its request,
 /// configuration values, retry logic, and task lifecycle.
@@ -23,7 +24,10 @@ internal actor NetworkTaskState<T: Sendable> {
     internal var currentTask: Task<T, any Error>?
     
     /// The current URL request, potentially updated by interceptors.
-    internal var currentRequest: URLRequest
+    internal var urlRequest: URLRequest?
+    
+    /// The current URL request, potentially updated by interceptors.
+    internal var request: AnyRequest
     
     /// The current ``URLSessionTask``.
     internal var sessionTask: URLSessionTask?
@@ -32,8 +36,8 @@ internal actor NetworkTaskState<T: Sendable> {
     /// Creates a new ``NetworkTaskState``.
     ///
     /// - Parameter request: The initial ``URLRequest`` for the task.
-    internal init(request: URLRequest) {
-        self.currentRequest = request
+    internal init(request: AnyRequest) {
+        self.request = request
     }
     
 // MARK: - Functions
@@ -65,8 +69,8 @@ internal actor NetworkTaskState<T: Sendable> {
     /// Replaces the current request with a new one.
     ///
     /// - Parameter request: The new ``URLRequest`` to use.
-    internal func update(request: consuming URLRequest) {
-        currentRequest = request
+    internal func set(_ urlRequest: consuming URLRequest) {
+        self.urlRequest = urlRequest
     }
     
     internal func set(_ metrics: URLSessionTaskMetrics?) {
@@ -74,7 +78,6 @@ internal actor NetworkTaskState<T: Sendable> {
     }
     
     /// Sets the ``URLSessionTask``.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
     internal func set(_ task: URLSessionTask) {
         sessionTask = task
     }

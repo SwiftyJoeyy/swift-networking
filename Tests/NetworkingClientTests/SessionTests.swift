@@ -98,18 +98,27 @@ struct SessionTests {
         #expect(downloadTask.id == "TestRequest")
     }
     
-    @Test func creatingTaskSetsConfigurationsAndURLRequest() async throws {
+    @Test func creatingTaskSetsConfigurations() async throws {
         let url = URL(string: "example.com/testing/sesion")
         let session = Session()
             .baseURL(url)
         let dataTask = try session.dataTask(TestRequest())
         let downloadTask = try session.downloadTask(TestRequest())
         
-        await #expect(dataTask.request.url == url)
-        await #expect(downloadTask.request.url == url)
-        
         #expect(dataTask.configurations.baseURL == url)
         #expect(downloadTask.configurations.baseURL == url)
+    }
+    
+    @Test func fehe() async throws {
+        let url = URL(string: "example.com/testing/sesion")
+        let session = Session()
+            .baseURL(url)
+        let dataTask = try session.dataTask(TestRequest())
+        Task {
+            let response = try await dataTask.response()
+        }
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        await dataTask.cancel()
     }
 }
 

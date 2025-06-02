@@ -25,11 +25,11 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     ///
     /// - Returns: The response containing the raw data and HTTP response.
     open override func _execute(
-        _ request: borrowing URLRequest,
+        _ urlRequest: borrowing URLRequest,
         session: Session
     ) async throws -> DataResponse {
         let response = try await session.session.data(
-            for: request,
+            for: urlRequest,
             delegate: session.delegate
         )
         let status = response.1.status

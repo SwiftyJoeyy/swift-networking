@@ -92,11 +92,11 @@ public actor Session: Configurable {
     /// - Parameter request: The request to be performed.
     /// - Returns: A ``DataTask`` configured with the session and request.
     nonisolated public func dataTask(
-        _ request: borrowing some Request
+        _ request: some Request
     ) throws -> DataTask {
         let task = DataTask(
             id: request.id,
-            request: try request._makeURLRequest(with: configurations),
+            request: AnyRequest(request),
             session: self
         )
         task._accept(configurations)
@@ -108,11 +108,11 @@ public actor Session: Configurable {
     /// - Parameter request: The request to be performed.
     /// - Returns: A ``DownloadTask`` configured with the session and request.
     nonisolated public func downloadTask(
-        _ request: borrowing some Request
+        _ request: some Request
     ) throws -> DownloadTask {
         let task = DownloadTask(
             id: request.id,
-            request: try request._makeURLRequest(with: configurations),
+            request: AnyRequest(request),
             session: self
         )
         task._accept(configurations)

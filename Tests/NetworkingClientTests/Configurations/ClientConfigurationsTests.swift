@@ -20,30 +20,45 @@ struct ClientConfigurableTests {
         #expect(!disabled.configurationValues.logsEnabled)
     }
     
-    @Test func interceptorConfiguration() {
-        let interceptor = DummyInterceptor()
-        let configured = TestConfigurable().interceptor(interceptor)
-        #expect(configured.configurationValues.interceptor is DummyInterceptor)
-    }
-    
     @Test func onRequestInterceptor() {
-        let configured = TestConfigurable()
-            .onRequest { request, task, session in
-                return request
-            }
-        #expect(configured.configurationValues.interceptor is DefaultRequestInterceptor)
-    }
-    
-    @Test func retryPolicyConfiguration() {
-        let retry = DummyRetryPolicy()
-        let configured = TestConfigurable().retryPolicy(retry)
-        #expect(configured.configurationValues.retryPolicy is DummyRetryPolicy)
+        do {
+            let configured = TestConfigurable()
+                .onRequest { request, task, session, configurations in
+                    return request
+                }
+            #expect(configured.configurationValues.interceptor is DefaultRequestInterceptor)
+        }
+        
+        do {
+            let interceptor = DummyInterceptor()
+            let configured = TestConfigurable().onRequest(interceptor)
+            #expect(configured.configurationValues.interceptor is DummyInterceptor)
+        }
     }
     
     @Test func retryDefaultConfiguration() {
         let statuses: Set<ResponseStatus> = [.notFound, .tooManyRequests]
-        let configured = TestConfigurable().retry(limit: 3, for: statuses)
-        #expect(configured.configurationValues.retryPolicy is DefaultRetryPolicy)
+        
+        do {
+            let interceptor = DummyRetryInterceptor()
+            let configured = TestConfigurable().retry(interceptor)
+            #expect(configured.configurationValues.retryPolicy is DummyRetryInterceptor)
+        }
+        
+        do {
+            let configured = TestConfigurable().retry(limit: 3, for: statuses)
+            #expect(configured.configurationValues.retryPolicy is DefaultRetryInterceptor)
+        }
+        
+        do {
+            let configured = TestConfigurable().retry(limit: 3, for: statuses, delay: 10)
+            #expect(configured.configurationValues.retryPolicy is DefaultRetryInterceptor)
+        }
+        
+        do {
+            let configured = TestConfigurable().retry(limit: 3, for: statuses, base: 10, multiplier: 1)
+            #expect(configured.configurationValues.retryPolicy is DefaultRetryInterceptor)
+        }
     }
     
     @Test func cacheHandlerConfiguration() {
@@ -59,21 +74,23 @@ struct ClientConfigurableTests {
     }
     
     @Test func statusValidatorConfiguration() {
-        let validator = DummyStatusValidator()
-        let configured = TestConfigurable().statusValidator(validator)
-        #expect(configured.configurationValues.statusValidator is DummyStatusValidator)
-    }
-    
-    @Test func validateDefaultStatusValidator() {
-        let statuses: Set<ResponseStatus> = [.ok, .created]
-        let configured = TestConfigurable().validate(for: statuses)
-        #expect(configured.configurationValues.statusValidator is DefaultStatusValidator)
+        do {
+            let validator = DummyStatusValidator()
+            let configured = TestConfigurable().validate(validator)
+            #expect(configured.configurationValues.statusValidator is DummyStatusValidator)
+        }
+        
+        do {
+            let statuses: Set<ResponseStatus> = [.ok, .created]
+            let configured = TestConfigurable().validate(for: statuses)
+            #expect(configured.configurationValues.statusValidator is DefaultStatusValidator)
+        }
     }
     
     @Test func authorizationHandlerConfiguration() {
         let interceptor = DummyAuthInterceptor()
         let configured = TestConfigurable().authorization(interceptor)
-        #expect(configured.configurationValues.authHandler is DummyAuthInterceptor)
+        #expect(configured.configurationValues.authInterceptor != nil)
     }
     
     @Test func settingTasksAndAccessingIt() {
@@ -99,22 +116,21 @@ extension ClientConfigurableTests {
     }
     struct DummyInterceptor: RequestInterceptor {
         func intercept(
-            _ request: consuming URLRequest,
-            for task: some NetworkingTask,
-            with session: Session
+            _ task: some NetworkingTask,
+            request: consuming URLRequest,
+            for session: Session,
+            with configurations: ConfigurationValues
         ) async throws -> URLRequest {
             return request
         }
     }
-    struct DummyRetryPolicy: RetryPolicy {
-        var maxRetryCount = 2
-        
+    struct DummyRetryInterceptor: RetryInterceptor {
         func shouldRetry(
             _ task: some NetworkingTask,
-            error: (any Error)?,
-            status: ResponseStatus?
+            error: any Error,
+            with context: borrowing Context
         ) async -> RetryResult {
-            return .retry
+            return .doNotRetry
         }
     }
     struct DummyCacheHandler: ResponseCacheHandler {
@@ -135,25 +151,25 @@ extension ClientConfigurableTests {
         }
     }
     struct DummyStatusValidator: StatusValidator {
-        var validStatuses: Set<ResponseStatus> = []
-        
         func validate(
             _ task: some NetworkingTask,
-            status: ResponseStatus
+            status: ResponseStatus,
+            with context: borrowing Context
         ) async throws { }
     }
     
-    struct DummyAuthInterceptor: AuthenticationInterceptor {
+    struct DummyAuthInterceptor: AuthProvider {
         var credential = DummyCredential()
         
         func refresh(with session: Session) async throws {
         }
-    }
-    
-    struct DummyCredential: AuthCredential {
+        
         func requiresRefresh() -> Bool {
             return false
         }
+    }
+    
+    struct DummyCredential: RequestModifier {
         func modifying(_ request: consuming URLRequest) throws -> URLRequest {
             return request
         }

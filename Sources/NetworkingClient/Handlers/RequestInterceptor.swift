@@ -6,46 +6,51 @@
 //
 
 import Foundation
+import NetworkingCore
 
-// TODO: - Should we remove this since we support composable requests that work similiar to interceptors?
 public protocol RequestInterceptor: Sendable {
     func intercept(
-        _ request: consuming URLRequest,
-        for task: some NetworkingTask,
-        with session: Session
+        _ task: some NetworkingTask,
+        request: consuming URLRequest,
+        for session: Session,
+        with configurations: ConfigurationValues
     ) async throws -> URLRequest
-}
-
-extension RequestInterceptor where Self == DefaultRequestInterceptor {
-    public static var none: Self {
-        return DefaultRequestInterceptor()
-    }
 }
 
 public struct DefaultRequestInterceptor: RequestInterceptor {
     public typealias Handler = @Sendable (
         _ request: URLRequest,
         _ task: any NetworkingTask,
-        _ session: Session
+        _ session: Session,
+        _ configurations: ConfigurationValues
     ) async throws -> URLRequest
     
-// MARK: - Properties
-    private let handler: Handler?
+    private let handler: Handler
     
-// MARK: - Initializer
-    internal init(_ handler: Handler? = nil) {
+    public init(_ handler: @escaping Handler) {
         self.handler = handler
     }
     
-// MARK: - TaskStartHandler
     public func intercept(
-        _ request: consuming URLRequest,
-        for task: some NetworkingTask,
-        with session: Session
+        _ task: some NetworkingTask,
+        request: consuming URLRequest,
+        for session: Session,
+        with configurations: ConfigurationValues
     ) async throws -> URLRequest {
-        guard let handler else {
-            return request
-        }
-        return try await handler(consume request, task, session)
+        return try await handler(consume request, task, session, configurations)
+    }
+}
+
+extension Configurable {
+    /// Sets the interceptor used to intercept requests before they are executed.
+    public func onRequest(_ interceptor: some RequestInterceptor) -> Self {
+        return configuration(\.interceptor, interceptor)
+    }
+    
+    /// Sets the interceptor used to intercept requests before they are executed.
+    public func onRequest(
+        _ handler: @escaping DefaultRequestInterceptor.Handler
+    ) -> Self {
+        return onRequest(DefaultRequestInterceptor(handler))
     }
 }
