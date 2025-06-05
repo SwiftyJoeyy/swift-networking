@@ -10,7 +10,7 @@ import Testing
 @testable import NetworkingClient
 @testable import NetworkingCore
 
-//@Suite(.tags(.configurations))
+@Suite
 struct ClientConfigurableTests {
     @Test func enableLogsConfiguration() {
         let configured = TestConfigurable().enableLogs(true)
@@ -30,9 +30,9 @@ struct ClientConfigurableTests {
         }
         
         do {
-            let interceptor = DummyInterceptor()
+            let interceptor = DummyRequestInterceptor()
             let configured = TestConfigurable().onRequest(interceptor)
-            #expect(configured.configurationValues.interceptor is DummyInterceptor)
+            #expect(configured.configurationValues.interceptor is DummyRequestInterceptor)
         }
     }
     
@@ -58,6 +58,11 @@ struct ClientConfigurableTests {
         do {
             let configured = TestConfigurable().retry(limit: 3, for: statuses, base: 10, multiplier: 1)
             #expect(configured.configurationValues.retryPolicy is DefaultRetryInterceptor)
+        }
+        
+        do {
+            let configured = TestConfigurable().doNotRetry()
+            #expect(configured.configurationValues.retryPolicy == nil)
         }
     }
     
@@ -85,12 +90,24 @@ struct ClientConfigurableTests {
             let configured = TestConfigurable().validate(for: statuses)
             #expect(configured.configurationValues.statusValidator is DefaultStatusValidator)
         }
+        
+        do {
+            let configured = TestConfigurable().unvalidated()
+            #expect(configured.configurationValues.statusValidator == nil)
+        }
     }
     
     @Test func authorizationHandlerConfiguration() {
-        let interceptor = DummyAuthInterceptor()
-        let configured = TestConfigurable().authorization(interceptor)
-        #expect(configured.configurationValues.authInterceptor != nil)
+        do {
+            let interceptor = DummyAuthProvider()
+            let configured = TestConfigurable().authorization(interceptor)
+            #expect(configured.configurationValues.authInterceptor != nil)
+        }
+        
+        do {
+            let configured = TestConfigurable().unauthorized()
+            #expect(configured.configurationValues.authInterceptor == nil)
+        }
     }
     
     @Test func settingTasksAndAccessingIt() {
@@ -114,7 +131,7 @@ extension ClientConfigurableTests {
             return self
         }
     }
-    struct DummyInterceptor: RequestInterceptor {
+    struct DummyRequestInterceptor: RequestInterceptor {
         func intercept(
             _ task: some NetworkingTask,
             request: consuming URLRequest,
@@ -158,7 +175,7 @@ extension ClientConfigurableTests {
         ) async throws { }
     }
     
-    struct DummyAuthInterceptor: AuthProvider {
+    struct DummyAuthProvider: AuthProvider {
         var credential = DummyCredential()
         
         func refresh(with session: Session) async throws {

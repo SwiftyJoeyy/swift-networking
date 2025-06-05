@@ -21,6 +21,21 @@ import Foundation
         return storage.id
     }
     
+    /// Accessing this property will always result in a fatal error.
+    ///
+    /// - Warning: This should not be accessed directly.
+    public var request: Never {
+        fatalError("Should not be called directly!!")
+    }
+    
+    public var description: String {
+        return """
+        \(String(describing: Self.self)) {
+          id = \(id)
+        }
+        """
+    }
+    
 // MARK: - Initializer
     /// Create an instance that type-erases `request`.
     public init(_ request: some Request) {

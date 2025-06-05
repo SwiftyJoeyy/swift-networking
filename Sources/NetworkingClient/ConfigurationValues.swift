@@ -35,22 +35,14 @@ extension ConfigurationValues {
     /// - Warning: If accessed before being explicitly set, this property will trigger a runtime
     /// precondition failure to help catch misconfiguration.
     @Config(forceUnwrapped: true) public internal(set) var tasks: any TasksStorage
+    
+    /// The interceptors that will intercept the request & response.
+    @Config internal var taskInterceptor: any Interceptor = TaskInterceptor()
 }
-
 
 extension Configurable {
     /// Enables or disables request/response logging.
     public func enableLogs(_ enabled: Bool = true) -> Self {
         return configuration(\.logsEnabled, enabled)
-    }
-    
-    /// Sets the handler used for managing response caching.
-    public func cacheHandler(_ handler: some ResponseCacheHandler) -> Self {
-        return configuration(\.cacheHandler, handler)
-    }
-    
-    /// Sets the handler for managing HTTP redirections.
-    public func redirectionHandler(_ handler: some RedirectionHandler) -> Self {
-        return configuration(\.redirectionHandler, handler)
     }
 }

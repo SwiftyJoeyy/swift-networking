@@ -7,7 +7,10 @@
 
 import Foundation
 
-/// The HTTP request methods used in network requests.
+/// Type that represents the HTTP request methods supported by the client.
+///
+/// Use request methods to indicate the desired action to be performed for a given resource.
+/// Common methods include `GET` to retrieve data and `POST` to submit data to the server.
 @frozen public enum RequestMethod: String, Equatable, Hashable, Sendable, CaseIterable {
     case get = "GET"
     case put = "PUT"

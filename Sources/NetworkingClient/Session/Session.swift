@@ -14,10 +14,7 @@ import NetworkingCore
 /// and injecting custom delegates and storage mechanisms.
 ///
 /// The ``Session`` conforms to ``Configurable``, allowing fluent-style configuration using key paths.
-///
-/// - Note: The internal `configurations` property is marked as `nonisolated(unsafe)` to allow
-/// access outside the actor's isolation domain. Care must be taken to avoid race conditions.
-public actor Session: Configurable {
+public actor Session {
 // MARK: - Properties
     /// The session delegate responsible for handling ``URLSession`` delegate methods.
     internal let delegate: SessionDelegate
@@ -26,7 +23,6 @@ public actor Session: Configurable {
     internal let session: URLSession
     
     /// Stores configuration values such as task storage and custom behaviors.
-    /// Marked `nonisolated(unsafe)` for cross-actor access; use with caution.
     @preconcurrency nonisolated(unsafe)
     public private(set) var configurations: ConfigurationValues
     // TODO: - We should avoid using nonisolated here.
@@ -54,7 +50,7 @@ public actor Session: Configurable {
             delegate: sessionDelegate,
             delegateQueue: queue
         )
-        sessionDelegate.tasks = configurations.tasks
+        sessionDelegate.tasks = tasksStorage
     }
     
     // TODO: - We should add suppor for URLSession mocking.
@@ -93,9 +89,8 @@ public actor Session: Configurable {
     /// - Returns: A ``DataTask`` configured with the session and request.
     nonisolated public func dataTask(
         _ request: some Request
-    ) throws -> DataTask {
+    ) -> DataTask {
         let task = DataTask(
-            id: request.id,
             request: AnyRequest(request),
             session: self
         )
@@ -109,16 +104,18 @@ public actor Session: Configurable {
     /// - Returns: A ``DownloadTask`` configured with the session and request.
     nonisolated public func downloadTask(
         _ request: some Request
-    ) throws -> DownloadTask {
+    ) -> DownloadTask {
         let task = DownloadTask(
-            id: request.id,
             request: AnyRequest(request),
             session: self
         )
         task._accept(configurations)
         return task
     }
-    
+}
+
+// MARK: - Configurable
+extension Session: Configurable {
     /// Sets a configuration value using a key path.
     ///
     /// - Parameters:

@@ -11,7 +11,9 @@ import UniformTypeIdentifiers
 #endif
 
 #if canImport(UniformTypeIdentifiers)
+/// Typealias representing a MIME type using ``UTType`` used for content types.
 public typealias MimeType = UTType
 #else
+/// Typealias representing a MIME type using ``String`` used for content types.
 public typealias MimeType = String
 #endif

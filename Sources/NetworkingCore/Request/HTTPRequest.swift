@@ -103,8 +103,20 @@ extension HTTPRequest {
 
 // MARK: - Request
 extension HTTPRequest: Request {
-    /// The contents of the request.
-    public typealias Contents = Never
+    /// Accessing this property will always result in a fatal error.
+    ///
+    /// - Warning: This should not be accessed directly.
+    public var request: Never {
+        fatalError("Should not be called directly!!")
+    }
+    
+    public var description: String {
+        return """
+        \(String(describing: Self.self)) {
+          id = \(id)
+        }
+        """
+    }
     
     /// Constructs a ``URLRequest`` from this ``HTTPRequest``.
     ///

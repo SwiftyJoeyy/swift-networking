@@ -19,31 +19,32 @@ public typealias DownloadResponse = (url: URL, response: URLResponse)
 /// download progress tracking functionality and handles download-related
 /// logic.
 open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
-    /// The continuation used for yielding progress updates.
-    private var continuation: AsyncStream<Double>.Continuation?
+    /// The type used to handle & track the progress of the request.
+    private let progressTracker = ProgressTracker()
     
-    /// Stream that emits progress updates during the download.
-    public private(set) lazy var progressStream: AsyncStream<Double> = {
-        return AsyncStream { [weak self] continuation in
-            self?.continuation = continuation
+    /// A stream that emits progress updates throughout the download lifecycle.
+    ///
+    /// The stream completes automatically when ``finish()`` is called.
+    public var progressStream: AsyncStream<Double> {
+        get async {
+            return await progressTracker.progressStream
         }
-    }()
+    }
     
-    /// The current progress of the download.
-    public private(set) var progress = Double.zero {
-        didSet {
-            continuation?.yield(progress)
+    /// The current progress value.
+    public var progress: Double{
+        get async {
+            return await progressTracker.progress
         }
     }
     
     /// Executes the download task.
     ///
     /// This method starts the download using the session’s ``download(for:)``
-    /// method and tracks the progress. It also validates the response status
-    /// before returning the downloaded content.
+    /// method and tracks the progress.
     ///
     /// - Parameters:
-    ///   - request: The request to be executed.
+    ///   - urlRequest: The request to be executed.
     ///   - session: The session managing the download.
     ///
     /// - Returns: A tuple containing the downloaded ``URL`` and ``URLResponse``.
@@ -51,7 +52,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
         _ urlRequest: borrowing URLRequest,
         session: Session
     ) async throws -> DownloadResponse {
-        progress = 0
+        await progressTracker.setProgress(0)
         return try await session.session.download(
             for: urlRequest,
             delegate: session.delegate
@@ -64,11 +65,9 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///
     /// - Parameters:
     ///   - error: An optional error if the task failed.
-    ///   - configurations: The configuration values for the task.
     open override func _finished(with error: (any Error)?) async {
         await super._finished(with: error)
-        continuation?.finish()
-        continuation = nil
+        await progressTracker.finish()
     }
     
     /// Reports download progress to the task.
@@ -79,11 +78,10 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
     ) async {
-        guard totalBytesExpectedToWrite > 0 else {
-            progress = 0
-            return
-        }
-        progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+        await progressTracker.setProgress(
+            Double(totalBytesWritten),
+            total: Double(totalBytesExpectedToWrite)
+        )
     }
     
     /// Called when a download task is resumed from previous download data.
@@ -93,11 +91,10 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64
     ) async {
-        guard expectedTotalBytes > 0 else {
-            progress = 0
-            return
-        }
-        progress = Double(fileOffset) / Double(expectedTotalBytes)
+        await progressTracker.setProgress(
+            Double(fileOffset),
+            total: Double(expectedTotalBytes)
+        )
     }
 }
 
@@ -113,5 +110,76 @@ extension DownloadTask {
     public func cancelByProducingResumeData() async -> Data? {
         let downloadTask = await sessionTask as? URLSessionDownloadTask
         return await downloadTask?.cancelByProducingResumeData()
+    }
+}
+
+/// An actor that tracks and emits download progress updates.
+///
+/// `ProgressTracker` provides a `progressStream` to emit values
+/// representing the fraction of the download completed. It supports both direct
+/// and computed progress updates, and safely finishes the stream when done.
+///
+/// Use this in coordination with download tasks to drive progress UIs.
+///
+/// - Important: This type is internal and intended for use within the networking framework only.
+internal actor ProgressTracker {
+// MARK: - Properties
+    /// The stream continuation for emitting progress values.
+    private var continuation: AsyncStream<Double>.Continuation? {
+        didSet {
+            continuation?.yield(progress)
+        }
+    }
+    
+    /// A stream that emits progress updates throughout the download lifecycle.
+    ///
+    /// The stream completes automatically when ``finish()`` is called.
+    internal private(set) lazy var progressStream: AsyncStream<Double> = {
+        return AsyncStream(
+            bufferingPolicy: .bufferingNewest(1)
+        ) { continuation in
+            self.continuation = continuation
+        }
+    }()
+    
+    /// The current progress value.
+    ///
+    /// Updating this property emits the new value to the progress stream.
+    internal private(set) var progress = Double.zero {
+        didSet {
+            continuation?.yield(progress)
+        }
+    }
+    
+// MARK: - Functions
+    /// Sets the progress to the given normalized value.
+    ///
+    /// If the value is negative, it is clamped to its absolute value.
+    ///
+    /// - Parameter progress: the progress value.
+    internal func setProgress(_ progress: Double) {
+        guard self.progress != progress else {return}
+        self.progress = abs(progress)
+    }
+    
+    /// Calculates and sets the progress based on completed and total bytes.
+    ///
+    /// - Parameters:
+    ///   - offset: The number of bytes downloaded.
+    ///   - total: The total number of bytes expected.
+    internal func setProgress(_ offset: Double, total: Double) {
+        guard total > 0 else {
+            setProgress(0)
+            return
+        }
+        setProgress(offset / total)
+    }
+    
+    /// Completes the progress stream and clears the continuation.
+    ///
+    /// Call this when the download has finished or been cancelled.
+    internal func finish() {
+        continuation?.finish()
+        continuation = nil
     }
 }

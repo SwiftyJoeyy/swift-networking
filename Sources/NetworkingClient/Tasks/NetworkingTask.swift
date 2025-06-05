@@ -16,9 +16,6 @@ public protocol NetworkingTask: Sendable {
     /// A unique identifier for this task.
     var id: String {get}
     
-//    /// The underlying ``URLRequest`` associated with this task.
-//    var request: URLRequest {get async}
-    
     /// The number of retry attempts made for this task.
     var retryCount: Int {get async}
     
@@ -54,7 +51,7 @@ public protocol NetworkingTask: Sendable {
     
     /// Called when a task has finished collecting metrics.
     ///
-    /// This is typically called by the ``URLSessionTaskDelegate`` during download.
+    /// This is typically called by the ``URLSessionTaskDelegate``.
     func _session(collected metrics: URLSessionTaskMetrics) async
     
     
@@ -88,6 +85,6 @@ extension NetworkingTask {
     
     /// Called when a task has finished collecting metrics.
     ///
-    /// This is typically called by the ``URLSessionTaskDelegate`` during download.
+    /// This is typically called by the ``URLSessionTaskDelegate``.
     func _session(collected metrics: URLSessionTaskMetrics) async { }
 }

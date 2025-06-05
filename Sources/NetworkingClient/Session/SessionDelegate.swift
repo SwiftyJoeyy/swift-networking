@@ -9,9 +9,6 @@ import Foundation
 
 /// Centralized handler for networking-related delegate callbacks such as
 /// redirections, caching, and progress reporting.
-///
-/// It is marked as `@unchecked Sendable` due to its reference type nature and the fact that
-/// it manually coordinates access to `tasks`, which is expected to be used safely in concurrent contexts.
 open class SessionDelegate: NSObject, @unchecked Sendable {
     /// Reference to the ``TasksStorage`` that manages active network tasks.
     /// Set internally by the ``Session`` and used to

@@ -10,8 +10,7 @@ import Testing
 @testable import NetworkingClient
 @testable import NetworkingCore
 
-@Suite(.tags(.client))
-struct NetworkTasksStorageTests {
+@Suite struct NetworkTasksStorageTests {
     @Test func addAndRetrieveTask() async throws {
         let storage = NetworkTasksStorage()
         let request = URLRequest(url: URL(string: "https://example.com")!)
@@ -90,39 +89,4 @@ struct NetworkTasksStorageTests {
             #expect(retrieved == nil)
         }
     }
-}
-
-extension NetworkTasksStorageTests {
-    actor MockTask: NetworkingTask, Equatable {
-        let id = UUID().uuidString
-        let request: URLRequest
-        let retryCount = 0
-        let metrics: URLSessionTaskMetrics? = nil
-        let configurations = ConfigurationValues()
-        var isCancelled = false
-        
-        init(request: URLRequest) {
-            self.request = request
-        }
-        
-        func cancel() async -> Self {
-            isCancelled = true
-            return self
-        }
-        func resume() async -> Self {
-            return self
-        }
-        func suspend() async -> Self {
-            return self
-        }
-        func _set(_ task: URLSessionTask) async { }
-        
-        static func == (lhs: MockTask, rhs: MockTask) -> Bool {
-            return lhs.id == rhs.id
-        }
-    }
-}
-
-extension Tag {
-    @Tag internal static var client: Self
 }

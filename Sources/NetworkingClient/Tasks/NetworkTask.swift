@@ -8,6 +8,8 @@
 import Foundation
 import NetworkingCore
 
+public typealias Interceptor = RequestInterceptor & ResponseInterceptor
+
 /// Task representing the full lifecycle of a request, including retry logic,
 /// configuration management, and logging.
 ///
@@ -30,34 +32,48 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     /// The thread safe state of the task.
     private let state: NetworkTaskState<Response>
     
+    /// The underlying ``URLSessionTask``.
     internal var sessionTask: URLSessionTask? {
         get async {
             return await state.sessionTask
         }
     }
     
+    /// The type-erased request associated with the task.
+    ///
+    /// This value represents the original ``Request`` used to construct
+    /// and execute the task. It is resolved from internal state.
+    ///
+    /// You can use this to inspect the request metadata or re-execute it.
     public var request: AnyRequest {
         get async {
             return await state.request
         }
     }
     
-    let interceptor = TaskInterceptor()
+    /// The resolved ``URLRequest`` used to perform the task, if available.
+    ///
+    /// This value is set after the request has been constructed and
+    /// intercepted, and may be `nil` if the task hasn't started yet.
+    ///
+    /// You can inspect this to view the final request sent over the network.
+    public var urlRequest: URLRequest? {
+        get async {
+            return await state.urlRequest
+        }
+    }
     
-    // MARK: - Initializer
+// MARK: - Initializer
     /// Creates a new ``NetworkTask``.
     ///
     /// - Parameters:
-    ///   - id: A unique task identifier.
     ///   - request: The original request to be executed.
     ///   - session: The session to use for networking.
-    ///   - configurations: Configuration values to control the task.
     public init(
-        id: String,
         request: AnyRequest,
         session: Session
     ) {
-        self.id = id
+        self.id = request.id
         self.session = session
         self.state = NetworkTaskState(request: request)
     }
@@ -90,7 +106,9 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
 
 // MARK: - Private Functions
 extension NetworkTask {
-    /// Starts the task with full interception and logging pipeline.
+    /// Begins or retrieves the active task for the current request.
+    ///
+    /// - Returns: A task representing the lifecycle of the current request.
     private func currentTask() async -> Task<Response, any Error> {
         return await state.activeTask {
             let result = await self.perform()
@@ -99,6 +117,19 @@ extension NetworkTask {
         }
     }
     
+    /// Performs the full request lifecycle, including execution and response interception.
+    ///
+    /// This method:
+    /// - Constructs the ``URLRequest``
+    /// - Executes the request via `_execute`
+    /// - Wraps the result in a ``Result``
+    /// - Creates an ``InterceptorContext``
+    /// - Passes the result through the configured response interceptor
+    ///
+    /// If the interceptor returns `.retry`, this method recursively restarts itself.
+    /// Errors are caught and returned as `.failure(...)` results.
+    ///
+    /// - Returns: A result containing the response or an error.
     func perform() async -> Result<Response, any Error> {
         var result: Result<Response, any Error>
         do {
@@ -118,7 +149,7 @@ extension NetworkTask {
                 urlRequest: state.urlRequest,
                 error: result.error
             )
-            let intercepted = try await interceptor.intercept(
+            let intercepted = try await configurations.taskInterceptor.intercept(
                 self,
                 for: session,
                 with: context
@@ -137,12 +168,21 @@ extension NetworkTask {
         }
     }
     
+    /// Creates and intercepts a ``URLRequest`` for the current task.
+    ///
+    /// This method:
+    /// - Removes any previously stored request from tracking
+    /// - Builds a new request using the base ``Request`` value
+    /// - Passes the request through the configured ``RequestInterceptor``
+    /// - Stores the result in `state` and registers it for tracking
+    ///
+    /// - Returns: A fully constructed and intercepted ``URLRequest``.
     private func makeURLRequest() async throws -> URLRequest {
         if let oldRequest = await state.urlRequest {
             await configurations.tasks.remove(oldRequest)
         }
         var urlRequest = try await request._makeURLRequest(with: configurations)
-        urlRequest = try await interceptor.intercept(
+        urlRequest = try await configurations.taskInterceptor.intercept(
             self,
             request: consume urlRequest,
             for: session,
@@ -197,6 +237,9 @@ extension NetworkTask: NetworkingTask {
         }
     }
     
+    /// Called when a task has finished collecting metrics.
+    ///
+    /// This is typically called by the ``URLSessionTaskDelegate``.
     public func _session(collected metrics: URLSessionTaskMetrics) async {
         await state.set(metrics)
     }
@@ -228,21 +271,5 @@ extension NetworkTask: NetworkingTask {
     @discardableResult public func suspend() async -> Self {
         await state.sessionTask?.suspend()
         return self
-    }
-}
-
-extension Result {
-    var error: Failure? {
-        guard case .failure(let error) = self else {
-            return nil
-        }
-        return error
-    }
-    
-    var value: Success? {
-        guard case .success(let value) = self else {
-            return nil
-        }
-        return value
     }
 }

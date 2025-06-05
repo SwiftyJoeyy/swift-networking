@@ -38,8 +38,8 @@ extension NetworkClient {
     /// - Returns: A ``DataTask`` configured with the session and request.
     @inlinable @inline(__always) public func dataTask(
         _ request: consuming some Request
-    ) throws -> DataTask {
-        return try _session.dataTask(consume request)
+    ) -> DataTask {
+        return _session.dataTask(consume request)
     }
     
     /// Creates a ``DownloadTask`` from a ``Request``.
@@ -48,7 +48,7 @@ extension NetworkClient {
     /// - Returns: A ``DownloadTask`` configured with the session and request.
     @inlinable @inline(__always) public func downloadTask(
         _ request: consuming some Request
-    ) throws -> DownloadTask {
-        return try _session.downloadTask(consume request)
+    ) -> DownloadTask {
+        return _session.downloadTask(consume request)
     }
 }

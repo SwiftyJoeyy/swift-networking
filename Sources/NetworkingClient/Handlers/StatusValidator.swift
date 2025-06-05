@@ -8,7 +8,25 @@
 import Foundation
 import NetworkingCore
 
+/// An interceptor that validates HTTP response status codes.
+///
+/// Conforming to ``StatusValidator`` allows a type to inspect
+/// and validate the status of a received response before continuing
+/// request processing.
+///
+/// You can provide a custom implementation or use
+/// ``DefaultStatusValidator`` to check for acceptable status codes.
+///
+/// Validation occurs only if a status is present and no error is already set.
+///
+/// Use the ``Configurable/validate(_:)`` modifier to attach a validator to a request.
 public protocol StatusValidator: ResponseInterceptor, Sendable {
+    /// Validates the response status for the given task and context.
+    ///
+    /// - Parameters:
+    ///   - task: The current networking task.
+    ///   - status: The response status to validate.
+    ///   - context: The current request context.
     func validate(
         _ task: some NetworkingTask,
         status: ResponseStatus,
@@ -17,6 +35,12 @@ public protocol StatusValidator: ResponseInterceptor, Sendable {
 }
 
 extension StatusValidator {
+    /// Intercepts the response to perform status validation.
+    ///
+    /// This implementation calls ``StatusValidator/validate(_:status:with:)``
+    /// if the response has a valid status and no prior error.
+    ///
+    /// - Returns: `.continue` if the status is valid, `.failure(error)` if validation throws.
     public func intercept(
         _ task: some NetworkingTask,
         for session: Session,
@@ -37,16 +61,35 @@ extension StatusValidator {
     }
 }
 
+/// A default implementation of ``StatusValidator`` that checks response status codes.
+///
+/// Use `DefaultStatusValidator` to verify that the response status
+/// is within a predefined set of acceptable values. You can optionally provide
+/// a custom validation handler.
+///
+/// This validator throws ``NetworkingError/ClientError/unacceptableStatusCode(_:)``
+/// if the status code is not in the accepted set.
+///
+/// Use with ``Configurable/validate(for:_:)`` or ``Configurable/validate(_:)``.
 public struct DefaultStatusValidator: StatusValidator {
+    /// A closure that performs custom validation after the status is accepted.
     public typealias Handler = @Sendable (
         _ task: any NetworkingTask,
         _ status: ResponseStatus,
         _ context: borrowing Context
     ) async throws -> Void
     
+    /// A set of predefined acceptable statuses.
     private let validStatuses: Set<ResponseStatus>
+    
+    /// The handler used to perform custom validation after the status is accepted.
     private let handler: Handler?
     
+    /// Creates a new status validator.
+    ///
+    /// - Parameters:
+    ///   - validStatuses: A set of status codes considered acceptable.
+    ///   - handler: An optional closure to perform additional validation.
     public init(
         validStatuses: Set<ResponseStatus> = ResponseStatus.validStatuses,
         _ handler: Handler? = nil
@@ -55,6 +98,12 @@ public struct DefaultStatusValidator: StatusValidator {
         self.handler = handler
     }
     
+    /// Validates the response status for the given task and context.
+    ///
+    /// - Parameters:
+    ///   - task: The current networking task.
+    ///   - status: The response status to validate.
+    ///   - context: The current request context.
     public func validate(
         _ task: some NetworkingTask,
         status: ResponseStatus,
@@ -68,21 +117,27 @@ public struct DefaultStatusValidator: StatusValidator {
 }
 
 extension Configurable {
-    /// Sets the validator used to validate HTTP response statuses.
+    /// Sets the validator used to validate response statuses.
+    ///
+    /// Use this method to attach a custom ``StatusValidator``.
+    ///
+    /// - Parameter validator: The validator to apply.
     public func validate(_ validator: some StatusValidator) -> Self {
         return configuration(\.statusValidator, validator)
     }
     
-    /// Sets the validator used to validate HTTP response statuses.
+    /// Disables response status validation.
+    ///
+    /// Use this to explicitly skip status validation for the request.
     public func unvalidated() -> Self {
         return configuration(\.statusValidator, nil)
     }
     
-    /// Sets the validator used to validate HTTP response statuses.
+    /// Sets a default status validator with an optional validation handler.
     ///
     /// - Parameters:
-    ///   - statuses: A set of valid response statuses.
-    ///   - handler: An optional closure executed when a status needs validation.
+    ///   - statuses: The set of acceptable statuses.
+    ///   - handler: An optional closure for custom validation logic.
     public func validate(
         for statuses: Set<ResponseStatus> = ResponseStatus.validStatuses,
         _ handler: DefaultStatusValidator.Handler? = nil
