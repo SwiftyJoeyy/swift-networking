@@ -9,13 +9,14 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 import SwiftDiagnostics
 
-package enum RequestModifierMacro { }
+internal enum RequestModifierMacro { }
 
 // MARK: - MemberMacro
 extension RequestModifierMacro: MemberMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
+        conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         guard let funcDecl = DynamicConfigDeclFactory.make(for: declaration) else {
@@ -27,7 +28,7 @@ extension RequestModifierMacro: MemberMacro {
 
 // MARK: - ExtensionMacro
 extension RequestModifierMacro: ExtensionMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingExtensionsOf type: some TypeSyntaxProtocol,

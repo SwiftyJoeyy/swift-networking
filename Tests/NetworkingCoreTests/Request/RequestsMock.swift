@@ -9,13 +9,18 @@ import Foundation
 @testable import NetworkingCore
 
 struct DummyRequest: Request {
-    typealias Contents = Never
+    var request: Never {
+        fatalError()
+    }
 }
 
 struct MockRequest: Request {
     struct Contents: Request {
-        typealias Contents = Never
         let id = "NestedRequest"
+        
+        var request: Never {
+            fatalError()
+        }
         
         func _makeURLRequest() throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com")!)

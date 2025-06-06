@@ -8,30 +8,27 @@
 import SwiftSyntax
 import SwiftDiagnostics
 
-extension RequestModifierMacro {
-    package enum Message: Error, Equatable {
-        case invalidConformance(typeName: String)
-        //    case invalidMemberDecl
-    }
+internal enum RequestModifierMacroDiagnostic: Error {
+    case invalidConformance(typeName: String)
 }
 
 // MARK: - DiagnosticMessage
-extension RequestModifierMacro.Message: DiagnosticMessage {
+extension RequestModifierMacroDiagnostic: DiagnosticMessage {
+    /// The diagnostic messages.
+    internal var message: String {
+        switch self {
+            case .invalidConformance(let typeName):
+                return "Type '\(typeName)' does not conform to protocol 'RequestModifier'"
+        }
+    }
+    
     /// The unique identifier for the diagnostic message.
-    package var diagnosticID: MessageID {
-        return MessageID(domain: "NetworkingMacros.RequestModifierMacro", id: "\(self)")
+    internal var diagnosticID: MessageID {
+        return MessageID(domain: "NetworkingMacros", id: "RequestModifier.\(self)")
     }
     
     /// The severity level of the diagnostic message.
-    package var severity: DiagnosticSeverity {
+    internal var severity: DiagnosticSeverity {
         return .error
-    }
-    
-    /// The diagnostic messages.
-    package var message: String {
-        switch self {
-        case .invalidConformance(let typeName):
-            return "Type '\(typeName)' does not conform to protocol 'RequestModifier'"
-        }
     }
 }

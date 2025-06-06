@@ -35,6 +35,10 @@ extension AnyRequestTests {
         let path: String
         let method: RequestMethod
         
+        var request: Never {
+            fatalError()
+        }
+        
         func _makeURLRequest() throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com\(path)")!)
             request.httpMethod = method.rawValue

@@ -8,19 +8,19 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-package enum ClientInitMacro: BodyMacro {
+internal enum ClientInitMacro: BodyMacro {
     private static let functionName = "configure"
-    package static let name: TokenSyntax = "ClientInit"
+    internal static let name: TokenSyntax = "ClientInit"
     
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         providingBodyFor declaration: some DeclSyntaxProtocol & WithOptionalCodeBlockSyntax,
         in context: some MacroExpansionContext
     ) throws -> [CodeBlockItemSyntax] {
         var statements = Array(declaration.body!.statements)
         let containsConfigureCall = statements.contains { statement in
-            let functionCall = statement.item.as(FunctionCallExprSyntax.self)
-            let name = functionCall?.calledExpression
+            let name = statement.item.as(FunctionCallExprSyntax.self)?
+                .calledExpression
                 .as(DeclReferenceExprSyntax.self)?
                 .baseName
                 .text
@@ -29,17 +29,20 @@ package enum ClientInitMacro: BodyMacro {
         guard !containsConfigureCall else {
             return statements
         }
-        let functionCallSyntax = FunctionCallExprSyntax(
-            calledExpression: DeclReferenceExprSyntax(
-                baseName: .identifier(functionName)
-            ),
-            leftParen: .leftParenToken(),
-            arguments: [],
-            rightParen: .rightParenToken(),
-            additionalTrailingClosures: []
-        )
         let statement = CodeBlockItemSyntax(
-            item: .expr(ExprSyntax(functionCallSyntax))
+            item: .expr(
+                ExprSyntax(
+                    FunctionCallExprSyntax(
+                        calledExpression: DeclReferenceExprSyntax(
+                            baseName: .identifier(functionName)
+                        ),
+                        leftParen: .leftParenToken(),
+                        arguments: [],
+                        rightParen: .rightParenToken(),
+                        additionalTrailingClosures: []
+                    )
+                )
+            )
         )
         statements.append(statement)
         return statements

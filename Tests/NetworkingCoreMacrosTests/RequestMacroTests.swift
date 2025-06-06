@@ -6,7 +6,7 @@
 //
 
 import SwiftSyntaxMacros
-import MacrosKit
+@testable import MacroTools
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
@@ -610,9 +610,8 @@ final class RequestMacroTests: XCTestCase {
 
 // MARK: - Access Levels Tests
     func testRequestMacroWithAccessLevel() {
-        let levels = AccessLevel.allCases
         let id = "Test"
-        for level in levels {
+        for level in AccessLevel.allCases {
             assertMacroExpansion(
             """
             @Request("\(id)")
@@ -643,7 +642,7 @@ final class RequestMacroTests: XCTestCase {
     func testClientMacroFailsWithMissingDeclarationErrorWhenCommandPropertyIsMissing() {
         let expectedDiagnostics = [
             // The property is missing a 'request' property declaration.
-            DiagnosticSpec(message: RequestMacroError.missingRequestDeclaration.message, line: 1, column: 1)
+            DiagnosticSpec(message: RequestMacroDiagnostic.missingRequestDeclaration.message, line: 1, column: 1)
         ]
         
         assertMacroExpansion(

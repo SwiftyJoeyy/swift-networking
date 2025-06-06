@@ -1,22 +1,13 @@
 {
-  "originHash" : "b3472d81bc59a756d3137d6a9ece0c19dc9bf34cdfbb13e09d076a9431c4e0f4",
+  "originHash" : "2ac338611801bc4c72edc11722ebbfbd0a7a7ea5586a35a31c6f92c6f7411bc2",
   "pins" : [
-    {
-      "identity" : "macroskit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/buildexperience/MacrosKit.git",
-      "state" : {
-        "revision" : "f5d60c1b21f7f35c786264ec8198dea7165a320f",
-        "version" : "1.0.0"
-      }
-    },
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax.git",
       "state" : {
-        "revision" : "0687f71944021d616d34d922343dcef086855920",
-        "version" : "600.0.1"
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
       }
     }
   ],

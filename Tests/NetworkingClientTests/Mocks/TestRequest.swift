@@ -10,8 +10,10 @@ import Foundation
 
 struct TestRequest: Request {
     @Configurations private var configurations
-    typealias Contents = Never
     var id = "TestRequest"
+    var request: Never {
+        fatalError()
+    }
     
     func _makeURLRequest() throws -> URLRequest {
         return URLRequest(url: configurations.baseURL ?? URL(string: "fallback.com")!)

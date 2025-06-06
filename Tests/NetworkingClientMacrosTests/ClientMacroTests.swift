@@ -6,12 +6,12 @@
 //
 
 import SwiftSyntaxMacros
-import MacrosKit
+import MacroTools
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
 #if canImport(NetworkingClientMacros)
-import NetworkingClientMacros
+@testable import NetworkingClientMacros
 
 final class ClientMacroTests: XCTestCase {
 // MARK: - Properties
@@ -113,8 +113,7 @@ final class ClientMacroTests: XCTestCase {
     
 // MARK: - Access Level Tests
     func testClientMacroWithAccessLevel() {
-        let levels = AccessLevel.allCases
-        for level in levels {
+        for level in AccessLevel.allCases {
             assertMacroExpansion(
             """
             @Client
@@ -146,8 +145,7 @@ final class ClientMacroTests: XCTestCase {
     }
     
     func testClientMacroWithInitWithAccessLevel() {
-        let levels = AccessLevel.allCases
-        for level in levels {
+        for level in AccessLevel.allCases {
             assertMacroExpansion(
             """
             @Client
@@ -181,7 +179,7 @@ final class ClientMacroTests: XCTestCase {
     func testClientMacroFailsWithMissingSessionDeclaration() {
         let expectedDiagnostics = [
             DiagnosticSpec(
-                message: ClientMacroError.missingSessionDeclaration.message,
+                message: ClientMacroDiagnostic.missingSessionDeclaration.message,
                 line: 1,
                 column: 1
             )
@@ -199,6 +197,9 @@ final class ClientMacroTests: XCTestCase {
                 @ClientInit
                 init() { }
             }
+            
+            extension TestClient: NetworkClient {
+            }
             """,
             diagnostics: expectedDiagnostics,
             macros: testMacros
@@ -208,7 +209,7 @@ final class ClientMacroTests: XCTestCase {
     func testClientMacroFailsWithUnexpectedSessionDeclaration() {
         let expectedDiagnostics = [
             DiagnosticSpec(
-                message: ClientMacroError.unexpectedSessionDeclaration.message,
+                message: ClientMacroDiagnostic.unexpectedSessionDeclaration.message,
                 line: 7,
                 column: 5,
                 fixIts: [

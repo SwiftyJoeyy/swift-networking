@@ -172,7 +172,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroFailsWithInvalidPropertyType() {
         // Invalid property type, the macro requires var instead of let.
         let diagnostic = DiagnosticSpec(
-            message: ConfigurationKeyMacroError.invalidPropertyType.message,
+            message: ConfigurationKeyMacroDiagnostic.invalidPropertyType.message,
             line: 1,
             column: 1
         )
@@ -203,7 +203,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroFailsWithMissingInitializerWhenPropertyHasOnlyAName() {
         // The property is missing an initializer
         let diagnostic = DiagnosticSpec(
-            message: ConfigurationKeyMacroError.missingInitializer.message,
+            message: ConfigurationKeyMacroDiagnostic.missingInitializer.message,
             line: 1,
             column: 1
         )
@@ -230,7 +230,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroFailsWithMissingInitializerWhenPropertyHasATypeButNoValue() {
         // The property is missing an initializer
         let diagnostic = DiagnosticSpec(
-            message: ConfigurationKeyMacroError.missingInitializer.message,
+            message: ConfigurationKeyMacroDiagnostic.missingInitializer.message,
             line: 1,
             column: 1
         )
@@ -257,7 +257,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroFailsWithMissingTypeWithForceUnwrappAttribute() {
         // The property is missing a type
         let diagnostic = DiagnosticSpec(
-            message: ConfigurationKeyMacroError.missingTypeAnnotation.message,
+            message: ConfigurationKeyMacroDiagnostic.missingTypeAnnotation.message,
             line: 1,
             column: 1
         )

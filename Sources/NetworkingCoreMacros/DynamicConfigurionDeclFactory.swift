@@ -6,6 +6,7 @@
 //
 
 import SwiftSyntax
+import MacroTools
 
 internal enum DynamicConfigDeclFactory {
     private static func getConfigsDeclName(
@@ -31,13 +32,8 @@ internal enum DynamicConfigDeclFactory {
         guard let declName = getConfigsDeclName(declaration: declaration) else {
             return nil
         }
-        let body: ExprSyntax = """
-        _\(declName)._accept(values)
-        """
-        let type = IdentifierTypeSyntax(name: "ConfigurationValues")
-        let modifiers = declaration.modifiers.filter({$0.name.isAccessLevel})
-        let funcDecl = FunctionDeclSyntax(
-            modifiers: modifiers,
+        return FunctionDeclSyntax(
+            modifiers: declaration.modifiers.filter({$0.name.isAccessLevel}),
             name: "_accept",
             signature: FunctionSignatureSyntax(
                 parameterClause: FunctionParameterClauseSyntax(
@@ -45,28 +41,21 @@ internal enum DynamicConfigDeclFactory {
                         FunctionParameterSyntax(
                             firstName: "_",
                             secondName: "values",
-                            type: type
+                            type: IdentifierTypeSyntax(name: "ConfigurationValues")
                         )
                     ]
                 )
             ),
             body: CodeBlockSyntax(
                 statements: CodeBlockItemListSyntax(
-                    [CodeBlockItemSyntax(item: .expr(body))]
+                    [
+                        CodeBlockItemSyntax(
+                            item: .expr("_\(declName)._accept(values)")
+                        )
+                    ]
                 )
             )
         )
-        return funcDecl
     }
 }
 
-extension TokenSyntax {
-    internal var isAccessLevel: Bool {
-        switch tokenKind {
-            case .keyword(let keyword):
-                return keyword == .public || keyword == .internal || keyword == .fileprivate || keyword == .private || keyword == .fileprivate || keyword == .open || keyword == .package
-            default:
-                return false
-        }
-    }
-}

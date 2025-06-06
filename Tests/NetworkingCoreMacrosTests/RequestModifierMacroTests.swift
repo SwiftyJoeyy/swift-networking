@@ -6,7 +6,7 @@
 //
 
 import SwiftSyntaxMacros
-import MacrosKit
+import MacroTools
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
@@ -63,8 +63,7 @@ final class RequestModifierMacroTests: XCTestCase {
     }
     
     func testMacroAddsAccessLevelsToFunctions() {
-        let levels = AccessLevel.allCases
-        for level in levels {
+        for level in AccessLevel.allCases {
             assertMacroExpansion(
             """
             @RequestModifier

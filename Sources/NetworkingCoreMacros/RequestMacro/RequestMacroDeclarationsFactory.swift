@@ -18,8 +18,6 @@ extension RequestMacro.DeclarationsFactory {
         modifiers: DeclModifierListSyntax,
         reqMods: [any RequestMacroModifier]
     ) -> DeclSyntax {
-        let codeBlock = CodeBlockItemListSyntax(reqMods.map({$0.make()}))
-        
         let binding = PatternBindingSyntax(
             pattern: IdentifierPatternSyntax(identifier: "modifier"),
             typeAnnotation: TypeAnnotationSyntax(
@@ -28,14 +26,21 @@ extension RequestMacro.DeclarationsFactory {
                     constraint: IdentifierTypeSyntax(name: "RequestModifier")
                 )
             ),
-            accessorBlock: AccessorBlockSyntax(accessors: .getter(codeBlock))
-        )
-        let attribute = AttributeSyntax(
-            attributeName: IdentifierTypeSyntax(name: .identifier("ModifiersBuilder"))
+            accessorBlock: AccessorBlockSyntax(
+                accessors: .getter(
+                    CodeBlockItemListSyntax(reqMods.map({$0.make()}))
+                )
+            )
         )
         let decl = VariableDeclSyntax(
             attributes: [
-                .attribute(attribute)
+                .attribute(
+                    AttributeSyntax(
+                        attributeName: IdentifierTypeSyntax(
+                            name: .identifier("ModifiersBuilder")
+                        )
+                    )
+                )
             ],
             modifiers: modifiers,
             bindingSpecifier: .keyword(.var),
@@ -43,20 +48,22 @@ extension RequestMacro.DeclarationsFactory {
         )
         return DeclSyntax(decl)
     }
+    
     internal static func makeIDDecl(
         modifiers: DeclModifierListSyntax,
         id: String
     ) -> DeclSyntax {
-        let binding = PatternBindingSyntax(
-            pattern: IdentifierPatternSyntax(identifier: "id"),
-            initializer: InitializerClauseSyntax(
-                value: StringLiteralExprSyntax(content: id)
-            )
-        )
         let decl = VariableDeclSyntax(
             modifiers: modifiers,
             bindingSpecifier: .keyword(.let),
-            bindings: [binding]
+            bindings: [
+                PatternBindingSyntax(
+                    pattern: IdentifierPatternSyntax(identifier: "id"),
+                    initializer: InitializerClauseSyntax(
+                        value: StringLiteralExprSyntax(content: id)
+                    )
+                )
+            ]
         )
         return DeclSyntax(decl)
     }
@@ -65,13 +72,14 @@ extension RequestMacro.DeclarationsFactory {
         _ type: some TypeSyntaxProtocol,
         name: TokenSyntax
     ) -> ExtensionDeclSyntax {
-        let inheritedType = InheritedTypeSyntax(
-            type: IdentifierTypeSyntax(name: name)
-        )
         let decl = ExtensionDeclSyntax(
             extendedType: type,
             inheritanceClause: InheritanceClauseSyntax(
-                inheritedTypes: [inheritedType]
+                inheritedTypes: [
+                    InheritedTypeSyntax(
+                        type: IdentifierTypeSyntax(name: name)
+                    )
+                ]
             )
         ) { }
         return decl

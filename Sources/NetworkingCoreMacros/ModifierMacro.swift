@@ -8,11 +8,11 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-package protocol ModifierMacro: PeerMacro { }
+internal protocol ModifierMacro: PeerMacro { }
 
 // MARK: - PeerMacro
 extension ModifierMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         providingPeersOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
@@ -21,6 +21,6 @@ extension ModifierMacro {
     }
 }
 
-package enum HeaderMacro: ModifierMacro { }
+internal enum HeaderMacro: ModifierMacro { }
 
-package enum ParameterMacro: ModifierMacro { }
+internal enum ParameterMacro: ModifierMacro { }

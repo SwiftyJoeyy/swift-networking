@@ -8,12 +8,14 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 import SwiftDiagnostics
-import MacrosKit
+import MacroTools
 
-package enum ClientMacro {
+internal enum ClientMacro {
+// MARK: - Properties
     private static let sessionRequirement = "session"
     private static let sessionProperty = "_session"
     
+// MARK: - Functions
     private static func checkSessionProperty(
         declaration: VariableDeclSyntax,
         propertyName: String,
@@ -21,31 +23,24 @@ package enum ClientMacro {
     ) throws {
         guard propertyName == sessionProperty else {return}
         let node = Syntax(declaration)
-        let message = MacroFixItMessage(
-            message: "Remove the '\(sessionProperty)' property declaration",
-            fixItID: ClientMacroError.unexpectedSessionDeclaration.diagnosticID
-        )
-        let fixIt = FixIt(
-            message: message,
-            changes: [
-                .replace(oldNode: node, newNode: Syntax(TokenSyntax("")))
-            ]
-        )
-        throw DiagnosticsError(
-            diagnostics: [
-                Diagnostic(
-                    node: node,
-                    message: ClientMacroError.unexpectedSessionDeclaration,
-                    fixIt: fixIt
+        let diag = ClientMacroDiagnostic.unexpectedSessionDeclaration
+            .diagnose(at: node)
+            .fixIt { diag in
+                FixIt(
+                    message: NetworkingFixItMessage(
+                        message: "Remove the '\(sessionProperty)' property declaration",
+                        fixItID: diag.diagnosticID
+                    ),
+                    changes: [
+                        .replace(oldNode: node, newNode: Syntax(TokenSyntax("")))
+                    ]
                 )
-            ]
-        )
+            }
+        
+        throw diag.error
     }
-    
-    @discardableResult
-    private static func validateClient(
+    private static func validate(
         declaration: some DeclGroupSyntax,
-        checkSession: Bool,
         in context: some MacroExpansionContext
     ) throws -> Bool {
         var hasInitializer = false
@@ -59,19 +54,19 @@ package enum ClientMacro {
             guard let varDecl = member.decl.as(VariableDeclSyntax.self),
                   let propertyName = varDecl.name?.text
             else {continue}
-            if checkSession {
-                try checkSessionProperty(
-                    declaration: varDecl,
-                    propertyName: propertyName,
-                    context: context
-                )
-            }
+            
+            try checkSessionProperty(
+                declaration: varDecl,
+                propertyName: propertyName,
+                context: context
+            )
+            
             if !hasSessionRequirement {
                 hasSessionRequirement = propertyName == sessionRequirement
             }
         }
         guard hasSessionRequirement else {
-            throw ClientMacroError.missingSessionDeclaration
+            throw ClientMacroDiagnostic.missingSessionDeclaration
         }
         return hasInitializer
     }
@@ -79,22 +74,24 @@ package enum ClientMacro {
 
 // MARK: - MemberMacro
 extension ClientMacro: MemberMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
+        conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let hasInitializer = try validateClient(
+        let hasInitializer = try validate(
             declaration: declaration,
-            checkSession: true,
             in: context
         )
-        let commandDecl = DeclarationsFactory.makeSessionDecl(declaration.modifiers)
-        var declarations = [commandDecl]
+        var declarations = [
+            DeclarationsFactory.makeSessionDecl(declaration.modifiers)
+        ]
         
         if !hasInitializer {
-            let initDecl = DeclarationsFactory.makeInitDecl(declaration.modifiers)
-            declarations.append(initDecl)
+            declarations.append(
+                DeclarationsFactory.makeInitDecl(declaration.modifiers)
+            )
         }
         
         return declarations
@@ -103,31 +100,22 @@ extension ClientMacro: MemberMacro {
 
 // MARK: - ExtensionMacro
 extension ClientMacro: ExtensionMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingExtensionsOf type: some TypeSyntaxProtocol,
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        do {
-            try validateClient(
-                declaration: declaration,
-                checkSession: false,
-                in: context
-            )
-            return [
-                DeclarationsFactory.makeExtensionDecl(type)
-            ]
-        }catch {
-            return []
-        }
+        return [
+            DeclarationsFactory.makeExtensionDecl(type)
+        ]
     }
 }
 
 // MARK: - MemberAttributeMacro
 extension ClientMacro: MemberAttributeMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingAttributesFor member: some DeclSyntaxProtocol,

@@ -6,12 +6,12 @@
 //
 
 import SwiftSyntaxMacros
-import MacrosKit
+import MacroTools
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
 #if canImport(NetworkingClientMacros)
-import NetworkingClientMacros
+@testable import NetworkingClientMacros
 
 final class ClientInitMacroTests: XCTestCase {
 // MARK: - Properties
@@ -70,8 +70,7 @@ final class ClientInitMacroTests: XCTestCase {
     
 // MARK: - Access Level Tests
     func testClientInitMacroWithAccessLevel() {
-        let levels = AccessLevel.allCases
-        for level in levels {
+        for level in AccessLevel.allCases {
             assertMacroExpansion(
             """
             @ClientInit \(level) init() { 

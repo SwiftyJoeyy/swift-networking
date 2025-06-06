@@ -56,6 +56,10 @@ extension ModifiedRequestTests {
     struct MockRequest: Request {
         let method = RequestMethod.get
         
+        var request: Never {
+            fatalError()
+        }
+        
         func _makeURLRequest() throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com")!)
             request.httpMethod = method.rawValue

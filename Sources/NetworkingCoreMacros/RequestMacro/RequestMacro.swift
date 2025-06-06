@@ -7,8 +7,9 @@
 
 import SwiftSyntax
 import SwiftSyntaxMacros
+import MacroTools
 
-package enum RequestMacro {
+internal enum RequestMacro {
     private static func validateRequest(
         declaration: some DeclGroupSyntax
     ) throws {
@@ -16,7 +17,7 @@ package enum RequestMacro {
             return $0.decl.as(VariableDeclSyntax.self)?.name?.text == "request"
         }
         if !hasRequestRequirement {
-            throw RequestMacroError.missingRequestDeclaration
+            throw RequestMacroDiagnostic.missingRequestDeclaration
         }
     }
     
@@ -49,16 +50,17 @@ package enum RequestMacro {
 
 // MARK: - MemberMacro
 extension RequestMacro: MemberMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
+        conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         try validateRequest(declaration: declaration)
         let reqMods = getModifiers(declaration: declaration)
         
         var declarations = [DeclSyntax]()
-
+        
         if !reqMods.isEmpty {
             declarations.append(
                 DeclarationsFactory.makeModDecl(
@@ -92,7 +94,7 @@ extension RequestMacro: MemberMacro {
 
 // MARK: - ExtensionMacro
 extension RequestMacro: ExtensionMacro {
-    package static func expansion(
+    internal static func expansion(
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingExtensionsOf type: some TypeSyntaxProtocol,

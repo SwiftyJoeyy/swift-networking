@@ -8,36 +8,37 @@
 import SwiftSyntax
 
 extension ClientMacro {
-    package enum DeclarationsFactory { }
+    internal enum DeclarationsFactory { }
 }
 
 extension ClientMacro.DeclarationsFactory {
-    package static func makeSessionDecl(
+    internal static func makeSessionDecl(
         _ modifiers: DeclModifierListSyntax
     ) -> DeclSyntax {
-        let binding = PatternBindingSyntax(
-            pattern: IdentifierPatternSyntax(identifier: "_session"),
-            typeAnnotation: TypeAnnotationSyntax(
-                type: ImplicitlyUnwrappedOptionalTypeSyntax(
-                    wrappedType: IdentifierTypeSyntax(name: "Session")
-                )
-            )
-        )
         let varDecl = VariableDeclSyntax(
             modifiers: modifiers,
             bindingSpecifier: .keyword(.var),
-            bindings: [binding]
+            bindings: [
+                PatternBindingSyntax(
+                    pattern: IdentifierPatternSyntax(identifier: "_session"),
+                    typeAnnotation: TypeAnnotationSyntax(
+                        type: ImplicitlyUnwrappedOptionalTypeSyntax(
+                            wrappedType: IdentifierTypeSyntax(name: "Session")
+                        )
+                    )
+                )
+            ]
         )
         return DeclSyntax(varDecl)
     }
     
-    package static func makeInitAttribute() -> AttributeSyntax {
+    internal static func makeInitAttribute() -> AttributeSyntax {
         return AttributeSyntax(
             attributeName: IdentifierTypeSyntax(name: ClientInitMacro.name)
         )
     }
     
-    package static func makeInitDecl(
+    internal static func makeInitDecl(
         _ modifiers: DeclModifierListSyntax
     ) -> DeclSyntax {
         let declaration = InitializerDeclSyntax(
@@ -51,16 +52,17 @@ extension ClientMacro.DeclarationsFactory {
         return DeclSyntax(declaration)
     }
     
-    package static func makeExtensionDecl(
+    internal static func makeExtensionDecl(
         _ type: some TypeSyntaxProtocol
     ) -> ExtensionDeclSyntax {
-        let inheritedType = InheritedTypeSyntax(
-            type: IdentifierTypeSyntax(name: "NetworkClient")
-        )
         let declaration = ExtensionDeclSyntax(
             extendedType: type,
             inheritanceClause: InheritanceClauseSyntax(
-                inheritedTypes: [inheritedType]
+                inheritedTypes: [
+                    InheritedTypeSyntax(
+                        type: IdentifierTypeSyntax(name: "NetworkClient")
+                    )
+                ]
             )
         ) { }
         return declaration

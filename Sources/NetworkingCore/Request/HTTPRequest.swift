@@ -110,14 +110,6 @@ extension HTTPRequest: Request {
         fatalError("Should not be called directly!!")
     }
     
-    public var description: String {
-        return """
-        \(String(describing: Self.self)) {
-          id = \(id)
-        }
-        """
-    }
-    
     /// Constructs a ``URLRequest`` from this ``HTTPRequest``.
     ///
     /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
