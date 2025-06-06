@@ -106,7 +106,7 @@ extension DownloadTask {
     /// The produced resume data can be used to resume the task from where it left off.
     ///
     /// - Returns: The resume data.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     public func cancelByProducingResumeData() async -> Data? {
         let downloadTask = await sessionTask as? URLSessionDownloadTask
         return await downloadTask?.cancelByProducingResumeData()

@@ -118,23 +118,23 @@ struct HeadersBuilderTests {
     
     @Test func buildLimitedAvailability() {
         let headers = build {
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestHeader(key: "A", value: "available")
             }else {
                 TestHeader(key: "A", value: "unavailable")
             }
             
-            if #available(macOS 12.0, *) {
+            if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0, *) {
                 TestHeader(key: "B", value: "available")
             }else {
                 TestHeader(key: "B", value: "unavailable")
             }
             
-            if #available(macOS 12.0, *) {
+            if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0, *) {
                 TestHeader(key: "C", value: "available")
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestHeader(key: "D", value: "unavailable")
             }
         }
@@ -161,7 +161,7 @@ struct HeadersBuilderTests {
                 TestHeader(key: "F", value: "val")
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestHeader(key: "C", value: "val")
             }
             
@@ -191,7 +191,7 @@ struct HeadersBuilderTests {
                 TestHeader(key: "F", value: "val")
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestHeader(key: "C", value: "val")
             }
             

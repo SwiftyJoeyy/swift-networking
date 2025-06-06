@@ -8,7 +8,7 @@
 import SwiftSyntax
 
 extension VariableDeclSyntax {
-    package var name: TokenSyntax? {
+    public var name: TokenSyntax? {
         let binding = bindings.first
         let pattern = binding?.pattern.as(IdentifierPatternSyntax.self)
         return pattern?.identifier

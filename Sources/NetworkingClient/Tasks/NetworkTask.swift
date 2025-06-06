@@ -245,7 +245,7 @@ extension NetworkTask: NetworkingTask {
     }
     
     /// Sets the ``URLSessionTask``.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     public func _set(_ task: URLSessionTask) async {
         await state.set(task)
     }
@@ -267,7 +267,7 @@ extension NetworkTask: NetworkingTask {
     }
     
     /// Suspends the task if it's currently running.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     @discardableResult public func suspend() async -> Self {
         await state.sessionTask?.suspend()
         return self

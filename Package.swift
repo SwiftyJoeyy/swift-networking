@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 5.9
 
 import PackageDescription
 import CompilerPluginSupport
@@ -23,15 +23,9 @@ let package = Package(
             url: "https://github.com/swiftlang/swift-syntax.git",
             from: "601.0.1"
         ),
+        .package(path: "MacroTools")
     ],
     targets: [
-        .target(
-            name: "MacroTools",
-            dependencies: [
-                .product(name: "SwiftSyntax", package: "swift-syntax")
-            ],
-            swiftSettings: networkingSwiftSettings
-        ),
         .target(
             name: "Networking",
             dependencies: [
@@ -41,9 +35,10 @@ let package = Package(
             swiftSettings: networkingSwiftSettings
         ),
         
+// MARK: - NetworkingCore
         .target(
             name: "NetworkingCore",
-            dependencies: ["NetworkingCoreMacros", "MacroTools"],
+            dependencies: ["NetworkingCoreMacros"],
             swiftSettings: networkingSwiftSettings
         ),
         .testTarget(
@@ -52,12 +47,13 @@ let package = Package(
             swiftSettings: networkingSwiftSettings
         ),
         
+// MARK: - NetworkingCoreMacros
         .macro(
             name: "NetworkingCoreMacros",
             dependencies: [
-                "MacroTools",
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                .product(name: "MacroTools", package: "MacroTools"),
             ],
             swiftSettings: networkingSwiftSettings
         ),
@@ -65,15 +61,15 @@ let package = Package(
             name: "NetworkingCoreMacrosTests",
             dependencies: [
                 "NetworkingCoreMacros",
-                "MacroTools",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ],
             swiftSettings: networkingSwiftSettings
         ),
         
+// MARK: - NetworkingClient
         .target(
             name: "NetworkingClient",
-            dependencies: ["NetworkingCore", "NetworkingClientMacros", "MacroTools"],
+            dependencies: ["NetworkingCore", "NetworkingClientMacros"],
             swiftSettings: networkingSwiftSettings
         ),
         .testTarget(
@@ -82,12 +78,13 @@ let package = Package(
             swiftSettings: networkingSwiftSettings
         ),
         
+// MARK: - NetworkingClientMacros
         .macro(
             name: "NetworkingClientMacros",
             dependencies: [
-                "MacroTools",
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                .product(name: "MacroTools", package: "MacroTools"),
             ],
             swiftSettings: networkingSwiftSettings
         ),
@@ -95,7 +92,6 @@ let package = Package(
             name: "NetworkingClientMacrosTests",
             dependencies: [
                 "NetworkingClientMacros",
-                "MacroTools",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ],
             swiftSettings: networkingSwiftSettings

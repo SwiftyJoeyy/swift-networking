@@ -10,7 +10,7 @@ import SwiftSyntax
 extension DeclSyntaxProtocol {
     /// Retrieves the declaration as a `DeclarationSyntax`
     /// if it conforms to any known declaration syntax types.
-    package var declaration: (any DeclarationSyntax)? {
+    public var declaration: (any DeclarationSyntax)? {
         if let declaration = self.as(StructDeclSyntax.self) {
             return declaration
         }
@@ -31,7 +31,7 @@ extension DeclSyntaxProtocol {
     }
     
     /// Retrieves the type name as a ``TokenSyntax`` from the declaration.
-    package var typeName: TokenSyntax? {
+    public var typeName: TokenSyntax? {
         guard let declaration = declaration else {
             return nil
         }
@@ -39,7 +39,7 @@ extension DeclSyntaxProtocol {
     }
     
     /// Retrieves the inherited types from the declaration's inheritance clause.
-    package var inheritedTypes: InheritedTypeListSyntax? {
+    public var inheritedTypes: InheritedTypeListSyntax? {
         guard let declaration = declaration else {
             return nil
         }

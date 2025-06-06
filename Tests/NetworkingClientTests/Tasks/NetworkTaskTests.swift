@@ -216,6 +216,7 @@ struct NetworkTaskTests {
         await #expect(task.sessionTask != nil)
     }
     
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     @Test func susspendingURLSessionTask() async throws {
         let requestID = "suspending-urlSessionTask"
         let request = TestRequest()
@@ -235,6 +236,7 @@ struct NetworkTaskTests {
         await #expect(task.sessionTask?.state == .suspended)
     }
     
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     @Test func resumingSuspendedTaskDoesNotCreateANewOne() async throws {
         let requestID = "resume-suspended-task"
         let request = TestRequest()

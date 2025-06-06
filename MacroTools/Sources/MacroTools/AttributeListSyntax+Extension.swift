@@ -12,7 +12,7 @@ extension AttributeListSyntax.Element {
     ///
     /// - Returns: An optional ``AttributeSyntax`` representing the attribute syntax,
     /// or ``nil`` if the node is not an attribute syntax.
-    package var attribute: AttributeSyntax? {
+    public var attribute: AttributeSyntax? {
         return self.as(AttributeSyntax.self)
     }
     
@@ -20,7 +20,7 @@ extension AttributeListSyntax.Element {
     ///
     /// - Returns: An optional ``TokenSyntax`` representing the name of the attribute,
     /// or ``nil`` if the name cannot be determined.
-    package var name: TokenSyntax? {
+    public var name: TokenSyntax? {
         let attributeName = attribute?.attributeName.as(IdentifierTypeSyntax.self)
         return attributeName?.name
     }

@@ -8,25 +8,25 @@
 import SwiftSyntax
 import SwiftDiagnostics
 
-package struct NetworkingFixItMessage: FixItMessage {
-    package var message: String
+public struct NetworkingFixItMessage: FixItMessage {
+    public var message: String
     
-    package var fixItID: MessageID
+    public var fixItID: MessageID
     
-    package init(message: String, fixItID: MessageID) {
+    public init(message: String, fixItID: MessageID) {
         self.message = message
         self.fixItID = fixItID
     }
 }
 
 extension Diagnostic {
-    package var error: DiagnosticsError {
+    public var error: DiagnosticsError {
         return DiagnosticsError(diagnostics: [self])
     }
 }
 
 extension Diagnostic {
-    package func fixIt(_ fixIt: (_ diag: Diagnostic) -> FixIt) -> Self {
+    public func fixIt(_ fixIt: (_ diag: Diagnostic) -> FixIt) -> Self {
         return Diagnostic(
             node: node,
             position: position,

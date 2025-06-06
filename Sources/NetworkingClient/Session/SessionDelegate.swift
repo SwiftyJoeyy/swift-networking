@@ -42,7 +42,7 @@ extension SessionDelegate: URLSessionDelegate {
 extension SessionDelegate: URLSessionTaskDelegate {
     /// Called when a new ``URLSessionTask`` is created in the provided ``URLSession``.
     /// This method is responsible for associating the created task with a corresponding network task.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     open func urlSession(
         _ session: URLSession,
         didCreateTask task: URLSessionTask

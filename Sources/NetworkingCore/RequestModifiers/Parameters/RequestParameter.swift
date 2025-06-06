@@ -28,7 +28,7 @@ extension RequestParameter {
     public func modifying(
         _ request: consuming URLRequest
     ) throws -> URLRequest {
-        if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *) {
+        if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *) {
             request.url?.append(queryItems: parameters)
             return request
         }

@@ -56,11 +56,11 @@ public protocol NetworkingTask: Sendable {
     
     
     /// Suspends the task if it's currently running.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     @discardableResult func suspend() async -> Self
     
     /// Sets the ``URLSessionTask``.
-    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *)
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     func _set(_ task: URLSessionTask) async
 }
 

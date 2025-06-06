@@ -51,7 +51,7 @@ internal enum ArgumentFactory {
 
 extension AttributeSyntax.Arguments {
     /// The named macro arguments.
-    package var named: [String: TokenSyntax] {
+    public var named: [String: TokenSyntax] {
         guard let arguments = self.as(LabeledExprListSyntax.self) else {
             return [:]
         }
@@ -66,7 +66,7 @@ extension AttributeSyntax.Arguments {
     }
     
     /// The unnamed macro arguments.
-    package var unnamed: [TokenSyntax] {
+    public var unnamed: [TokenSyntax] {
         guard let arguments = self.as(LabeledExprListSyntax.self) else {
             return []
         }

@@ -8,7 +8,7 @@
 import SwiftSyntax
 
 public enum AccessLevel {
-    package static var allCases: Set<TokenSyntax> {
+    public static var allCases: Set<TokenSyntax> {
         return [
             .keyword(.public),
             .keyword(.package),
@@ -21,7 +21,7 @@ public enum AccessLevel {
 }
 
 extension TokenSyntax {
-    package var isAccessLevel: Bool {
+    public var isAccessLevel: Bool {
         guard case .keyword(let value) = tokenKind else {
             return false
         }

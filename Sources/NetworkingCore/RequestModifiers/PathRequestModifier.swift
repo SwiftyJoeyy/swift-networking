@@ -35,7 +35,7 @@ import Foundation
         _ request: consuming URLRequest
     ) throws -> URLRequest {
         for path in paths {
-            if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, *) {
+            if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *) {
                 request.url?.append(path: path)
             }else {
                 request.url?.appendPathComponent(path)

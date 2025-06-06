@@ -134,23 +134,23 @@ struct ParametersBuilderTests {
     
     @Test func buildLimitedAvailability() {
         let params = build {
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestParameter(name: "A", value: "available")
             }else {
                 TestParameter(name: "A", value: "unavailable")
             }
             
-            if #available(macOS 12.0, *) {
+            if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0, *) {
                 TestParameter(name: "B", value: "available")
             }else {
                 TestParameter(name: "B", value: "unavailable")
             }
             
-            if #available(macOS 12.0, *) {
+            if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0, *) {
                 TestParameter(name: "C", value: "available")
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestParameter(name: "D", value: "unavailable")
             }
         }
@@ -177,7 +177,7 @@ struct ParametersBuilderTests {
                 TestParameter(name: "F", value: "val")
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestParameter(name: "C", value: "val")
             }
             
@@ -215,7 +215,7 @@ struct ParametersBuilderTests {
                 TestParameter(name: "F", value: "val")
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestParameter(name: "C", value: "val")
             }
             

@@ -31,6 +31,7 @@ import Testing
         await #expect(tasks.cancelled == true)
     }
     
+    @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     @Test func urlSessionDidCreateTaskCallsSet() async {
         let urlSessionDataTask = urlSession.dataTask(with: request)
         delegate.urlSession(urlSession, didCreateTask: urlSessionDataTask)

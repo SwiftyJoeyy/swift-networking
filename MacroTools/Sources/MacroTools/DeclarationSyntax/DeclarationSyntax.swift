@@ -8,7 +8,7 @@
 import SwiftSyntax
 
 /// Protocol representing a declaration syntax element in Swift.
-package protocol DeclarationSyntax {
+public protocol DeclarationSyntax {
     /// The name of the type.
     var name: TokenSyntax {get}
     

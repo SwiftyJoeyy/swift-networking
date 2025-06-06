@@ -156,23 +156,23 @@ struct ModifiersBuilderTests {
     
     @Test func buildLimitedAvailability() {
         let modifier = build {
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestModifier<Never>()
             }else {
                 TestModifier<Int>()
             }
             
-            if #available(macOS 12.0, *) {
+            if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0, *) {
                 TestModifier<Double>()
             }else {
                 TestModifier<Never>()
             }
             
-            if #available(macOS 12.0, *) {
+            if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0, *) {
                 TestModifier<String>()
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestModifier<Never>()
             }
         }
@@ -207,11 +207,11 @@ struct ModifiersBuilderTests {
                 TestModifier<Float>(header: ("Float", "true"))
             }
             
-            if #available(macOS 30.0, *) {
+            if #unavailable(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0) {
                 TestModifier<Double>(header: ("Double", "false"))
             }
             
-            if #available(macOS 12.0, *) {
+            if #available(iOS 15.0, macOS 12.0, watchOS 8.0, tvOS 15.0, visionOS 1.0, macCatalyst 15.0, *) {
                 TestModifier<Int64>(header: ("Int64", "true"))
             }
             
