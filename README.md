@@ -1,3 +1,6 @@
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftyJoeyy%2Fswift-networking%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/SwiftyJoeyy/swift-networking)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftyJoeyy%2Fswift-networking%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/SwiftyJoeyy/swift-networking)
+
 # Swift Networking
 
 **Swift Networking** is a modern Swift networking library built entirely around a **declarative programming model**. From defining requests to configuring clients and handling responses, everything is expressed clearly and fluentlyy.
