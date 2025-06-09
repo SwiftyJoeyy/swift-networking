@@ -6,7 +6,7 @@
 //
 
 import SwiftSyntaxMacros
-import MacroTools
+import MacrosKit
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 

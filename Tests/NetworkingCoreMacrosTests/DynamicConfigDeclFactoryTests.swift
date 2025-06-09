@@ -8,7 +8,7 @@
 import Foundation
 import SwiftSyntax
 import Testing
-@testable import MacroTools
+@testable import MacrosKit
 #if canImport(NetworkingCoreMacros)
 @testable import NetworkingCoreMacros
 

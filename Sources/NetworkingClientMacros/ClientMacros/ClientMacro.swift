@@ -8,7 +8,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 import SwiftDiagnostics
-import MacroTools
+import MacrosKit
 
 internal enum ClientMacro {
 // MARK: - Properties

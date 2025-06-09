@@ -7,7 +7,7 @@
 
 import SwiftSyntax
 import SwiftSyntaxMacros
-import MacroTools
+import MacrosKit
 
 internal enum RequestMacro {
     private static func validateRequest(

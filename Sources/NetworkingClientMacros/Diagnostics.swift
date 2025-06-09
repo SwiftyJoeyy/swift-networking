@@ -1,32 +1,32 @@
 //
-//  Diagnostics.swift
+//  SwiftUIView.swift
 //  Networking
 //
-//  Created by Joe Maghzal on 06/06/2025.
+//  Created by Joe Maghzal on 09/06/2025.
 //
 
 import SwiftSyntax
 import SwiftDiagnostics
 
-public struct NetworkingFixItMessage: FixItMessage {
-    public var message: String
+internal struct NetworkingFixItMessage: FixItMessage {
+    internal var message: String
     
-    public var fixItID: MessageID
+    internal var fixItID: MessageID
     
-    public init(message: String, fixItID: MessageID) {
+    internal init(message: String, fixItID: MessageID) {
         self.message = message
         self.fixItID = fixItID
     }
 }
 
 extension Diagnostic {
-    public var error: DiagnosticsError {
+    internal var error: DiagnosticsError {
         return DiagnosticsError(diagnostics: [self])
     }
 }
 
 extension Diagnostic {
-    public func fixIt(_ fixIt: (_ diag: Diagnostic) -> FixIt) -> Self {
+    internal func fixIt(_ fixIt: (_ diag: Diagnostic) -> FixIt) -> Self {
         return Diagnostic(
             node: node,
             position: position,

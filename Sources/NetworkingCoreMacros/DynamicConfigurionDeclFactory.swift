@@ -6,7 +6,7 @@
 //
 
 import SwiftSyntax
-import MacroTools
+import MacrosKit
 
 internal enum DynamicConfigDeclFactory {
     private static func getConfigsDeclName(

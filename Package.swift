@@ -23,7 +23,7 @@ let package = Package(
             url: "https://github.com/swiftlang/swift-syntax.git",
             from: "601.0.1"
         ),
-        .package(path: "MacroTools")
+        .package(url: "https://github.com/buildexperience/MacrosKit.git", from: "1.0.1")
     ],
     targets: [
         .target(
@@ -53,7 +53,7 @@ let package = Package(
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "MacroTools", package: "MacroTools"),
+                .product(name: "MacrosKit", package: "MacrosKit"),
             ],
             swiftSettings: networkingSwiftSettings
         ),
@@ -84,7 +84,7 @@ let package = Package(
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "MacroTools", package: "MacroTools"),
+                .product(name: "MacrosKit", package: "MacrosKit"),
             ],
             swiftSettings: networkingSwiftSettings
         ),
