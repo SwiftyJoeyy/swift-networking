@@ -1,3 +1,6 @@
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftyJoeyy%2Fswift-networking%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/SwiftyJoeyy/swift-networking)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftyJoeyy%2Fswift-networking%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/SwiftyJoeyy/swift-networking)
+
 # Swift Networking
 
 **Swift Networking** is a modern Swift networking library built entirely around a **declarative programming model**. From defining requests to configuring clients and handling responses, everything is expressed clearly and fluentlyy.
@@ -16,32 +19,12 @@ Inspired by **Swift** & **SwiftUI**’s design philosophy, it allows you to defi
 
 
 
-## 🚧 Upcoming Improvements
-
-The current version of this package was released as an MVP to validate the architecture and core concepts. As such, certain areas were intentionally left unoptimized or loosely structured in favor of rapid iteration and testing. However, a major revamp is currently in progress with a strong focus on **performance**, **type safety**, and **scalability**. Here's what's planned:
-
-- **Interceptor System Redesign**  
-  The current interceptor flow is being restructured to be more **declarative** and composable, improving clarity and allowing better integration with the request lifecycle.
-
-- **Configuration System Overhaul**  
-  A new configuration model is being implemented to improve the configuration flow through **requests, modifiers, tasks, and clients**. This will make the system more robust, type-safe, and context-aware.
-
-- **Typed Error Handling**  
-  All throws across the package will become **typed**, enabling more predictable error handling, better diagnostics, and clearer call-site contracts.
-
-- **Modifier Composition Revamp**  
-  Request modifiers are being reworked for better **performance** and **composability**, eliminating unnecessary dynamic dispatch where possible and ensuring compile-time safety.
-
-These changes are being developed incrementally and will gradually replace parts of the MVP codebase. Until then, users should expect some architectural inconsistencies and non-final APIs.
-
-
-
 ## 📦 Installation
 
 Add via **Swift Package Manager**:
 
 ```swift
-.package(url: "https://github.com/SwiftyJoeyy/swift-networking.git", branch: "refactored")
+.package(url: "https://github.com/SwiftyJoeyy/swift-networking.git", from: "1.0.0")
 ```
 
 Then add `"Networking"` to your target dependencies.
