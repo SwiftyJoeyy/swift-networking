@@ -74,3 +74,30 @@ import Foundation
         self.init(header().headers)
     }
 }
+
+// MARK: - Modifier
+extension Request {
+    /// Adds an additional header to the request.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     var request: some Request {
+    ///         HTTPRequest()
+    ///             .additionalHeader("language", value: "en")
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///  - key: The header field name.
+    ///  - value: The value of the header field.
+    ///
+    /// - Returns: A request with the additional headers applied.
+    @inlinable public func additionalHeader(
+        _ key: String,
+        value: String
+    ) -> some Request {
+        additionalHeader(Header(key, value: value))
+    }
+}

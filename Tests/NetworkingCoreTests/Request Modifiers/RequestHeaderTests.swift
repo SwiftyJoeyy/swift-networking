@@ -220,15 +220,35 @@ extension RequestHeaderTests {
 
 // MARK: - Modifier Tests
 extension RequestHeaderTests {
-    @Test func appliesAdditionalHeadersModifierToRequest() {
+    @Test func appliesHeadersModifierToRequest() {
         let header = DummyHeader(headers: ["A": "1"])
-        let request = DummyRequest()
-            .additionalHeaders {
-                header
-            }
+        do {
+            let request = DummyRequest()
+                .additionalHeaders {
+                    header
+                }
+            
+            let modifiedRequest = getModified(request, DummyRequest.self, DummyHeader.self)
+            #expect(modifiedRequest?.modifier.headers == header.headers)
+        }
         
-        let modifiedRequest = getModified(request, DummyRequest.self, DummyHeader.self)
-        #expect(modifiedRequest?.modifier.headers == header.headers)
+        do {
+            let request = DummyRequest()
+                .additionalHeader(header)
+            
+            let modifiedRequest = getModified(request, DummyRequest.self, DummyHeader.self)
+            #expect(modifiedRequest?.modifier.headers == header.headers)
+        }
+    }
+    
+    @Test func appliesHeaderModifierToRequestUsingOverload() {
+        let header = (key: "A", value: "1")
+        let request = DummyRequest()
+            .additionalHeader(header.key, value: header.value)
+        
+        let modifiedRequest = getModified(request, DummyRequest.self, Header.self)
+        let expectedHeaders = [header.key: header.value]
+        #expect(modifiedRequest?.modifier.headers == expectedHeaders)
     }
     
     struct DummyHeader: RequestHeader {

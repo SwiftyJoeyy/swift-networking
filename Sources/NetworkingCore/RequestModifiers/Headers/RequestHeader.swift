@@ -89,4 +89,39 @@ extension Request {
     ) -> some Request {
         modifier(headers())
     }
+    
+    /// Adds an additional header to the request.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     var request: some Request {
+    ///         HTTPRequest()
+    ///             .additionalHeader(Header("language", value: "en"))
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// You can use the ``Header`` macro to define and add
+    /// HTTP headers to a request in a concise and
+    /// readable manner, ensuring proper request configuration.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     @Header("device") var device: String // Automatically applied.
+    ///     @Header var language = "en"
+    ///     var request: some Request {
+    ///         // ...
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameter header: A header.
+    /// - Returns: A request with the additional headers applied.
+    @inlinable public func additionalHeader(
+        _ header: some RequestHeader
+    ) -> some Request {
+        modifier(header)
+    }
 }

@@ -35,27 +35,27 @@ import Foundation
         return values.map({URLQueryItem(name: name, value: $0)})
     }
     
-    /// Creates a new ``Parameter`` with a key and multiple values.
+    /// Creates a new ``Parameter`` with a name and multiple values.
     ///
     /// - Parameters:
-    ///  - key: The query parameter key.
-    ///  - value: The values associated with the key.
+    ///  - name: The query parameter's name.
+    ///  - value: Its values.
     @inlinable public init(_ name: String, values: [String?]) {
         self.name = name
         self.values = values
     }
     
-    /// Creates a new ``Parameter`` with a key and a single optional value.
+    /// Creates a new ``Parameter`` with a name and a single optional value.
     ///
     /// - Parameters:
-    ///  - key: The query parameter key.
-    ///  - value: A single optional value associated with the key.
+    ///  - name: The query parameter's name.
+    ///  - value: Its value.
     @inlinable public init(_ name: String, value: String?) {
         self.init(name, values: [value])
     }
 }
 
-    /// A group of query parameters.
+/// A group of query parameters.
 @frozen public struct ParametersGroup: RequestParameter, Equatable, Hashable, Sendable {
     /// The query parameters contained in this group.
     public var parameters: [URLQueryItem]
@@ -81,5 +81,56 @@ import Foundation
         @ParametersBuilder parameter: () -> some RequestParameter
     ) {
         self.init(parameter().parameters)
+    }
+}
+
+// MARK: - Modifier
+extension Request {
+    /// Appends an additional query parameter with a single value to the request.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     var request: some Request {
+    ///         HTTPRequest()
+    ///             .appendingParameter("language", value: "en")
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - value: Its value.
+    ///
+    /// - Returns: A request with the additional query parameters applied.
+    @inlinable public func appendingParameter(
+        _ name: String,
+        value: String?
+    ) -> some Request {
+        appendingParameter(Parameter(name, value: value))
+    }
+    
+    /// Appends an additional query parameter with an array value to the request.
+    ///
+    /// ```
+    /// @Request
+    /// struct GoogleRequest {
+    ///     var request: some Request {
+    ///         HTTPRequest()
+    ///             .appendingParameter("language", value: "en")
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - values: Its values.
+    ///
+    /// - Returns: A request with the additional query parameters applied.
+    @inlinable public func appendingParameter(
+        _ name: String,
+        values: [String?]
+    ) -> some Request {
+        appendingParameter(Parameter(name, values: values))
     }
 }

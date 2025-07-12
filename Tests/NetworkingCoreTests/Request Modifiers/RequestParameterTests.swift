@@ -174,30 +174,51 @@ extension RequestParameterTests {
 
 // MARK: - Modifier Tests
 extension RequestParameterTests {
-    @Test func appliesAdditionalParametersModifierToRequest() {
+    @Test func appliesParametersModifierToRequest() {
+        let parameter = DummyParameter(
+            parameters: [URLQueryItem(name: "sort", value: "desc")]
+        )
         do {
             let request = DummyRequest()
                 .appendingParameters {
-                    DummyParameter(
-                        parameters: [URLQueryItem(name: "sort", value: "desc")]
-                    )
+                    parameter
                 }
             
             let modified = getModified(request, DummyRequest.self, DummyParameter.self)
-            #expect(modified != nil)
+            #expect(modified?.modifier.parameters == parameter.parameters)
         }
         
         do {
             let request = DummyRequest()
-                .appendingParameter(
-                    DummyParameter(
-                        parameters: [URLQueryItem(name: "sort", value: "desc")]
-                    )
-                )
+                .appendingParameter(parameter)
             
             let modified = getModified(request, DummyRequest.self, DummyParameter.self)
-            #expect(modified != nil)
+            #expect(modified?.modifier.parameters == parameter.parameters)
         }
+    }
+    
+    @Test func appliesParameterModifierWithSingleValueToRequestUsingOverload() {
+        let parameter = (name: "A", value: "1")
+        let request = DummyRequest()
+            .appendingParameter(parameter.name, value: parameter.value)
+        
+        let modifiedRequest = getModified(request, DummyRequest.self, Parameter.self)
+        let expectedParams = [
+            URLQueryItem(name: parameter.name, value: parameter.value)
+        ]
+        #expect(modifiedRequest?.modifier.parameters == expectedParams)
+    }
+    
+    @Test func appliesParameterModifierWithArrayValueToRequestUsingOverload() {
+        let parameter = (name: "A", values: ["1", "2"])
+        let request = DummyRequest()
+            .appendingParameter(parameter.name, values: parameter.values)
+        
+        let modifiedRequest = getModified(request, DummyRequest.self, Parameter.self)
+        let expectedParams = parameter.values.map { value in
+            URLQueryItem(name: parameter.name, value: value)
+        }
+        #expect(modifiedRequest?.modifier.parameters == expectedParams)
     }
     
     struct DummyParameter: RequestParameter {
