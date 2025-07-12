@@ -119,11 +119,10 @@ extension FormDataFile: FormDataItem {
         var data = Data()
         var buffer = [UInt8](repeating: 0, count: bufferSize)
         while inputStream.hasBytesAvailable {
-            let bytes = inputStream.read(&buffer, maxLength: bufferSize)
-            
             if let error = inputStream.streamError {
                 throw NetworkingError.FormDataError.readingStreamFailed(error: error)
             }
+            let bytes = inputStream.read(&buffer, maxLength: bufferSize)
             guard bytes > 0 else {break}
             data.append(buffer, count: bytes)
         }

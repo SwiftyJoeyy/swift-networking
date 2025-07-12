@@ -185,4 +185,16 @@ final class FormDataFileTests {
         #expect(result.contains("mimeType = \(mimeType.description)"))
         #expect(result.contains(contentType.type.value))
     }
+    
+    @Test func descriptionIncludesAllFieldsWithoutFileNameAndMimeType() {
+        let key = "profileImage"
+        let file = FormDataFile(key, fileURL: tempFileURL)
+        
+        let result = file.description
+        
+        #expect(result.contains("key = \(key)"))
+        #expect(result.contains("fileName = nil"))
+        #expect(result.contains("fileURL = \(tempFileURL!)"))
+        #expect(result.contains("mimeType = nil"))
+    }
 }

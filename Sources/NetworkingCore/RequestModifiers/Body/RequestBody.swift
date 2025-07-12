@@ -70,4 +70,3 @@ extension Request {
         modifier(body())
     }
 }
-

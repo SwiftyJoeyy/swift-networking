@@ -14,6 +14,17 @@ struct JSONTests {
     private let url = URL(string: "example.com")!
     private let configurations = ConfigurationValues()
     
+    @Test func acceptsConfigurations() throws {
+        var configs = configurations
+        configs.bufferSize = 1
+        let encodable = JSONEncodableConfigsMock()
+        let modifier = JSON(encodable: encodable)
+        modifier._accept(configs)
+        _ = try modifier.body()
+        
+        #expect(encodable.configs?.bufferSize == configs.bufferSize)
+    }
+    
     @Test func setsContentTypeToApplicationJSON() throws {
         let urlRequest = URLRequest(url: url)
         let data = "Test Body".data(using: .utf8)
@@ -55,7 +66,7 @@ struct JSONTests {
     
     @Test func initWithDictionary() throws {
         let dictionary: [String: any Sendable] = ["key": "value", "number": "42"]
-        let modifier = JSON(dictionary)
+        let modifier = JSON(dictionary: dictionary)
         
         let data = try modifier.body()
         let jsonObject = try JSONSerialization.jsonObject(
@@ -81,7 +92,7 @@ struct JSONTests {
 // MARK: - CodableJSONEncoder Tests
     @Test func codableJSONEncoderEncodesValidObject() throws {
         let sample = DataMock()
-        let encodable = CodableJSONEncoder(sample)
+        let encodable = FoundationJSONEncodable(sample)
         
         let data = try encodable.encoded(for: configurations)
         let decoded = try configurations.decoder.decode(DataMock.self, from: data!)
@@ -91,7 +102,7 @@ struct JSONTests {
     
     @Test func codableJSONEncoderThrowsErrorForInvalidObject() throws {
         let sample = DataMock(test: .infinity)
-        let encodable = CodableJSONEncoder(sample)
+        let encodable = FoundationJSONEncodable(sample)
         
         try #require(throws: NetworkingError.JSONError.self) {
             _ = try encodable.encoded(for: configurations)
@@ -102,7 +113,7 @@ struct JSONTests {
         let sample = DataMock()
         let customEncoder = JSONEncoder()
         customEncoder.keyEncodingStrategy = .convertToSnakeCase
-        let encoder = CodableJSONEncoder(sample, encoder: customEncoder)
+        let encoder = FoundationJSONEncodable(sample, encoder: customEncoder)
         
         let data = try encoder.encoded(for: configurations)
         let decoder = configurations.decoder
@@ -114,7 +125,7 @@ struct JSONTests {
     
     @Test func codableEncoderDescription() {
         let object = DataMock(test: 10)
-        let encoder = CodableJSONEncoder(object)
+        let encoder = FoundationJSONEncodable(object)
         
         let result = encoder.description
         
@@ -122,9 +133,25 @@ struct JSONTests {
     }
 
 // MARK: - DictionaryJSONEncoder Tests
+    @Test func dictionaryJSONEncoderReturnsNilForEmptyOrNilDictionary() throws {
+        do {
+            let encodable = DictionaryJSONEncodable(dictionary: [:])
+            
+            let data = try encodable.encoded(for: configurations)
+            #expect(data == nil)
+        }
+        
+        do {
+            let encodable = DictionaryJSONEncodable(dictionary: nil)
+            
+            let data = try encodable.encoded(for: configurations)
+            #expect(data == nil)
+        }
+    }
+    
     @Test func dictionaryJSONEncoderEncodesDictionaryCorrectly() throws {
         let dictionary: [String: String] = ["key": "value", "number": "42"]
-        let encodable = DictionaryJSONEncoder(dictionary: dictionary)
+        let encodable = DictionaryJSONEncodable(dictionary: dictionary)
         
         let data = try encodable.encoded(for: configurations)
         let jsonObject = try JSONSerialization.jsonObject(
@@ -137,22 +164,31 @@ struct JSONTests {
     
     @Test func dictionaryJSONEncoderFailsForInvalidDictionary() throws {
         let dictionary: [String: Date] = ["key": Date()]
-        let encodable = DictionaryJSONEncoder(dictionary: dictionary)
+        let encodable = DictionaryJSONEncodable(dictionary: dictionary)
         
         try #require(throws: NetworkingError.JSONError.self) {
             _ = try encodable.encoded(for: configurations)
         }
     }
     
-    @Test func dictEncoderDescriptionnIsEmptyWhenDictionaryIsEmpty() {
-        let encoder = DictionaryJSONEncoder(dictionary: [:])
-        let result = encoder.description
+    @Test func dictEncoderDescriptionnIsEmptyWhenDictionaryIsEmptyOrNil() {
+        do {
+            let encoder = DictionaryJSONEncodable(dictionary: [:])
+            let result = encoder.description
+            
+            #expect(result == "DictionaryJSONEncoder = []")
+        }
         
-        #expect(result == "DictionaryJSONEncoder = []")
+        do {
+            let encoder = DictionaryJSONEncodable(dictionary: nil)
+            let result = encoder.description
+            
+            #expect(result == "DictionaryJSONEncoder = []")
+        }
     }
     
     @Test func dictEncoderDescriptionContainsAllKeys() {
-        let encoder = DictionaryJSONEncoder(dictionary: [
+        let encoder = DictionaryJSONEncodable(dictionary: [
             "name": "Alice",
             "email": "alice@example.com"
         ])
@@ -161,7 +197,53 @@ struct JSONTests {
         #expect(result.contains("name"))
         #expect(result.contains("email"))
         #expect(result.starts(with: "DictionaryJSONEncoder"))
-        #expect(result.contains("(\(encoder.dictionary.count))"))
+        #expect(result.contains("(\(encoder.dictionary?.count ?? 0))"))
+    }
+}
+
+// MARK: - Modifier Tests
+extension JSONTests {
+    @Test func appliesJSONModifierToRequest() throws {
+        do {
+            let encodable = DataMock()
+            let request = DummyRequest()
+                .json(encodable)
+            
+            let modifiedRequest = getModified(request, DummyRequest.self, JSON<FoundationJSONEncodable<DataMock>>.self)
+            #expect(modifiedRequest?.modifier.encodable.object == encodable)
+        }
+        
+        do {
+            let object = DataMock()
+            let encoder = JSONEncoder()
+            let request = DummyRequest()
+                .json(object, encoder: encoder)
+            
+            let modifiedRequest = getModified(request, DummyRequest.self, JSON<FoundationJSONEncodable<DataMock>>.self)
+            let encodable = modifiedRequest?.modifier.encodable
+            #expect(encodable?.object == object)
+            #expect(encodable?.encoder === encoder)
+        }
+        
+        do {
+            let dictionary = ["A": "1"]
+            let request = DummyRequest()
+                .json(dictionary: dictionary)
+            
+            let modifiedRequest = getModified(request, DummyRequest.self, JSON<DictionaryJSONEncodable>.self)
+            let dict = modifiedRequest?.modifier.encodable.dictionary
+            let stringDict = try #require(dict as? [String: String])
+            #expect(stringDict == dictionary)
+        }
+        
+        do {
+            let data = Data()
+            let request = DummyRequest()
+                .json(data: data)
+            
+            let modifiedRequest = getModified(request, DummyRequest.self, JSON<Data?>.self)
+            #expect(modifiedRequest?.modifier.encodable == data)
+        }
     }
 }
 
@@ -177,6 +259,17 @@ extension JSONTests {
             for configurations: borrowing ConfigurationValues
         ) throws -> Data? {
             return data
+        }
+    }
+    
+    class JSONEncodableConfigsMock: JSONEncodable {
+        var configs: ConfigurationValues?
+        
+        func encoded(
+            for configurations: borrowing ConfigurationValues
+        ) throws -> Data? {
+            configs = copy configurations
+            return nil
         }
     }
 }

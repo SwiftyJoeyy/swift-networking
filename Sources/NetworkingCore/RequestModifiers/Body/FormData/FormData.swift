@@ -9,6 +9,7 @@ import Foundation
 
 /// A multipart form-data request body.
 @frozen public struct FormData {
+    /// The configuration values available to this instance.
     @Configurations private var configurations
     
     /// The boundary string used for separating form-data parts.

@@ -137,7 +137,7 @@ extension FormDataTests {
         let content: Data?
         let headerValues: [String: String]
         
-        var headers: HeadersGroup {
+        var headers: some RequestHeader {
             HeadersGroup(headerValues)
         }
         func data(
