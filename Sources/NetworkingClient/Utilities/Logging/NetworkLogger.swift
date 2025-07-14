@@ -13,7 +13,7 @@ import NetworkingCore
 package enum NetworkLogger {
     /// The ``Logger`` used for logging network events.
     package static let logger = Logger(
-        subsystem: "package.network.kit",
+        subsystem: "package.swift-networking",
         category: "Networking"
     )
     
@@ -49,8 +49,7 @@ package enum NetworkLogger {
         logger.debug(
             """
             --------------------------------
-            Finished Request: \(id):
-            \(request.url?.absoluteString ?? "")
+            Finished Request: \(id) - \(request.url?.absoluteString ?? "")
             \(errorDescription)
             --------------------------------
             """
@@ -64,13 +63,16 @@ package enum NetworkLogger {
     ///   - status: The ``ResponseStatus`` associated with the response.
     package static func logReceived(
         data: Data,
-        status: ResponseStatus?
+        status: ResponseStatus?,
+        id: String
     ) {
         let log = DataLogFactory.make(for: data)
         logger.debug(
             """
-            \(status.map({"Status Code: \($0.rawValue)"}) ?? "")
+            --------------------------------
+            Request \(id) - \(status.map({"Status Code: \($0.rawValue)"}) ?? ""):
             \(log)
+            --------------------------------
             """
         )
     }

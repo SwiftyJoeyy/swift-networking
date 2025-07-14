@@ -11,6 +11,8 @@ import Testing
 
 @Suite(.tags(.request))
 struct ModifiedRequestTests {
+    private let configurations = ConfigurationValues()
+    
     @Test func modifiedRequestID() {
         let base = MockRequest()
         
@@ -34,7 +36,7 @@ struct ModifiedRequestTests {
             MockModifier()
         }
         
-        let result = try request._makeURLRequest()
+        let result = try request._makeURLRequest(with: configurations)
         
         #expect(result.url?.absoluteString == "https://example.com")
         #expect(result.value(forHTTPHeaderField: "X-Modified") == "true")
@@ -46,7 +48,7 @@ struct ModifiedRequestTests {
             MockModifier()
         }
         
-        let result = try request._makeURLRequest()
+        let result = try request._makeURLRequest(with: configurations)
         
         #expect(result.httpMethod == "GET")
     }
@@ -60,7 +62,9 @@ extension ModifiedRequestTests {
             fatalError()
         }
         
-        func _makeURLRequest() throws -> URLRequest {
+        func _makeURLRequest(
+            with configurations: ConfigurationValues
+        ) throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com")!)
             request.httpMethod = method.rawValue
             return request

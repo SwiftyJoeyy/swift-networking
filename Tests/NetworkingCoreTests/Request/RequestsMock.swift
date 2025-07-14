@@ -22,7 +22,9 @@ struct MockRequest: Request {
             fatalError()
         }
         
-        func _makeURLRequest() throws -> URLRequest {
+        func _makeURLRequest(
+            with configurations: ConfigurationValues
+        ) throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com")!)
             request.httpMethod = "GET"
             return request

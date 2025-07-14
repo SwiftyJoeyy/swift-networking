@@ -13,7 +13,7 @@ import Testing
 struct RequestTests {
     @Test func buildsURLRequest() throws {
         let request = MockRequest()
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: ConfigurationValues())
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
         #expect(urlRequest.httpMethod == "GET")

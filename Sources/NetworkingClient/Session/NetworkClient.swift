@@ -12,7 +12,7 @@ import NetworkingCore
 /// Requirements for defining network clients that handle session management
 /// and perform network requests, such as data tasks and download tasks.
 /// It provides an abstraction for the session and commands network requests based on that session.
-public protocol NetworkClient {
+public protocol NetworkClient: Configurable {
     /// The internal session command that is used to execute network requests.
     var _session: Session! {get set}
     
@@ -50,5 +50,21 @@ extension NetworkClient {
         _ request: consuming some Request
     ) -> DownloadTask {
         return _session.downloadTask(consume request)
+    }
+}
+
+// MARK: - Configurable
+extension NetworkClient {
+    /// Sets a configuration value using a key path.
+    ///
+    /// - Parameters:
+    ///   - keyPath: The key path to the configuration property.
+    ///   - value: The new value to set.
+    @discardableResult nonisolated public func configuration<V>(
+        _ keyPath: WritableKeyPath<ConfigurationValues, V>,
+        _ value: V
+    ) -> Self {
+        _session.configuration(keyPath, value)
+        return self
     }
 }

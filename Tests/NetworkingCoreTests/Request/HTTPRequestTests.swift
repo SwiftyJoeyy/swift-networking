@@ -11,12 +11,13 @@ import Testing
 
 @Suite(.tags(.request))
 struct HTTPRequestTests {
+    private let configurations = ConfigurationValues()
     private let url = URL(string: "https://example.com")
     
     @Test func initWithStringURLOnly() throws {
         let request = HTTPRequest(url: url)
         
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
     }
@@ -24,7 +25,7 @@ struct HTTPRequestTests {
     @Test func initWithStringURLAndPath() throws {
         let request = HTTPRequest(url: url, path: "test")
         
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/test")
     }
@@ -32,7 +33,7 @@ struct HTTPRequestTests {
     @Test func initWithURLOnly() throws {
         let request = HTTPRequest(url: url)
         
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com")
     }
@@ -40,7 +41,7 @@ struct HTTPRequestTests {
     @Test func initWithURLAndPath() throws {
         let request = HTTPRequest(url: url, path: "test")
         
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: configurations)
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/test")
     }
@@ -50,7 +51,7 @@ struct HTTPRequestTests {
             DummyModifier(header: ("test", "value"))
         }
         
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: configurations)
         
         #expect(urlRequest.allHTTPHeaderFields?["test"] == "value")
     }
@@ -59,7 +60,7 @@ struct HTTPRequestTests {
         let request = HTTPRequest()
         
         #expect(throws: NetworkingError.invalidRequestURL) {
-            _ = try request._makeURLRequest()
+            _ = try request._makeURLRequest(with: configurations)
         }
     }
     
@@ -70,7 +71,7 @@ struct HTTPRequestTests {
         let request = HTTPRequest()
         request._accept(configurations)
         
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: configurations)
         
         assert(urlRequest.url?.absoluteString == "https://fallback.com")
     }
@@ -82,7 +83,7 @@ struct HTTPRequestTests {
         let request = HTTPRequest(path: "test")
         request._accept(configurations)
         
-        let urlRequest = try request._makeURLRequest()
+        let urlRequest = try request._makeURLRequest(with: configurations)
         
         assert(urlRequest.url?.absoluteString == "https://fallback.com/test")
     }

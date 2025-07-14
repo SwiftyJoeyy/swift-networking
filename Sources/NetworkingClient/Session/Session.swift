@@ -121,7 +121,7 @@ extension Session: Configurable {
     /// - Parameters:
     ///   - keyPath: The key path to the configuration property.
     ///   - value: The new value to set.
-    nonisolated public func configuration<V>(
+    @discardableResult nonisolated public func configuration<V>(
         _ keyPath: WritableKeyPath<ConfigurationValues, V>,
         _ value: V
     ) -> Self {

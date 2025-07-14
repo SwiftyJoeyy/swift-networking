@@ -117,7 +117,11 @@ extension HTTPRequest: Request {
     ///
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    public func _makeURLRequest() throws -> URLRequest {
+    public func _makeURLRequest(
+        with configurations: ConfigurationValues
+    ) throws -> URLRequest {
+        _accept(configurations)
+        
         let baseURL = configurations.baseURL
         guard let url = url ?? baseURL else {
             throw NetworkingError.invalidRequestURL
@@ -129,7 +133,11 @@ extension HTTPRequest: Request {
                 .modifying(consume urlRequest)
         }
         
-        return try modifier.modifying(consume urlRequest)
+        urlRequest = try modifier.modifying(consume urlRequest)
+        if urlRequest.httpMethod == RequestMethod.get.rawValue {
+            urlRequest.httpBody = nil
+        }
+        return urlRequest
     }
     
     /// Applies the given configuration values to the request.

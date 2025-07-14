@@ -212,7 +212,7 @@ extension NetworkTask: Configurable {
     /// - Parameters:
     ///   - keyPath: The key path to the configuration property.
     ///   - value: The new value to set.
-    public func configuration<V>(
+    @discardableResult public func configuration<V>(
         _ keyPath: WritableKeyPath<ConfigurationValues, V>,
         _ value: V
     ) -> Self {

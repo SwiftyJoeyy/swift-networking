@@ -34,7 +34,11 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
         )
         let status = response.1.status
         if configurations.logsEnabled {
-            NetworkLogger.logReceived(data: response.0, status: status)
+            await NetworkLogger.logReceived(
+                data: response.0,
+                status: status,
+                id: request.id
+            )
         }
         return response
     }

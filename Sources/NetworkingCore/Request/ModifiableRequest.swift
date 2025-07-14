@@ -49,13 +49,17 @@ public protocol ModifiableRequest: Request {
 extension ModifiableRequest {
     /// Creates a ``URLRequest`` by applying the modifier to the base request.
     ///
-    /// This method first calls `_makeURLRequest()` on the underlying request,
+    /// This method first calls `_makeURLRequest(with:)` on the underlying request,
     /// then passes the result to the ``modifier`` for further transformation.
     ///
     /// - Returns: A modified ``URLRequest`` ready to be sent.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    public func _makeURLRequest() throws -> URLRequest {
-        let urlRequest = try request._makeURLRequest()
+    public func _makeURLRequest(
+        with configurations: ConfigurationValues
+    ) throws -> URLRequest {
+        _accept(configurations)
+        
+        let urlRequest = try request._makeURLRequest(with: configurations)
         return try modifier.modifying(consume urlRequest)
     }
     
@@ -68,7 +72,6 @@ extension ModifiableRequest {
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     public func _accept(_ values: ConfigurationValues) {
-        request._accept(values)
         modifier._accept(values)
     }
 }

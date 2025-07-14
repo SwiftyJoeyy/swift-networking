@@ -15,7 +15,9 @@ struct TestRequest: Request {
         fatalError()
     }
     
-    func _makeURLRequest() throws -> URLRequest {
+    func _makeURLRequest(
+        with configurations: ConfigurationValues
+    ) throws -> URLRequest {
         return URLRequest(url: configurations.baseURL ?? URL(string: "fallback.com")!)
     }
     func _accept(_ values: ConfigurationValues) {

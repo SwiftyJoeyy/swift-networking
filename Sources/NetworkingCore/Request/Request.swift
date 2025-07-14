@@ -66,7 +66,9 @@ public protocol Request: _DynamicConfigurable, CustomStringConvertible {
     ///
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    func _makeURLRequest() throws -> URLRequest
+    func _makeURLRequest(
+        with configurations: ConfigurationValues
+    ) throws -> URLRequest
 }
 
 extension Request {
@@ -82,8 +84,11 @@ extension Request {
     ///
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @inlinable public func _makeURLRequest() throws -> URLRequest {
-        return try request._makeURLRequest()
+    public func _makeURLRequest(
+        with configurations: ConfigurationValues
+    ) throws -> URLRequest {
+        _accept(configurations)
+        return try request._makeURLRequest(with: configurations)
     }
     
     /// Applies the given configuration values to the underlying request.
@@ -94,24 +99,7 @@ extension Request {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @inlinable public func _accept(_ values: ConfigurationValues) {
-        request._accept(values)
-    }
-    
-    /// Constructs a ``URLRequest`` from the underlying request using the given configuration.
-    ///
-    /// Applies the provided ``ConfigurationValues`` to the request before building
-    /// the final ``URLRequest``. This ensures that the request is evaluated within
-    /// the correct configuration context.
-    ///
-    /// - Parameter values: The configuration context used to evaluate the request.
-    /// - Returns: A fully configured ``URLRequest``.
-    @inline(__always) package func _makeURLRequest(
-        with values: ConfigurationValues
-    ) throws -> URLRequest {
-        _accept(values)
-        return try _makeURLRequest()
-    }
+    public func _accept(_ values: ConfigurationValues) { }
 }
 
 // MARK: - CustomStringConvertible

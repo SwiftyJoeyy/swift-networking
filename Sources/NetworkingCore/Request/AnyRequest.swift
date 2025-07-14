@@ -50,8 +50,10 @@ import Foundation
     ///
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    public func _makeURLRequest() throws -> URLRequest {
-        return try storage.makeURLRequest()
+    public func _makeURLRequest(
+        with configurations: ConfigurationValues
+    ) throws -> URLRequest {
+        return try storage.makeURLRequest(with: configurations)
     }
     
     /// Applies new configuration values to the erased request.
@@ -77,7 +79,9 @@ extension AnyRequest {
         /// Creates a ``URLRequest`` from the underlying request.
         ///
         /// - Returns: A configured ``URLRequest``.
-        internal func makeURLRequest() throws -> URLRequest {
+        internal func makeURLRequest(
+            with configurations: ConfigurationValues
+        ) throws -> URLRequest {
             fatalError("Subclasses must override this member.")
         }
         
@@ -109,8 +113,10 @@ extension AnyRequest {
         /// Builds a ``URLRequest`` from the wrapped request.
         ///
         /// - Returns: A configured ``URLRequest``.
-        fileprivate override func makeURLRequest() throws -> URLRequest {
-            return try request._makeURLRequest()
+        fileprivate override func makeURLRequest(
+            with configurations: ConfigurationValues
+        ) throws -> URLRequest {
+            return try request._makeURLRequest(with: configurations)
         }
         
         /// Applies the specified configuration values to the wrapped request.

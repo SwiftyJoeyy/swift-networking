@@ -22,7 +22,7 @@ extension URLSessionConfiguration {
     ///
     /// - Parameter policy: The cache policy to use for requests.
     /// - Returns: The modified ``URLSessionConfiguration``.
-    func requestCachePolicy(_ policy: URLRequest.CachePolicy) -> Self {
+    public func requestCachePolicy(_ policy: URLRequest.CachePolicy) -> Self {
         requestCachePolicy = policy
         return self
     }
@@ -69,7 +69,7 @@ extension URLSessionConfiguration {
     /// - Parameter headers: The headers to be added.
     /// - Returns: The modified ``URLSessionConfiguration``.
     public func headers(
-        @HeadersBuilder headers: @Sendable () -> some RequestHeader
+        @HeadersBuilder headers: () -> some RequestHeader
     ) -> Self {
         httpAdditionalHeaders = headers().headers
         return self

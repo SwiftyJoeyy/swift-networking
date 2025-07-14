@@ -22,7 +22,7 @@ struct AnyRequestTests {
         let request = MockRequest(id: "mock-id", path: "/mock", method: .post)
         let erased = AnyRequest(request)
         
-        let urlRequest = try erased._makeURLRequest()
+        let urlRequest = try erased._makeURLRequest(with: ConfigurationValues())
         
         #expect(urlRequest.url?.absoluteString == "https://example.com/mock")
         #expect(urlRequest.httpMethod == "POST")
@@ -39,7 +39,9 @@ extension AnyRequestTests {
             fatalError()
         }
         
-        func _makeURLRequest() throws -> URLRequest {
+        func _makeURLRequest(
+            with configurations: ConfigurationValues
+        ) throws -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com\(path)")!)
             request.httpMethod = method.rawValue
             return request
