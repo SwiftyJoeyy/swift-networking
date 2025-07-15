@@ -129,8 +129,12 @@ extension Request {
     /// - Returns: A request with the additional query parameters applied.
     @inlinable public func appendingParameter(
         _ name: String,
-        values: [String?]
+        values: [String?]?
     ) -> some Request {
-        appendingParameter(Parameter(name, values: values))
+        appendingParameters {
+            if let values {
+                Parameter(name, values: values)
+            }
+        }
     }
 }

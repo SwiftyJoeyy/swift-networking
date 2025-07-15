@@ -168,5 +168,6 @@ extension ConfigurationValues {
     /// This value controls the number of bytes read at a time when streaming files from disk.
     @Config public internal(set) var bufferSize = 1024
     
+    /// A unique identifier for the request, used for logging and debugging.
     @Config internal var requestID: String? = nil
 }

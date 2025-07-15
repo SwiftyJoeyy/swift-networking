@@ -60,27 +60,23 @@ extension PathRequestModifier: CustomStringConvertible {
 // MARK: - Modifier
 extension Request {
     
-    /// Appends a path to the request URL.
+    /// Appends path components to the request URL, skipping any `nil` values.
     ///
-    /// ```
-    /// @Request
-    /// struct GoogleRequest {
-    ///     var request: some Request {
-    ///         HTTPRequest()
-    ///             .appending(path: "v2")
-    ///     }
-    /// }
+    /// Use this method to append one or more optional values to the URL path.
+    /// Each non-`nil` value is converted to a string using its `description` property.
+    /// `nil` values are ignored.
+    ///
+    /// ```swift
+    /// HTTPRequest()
+    ///     .appending("users", userID, nil)
+    /// // If userID is 42, results in: /users/42
     /// ```
     ///
-    /// - Parameter path: The path to append.
-    /// - Returns: A request with the specified path appended.
-    @inlinable public func appending<each S: StringProtocol>(
-        _ path: repeat each S
+    /// - Parameter paths: One or more optional values to append to the URL path.
+    /// - Returns: A request with the non-`nil` path components appended.
+    @inlinable public func appending(
+        _ paths: (any CustomStringConvertible)?...
     ) -> some Request {
-        var paths = [String]()
-        for item in repeat (each path) {
-            paths.append(String(item))
-        }
-        return modifier(PathRequestModifier(paths))
+        modifier(PathRequestModifier(paths.compactMap({String(describing: $0)})))
     }
 }

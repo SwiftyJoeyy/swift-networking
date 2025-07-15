@@ -96,8 +96,12 @@ extension Request {
     /// - Returns: A request with the additional headers applied.
     @inlinable public func additionalHeader(
         _ key: String,
-        value: String
+        value: String?
     ) -> some Request {
-        additionalHeader(Header(key, value: value))
+        additionalHeaders {
+            if let value {
+                Header(key, value: value)
+            }
+        }
     }
 }
