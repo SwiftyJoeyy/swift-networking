@@ -87,8 +87,12 @@ extension Request {
     public func _makeURLRequest(
         with configurations: ConfigurationValues
     ) throws -> URLRequest {
-        _accept(configurations)
-        return try request._makeURLRequest(with: configurations)
+        var configs = consume configurations
+        if configs.requestID == nil {
+            configs[keyPath: \.requestID] = id
+        }
+        _accept(configs)
+        return try request._makeURLRequest(with: configs)
     }
     
     /// Applies the given configuration values to the underlying request.

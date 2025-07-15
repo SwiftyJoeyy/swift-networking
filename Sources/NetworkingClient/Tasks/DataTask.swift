@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NetworkingCore
 
 public typealias DataResponse = (data: Data, response: URLResponse)
 

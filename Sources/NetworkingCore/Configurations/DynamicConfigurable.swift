@@ -62,7 +62,9 @@ public protocol _DynamicConfigurable {
     /// Use this value to read from the environment-provided configuration
     /// for the current request or operation.
     public var wrappedValue: ConfigurationValues {
-        return content.values
+        _read {
+            yield content.values
+        }
     }
     
     /// Applies new configuration values to the wrapped instance.

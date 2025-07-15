@@ -134,8 +134,13 @@ extension HTTPRequest: Request {
         }
         
         urlRequest = try modifier.modifying(consume urlRequest)
-        if urlRequest.httpMethod == RequestMethod.get.rawValue {
+        if urlRequest.httpBody != nil,
+            urlRequest.httpMethod == RequestMethod.get.rawValue {
             urlRequest.httpBody = nil
+            NetworkLogger.logGETRequestWithBody(
+                id: configurations.requestID ?? id,
+                url: urlRequest.url
+            )
         }
         return urlRequest
     }

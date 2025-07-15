@@ -10,13 +10,7 @@ import OSLog
 import NetworkingCore
 
 /// Logger for tracking network requests, responses, and errors.
-package enum NetworkLogger {
-    /// The ``Logger`` used for logging network events.
-    package static let logger = Logger(
-        subsystem: "package.swift-networking",
-        category: "Networking"
-    )
-    
+extension NetworkLogger {
     /// Logs the start of a network request, including its `cURL` representation.
     ///
     /// - Parameters:
@@ -26,10 +20,11 @@ package enum NetworkLogger {
         let cURL = CURLLogFactory.make(for: request)
         logger.debug(
             """
-            --------------------------------
-            Started Request: \(id):
+            ┌────────────────────────────────────────────
+            │ Request Started — ID: \(id)
+            │
             \(cURL)
-            --------------------------------
+            └────────────────────────────────────────────
             """
         )
     }
@@ -45,13 +40,15 @@ package enum NetworkLogger {
         id: String,
         error: (any Error)?
     ) {
-        let errorDescription = error.map({"Error: \(String(describing: $0))"}) ?? ""
-        logger.debug(
+        let url = request.url?.absoluteString ?? "unknown"
+        let errorDescription = error.map({"\n│ Error: \($0)"}) ?? ""
+        let level: OSLogType = error == nil ? .debug : .error
+        logger.log(level: level,
             """
-            --------------------------------
-            Finished Request: \(id) - \(request.url?.absoluteString ?? "")
-            \(errorDescription)
-            --------------------------------
+            ┌────────────────────────────────────────────
+            │ Request Finished — ID: \(id)
+            │ URL: \(url) \(errorDescription)
+            └────────────────────────────────────────────
             """
         )
     }
@@ -66,13 +63,16 @@ package enum NetworkLogger {
         status: ResponseStatus?,
         id: String
     ) {
-        let log = DataLogFactory.make(for: data)
+        let statusLine = status.map({"\n│ Status: \($0.rawValue)"}) ?? ""
+        let bodyPreview = DataLogFactory.make(for: data)
+        
         logger.debug(
             """
-            --------------------------------
-            Request \(id) - \(status.map({"Status Code: \($0.rawValue)"}) ?? ""):
-            \(log)
-            --------------------------------
+            ┌────────────────────────────────────────────
+            │ Response Received — ID: \(id) \(statusLine)
+            │
+            \(bodyPreview)
+            └────────────────────────────────────────────
             """
         )
     }
