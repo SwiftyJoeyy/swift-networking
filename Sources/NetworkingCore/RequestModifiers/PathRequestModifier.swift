@@ -35,6 +35,7 @@ import Foundation
         _ request: consuming URLRequest
     ) throws -> URLRequest {
         for path in paths {
+            guard !path.isEmpty else {continue}
             if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *) {
                 request.url?.append(path: path)
             }else {
@@ -77,6 +78,9 @@ extension Request {
     @inlinable public func appending(
         _ paths: (any CustomStringConvertible)?...
     ) -> some Request {
-        modifier(PathRequestModifier(paths.compactMap({String(describing: $0)})))
+        let components = paths.compactMap { path in
+            return path.map({String(describing: $0)})
+        }
+        return modifier(PathRequestModifier(components))
     }
 }

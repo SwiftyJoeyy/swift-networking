@@ -28,11 +28,11 @@ extension RequestParameter {
     public func modifying(
         _ request: consuming URLRequest
     ) throws -> URLRequest {
-        if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *) {
-            request.url?.append(queryItems: parameters)
+        guard let url = request.url else {
             return request
         }
-        guard let url = request.url else {
+        if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *) {
+            request.url?.append(queryItems: parameters)
             return request
         }
         var components = URLComponents(string: url.absoluteString)

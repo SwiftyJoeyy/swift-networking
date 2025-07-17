@@ -28,12 +28,36 @@ struct RequestParameterTests {
         #expect(param.parameters == [URLQueryItem(name: "device", value: "iPhone")])
     }
     
+    @Test func nilValueParameterDoesCreatesCorrectQueryItem() {
+        do {
+            let param = Parameter("device", value: nil)
+            
+            #expect(param.name == "device")
+            #expect(param.parameters.isEmpty)
+        }
+        
+        do {
+            let param = Parameter("device", values: nil)
+            
+            #expect(param.name == "device")
+            #expect(param.parameters.isEmpty)
+        }
+    }
+    
     @Test func multipleValueParameterCreatesMultipleQueryItems() {
         let param = Parameter("lang", values: ["en", "fr", nil])
-        #expect(param.parameters.count == 3)
+        #expect(param.parameters.count == 2)
         #expect(param.parameters[0] == URLQueryItem(name: "lang", value: "en"))
         #expect(param.parameters[1] == URLQueryItem(name: "lang", value: "fr"))
-        #expect(param.parameters[2] == URLQueryItem(name: "lang", value: nil))
+    }
+    
+    @Test func modifyingURLRequestWithNilURL() throws {
+        let param = Parameter("search", value: "swift")
+        var request = URLRequest(url: url)
+        request.url = nil
+        let modified = try param.modifying(request)
+        
+        #expect(modified == request)
     }
     
     @Test func modifyingURLRequestAppendsQueryParameters() throws {
@@ -162,7 +186,7 @@ extension RequestParameterTests {
         let param = DummyParameter(parameters: [
             URLQueryItem(name: "lang", value: "en"),
             URLQueryItem(name: "page", value: "3"),
-            URLQueryItem(name: "font", value: "nil")
+            URLQueryItem(name: "font", value: nil)
         ])
         let result = param.description
         

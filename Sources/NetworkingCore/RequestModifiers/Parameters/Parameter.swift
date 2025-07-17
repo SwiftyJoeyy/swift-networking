@@ -28,11 +28,16 @@ import Foundation
     public var name: String
     
     /// The values associated with the key.
-    public var values: [String?]
+    public var values: [String?]?
     
     /// The ``URLQueryItem`` parameters.
     public var parameters: [URLQueryItem] {
-        return values.map({URLQueryItem(name: name, value: $0)})
+        guard let values else {
+            return []
+        }
+        return values.compactMap { value in
+            return value.map({URLQueryItem(name: name, value: $0)})
+        }
     }
     
     /// Creates a new ``Parameter`` with a name and multiple values.
@@ -40,7 +45,7 @@ import Foundation
     /// - Parameters:
     ///  - name: The query parameter's name.
     ///  - value: Its values.
-    @inlinable public init(_ name: String, values: [String?]) {
+    @inlinable public init(_ name: String, values: [String?]?) {
         self.name = name
         self.values = values
     }
@@ -132,9 +137,7 @@ extension Request {
         values: [String?]?
     ) -> some Request {
         appendingParameters {
-            if let values {
-                Parameter(name, values: values)
-            }
+            Parameter(name, values: values)
         }
     }
 }

@@ -28,6 +28,12 @@ struct RequestHeaderTests {
         #expect(header.headers == ["Authorization": "Bearer token"])
     }
     
+    @Test func headerWithNilValueDoesNotCreateHeader() {
+        let header = Header("Authorization", value: nil)
+        #expect(header.key == "Authorization")
+        #expect(header.headers.isEmpty)
+    }
+    
     @Test func headerModifyingRequest() throws {
         let header = Header("Accept", value: "application/json")
         var request = URLRequest(url: URL(string: "https://example.com")!)

@@ -28,10 +28,13 @@ import Foundation
     public var key: String
     
     /// The header value.
-    public var value: String
+    public var value: String?
     
     /// The header dictionary representation.
     public var headers: [String: String] {
+        guard let value else {
+            return [:]
+        }
         return [key: value]
     }
     
@@ -40,7 +43,7 @@ import Foundation
     /// - Parameters:
     ///  - key: The header field name.
     ///  - value: The value of the header field.
-    @inlinable public init(_ key: String, value: String) {
+    @inlinable public init(_ key: String, value: String?) {
         self.key = key
         self.value = value
     }
@@ -99,9 +102,7 @@ extension Request {
         value: String?
     ) -> some Request {
         additionalHeaders {
-            if let value {
-                Header(key, value: value)
-            }
+            Header(key, value: value)
         }
     }
 }
