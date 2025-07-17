@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import NetworkingCore
+@_spi(Internal) import NetworkingCore
 
 public typealias Interceptor = RequestInterceptor & ResponseInterceptor
 
@@ -82,7 +82,7 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     /// Executes the request and returns the expected result.
     ///
     /// This must be overridden in a subclass to implement task-specific logic.
-    open func _execute(
+    @_spi(Internal) open func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
     ) async throws -> Response {
@@ -92,7 +92,7 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     /// Called when the task has finished execution (success or error).
     ///
     /// Removes itself from the task storage and logs the outcome.
-    open func _finished(with error: (any Error)?) async {
+    @_spi(Internal) open func _finished(with error: (any Error)?) async {
         if let urlRequest = await state.urlRequest {
             await configurations.tasks.remove(urlRequest)
         }
@@ -200,7 +200,7 @@ extension NetworkTask: _DynamicConfigurable {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    public func _accept(_ values: ConfigurationValues) {
+    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
         _configurations._accept(values)
     }
 }
@@ -240,13 +240,13 @@ extension NetworkTask: NetworkingTask {
     /// Called when a task has finished collecting metrics.
     ///
     /// This is typically called by the ``URLSessionTaskDelegate``.
-    public func _session(collected metrics: URLSessionTaskMetrics) async {
+    @_spi(Internal) public func _session(collected metrics: URLSessionTaskMetrics) async {
         await state.set(metrics)
     }
     
     /// Sets the ``URLSessionTask``.
     @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
-    public func _set(_ task: URLSessionTask) async {
+    @_spi(Internal) public func _set(_ task: URLSessionTask) async {
         await state.set(task)
     }
     

@@ -22,7 +22,7 @@ extension EmptyModifier: RequestModifier {
 
 // MARK: - _DynamicConfigurable
 extension EmptyModifier: _DynamicConfigurable {
-    @inlinable public func _accept(_ values: ConfigurationValues) { }
+    @_spi(Internal) @inlinable public func _accept(_ values: ConfigurationValues) { }
 }
 
 // MARK: - CustomStringConvertible

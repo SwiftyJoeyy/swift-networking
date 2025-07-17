@@ -54,7 +54,7 @@ extension ModifiableRequest {
     ///
     /// - Returns: A modified ``URLRequest`` ready to be sent.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    public func _makeURLRequest(
+    @_spi(Internal) public func _makeURLRequest(
         with configurations: ConfigurationValues
     ) throws -> URLRequest {
         _accept(configurations)
@@ -71,7 +71,7 @@ extension ModifiableRequest {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    public func _accept(_ values: ConfigurationValues) {
+    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
         modifier._accept(values)
     }
 }

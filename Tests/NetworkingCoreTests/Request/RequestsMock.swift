@@ -6,7 +6,7 @@
 //
 
 import Foundation
-@testable import NetworkingCore
+@_spi(Internal) @testable import NetworkingCore
 
 struct DummyRequest: Request {
     var request: Never {

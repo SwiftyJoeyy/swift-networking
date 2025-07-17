@@ -25,7 +25,7 @@ public protocol _DynamicConfigurable {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
-    func _accept(_ values: ConfigurationValues)
+    @_spi(Internal) func _accept(_ values: ConfigurationValues)
 }
 
 /// A property wrapper that provides access to dynamic configuration values.
@@ -74,7 +74,7 @@ public protocol _DynamicConfigurable {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
-    public func _accept(_ values: ConfigurationValues) {
+    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
         content.values = values
     }
     

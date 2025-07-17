@@ -35,7 +35,7 @@ public protocol NetworkingTask: Sendable {
     /// Reports download progress to the task.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
-    func _session(
+    @_spi(Internal) func _session(
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
@@ -44,7 +44,7 @@ public protocol NetworkingTask: Sendable {
     /// Called when a download task is resumed from previous download data.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
-    func _session(
+    @_spi(Internal) func _session(
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64
     ) async
@@ -52,7 +52,7 @@ public protocol NetworkingTask: Sendable {
     /// Called when a task has finished collecting metrics.
     ///
     /// This is typically called by the ``URLSessionTaskDelegate``.
-    func _session(collected metrics: URLSessionTaskMetrics) async
+    @_spi(Internal) func _session(collected metrics: URLSessionTaskMetrics) async
     
     
     /// Suspends the task if it's currently running.
@@ -61,7 +61,7 @@ public protocol NetworkingTask: Sendable {
     
     /// Sets the ``URLSessionTask``.
     @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
-    func _set(_ task: URLSessionTask) async
+    @_spi(Internal) func _set(_ task: URLSessionTask) async
 }
 
 // MARK: - Default Implementations
@@ -69,7 +69,7 @@ extension NetworkingTask {
     /// Reports download progress to the task.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
-    public func _session(
+    @_spi(Internal) public func _session(
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
@@ -78,7 +78,7 @@ extension NetworkingTask {
     /// Called when a download task is resumed from previous download data.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
-    public func _session(
+    @_spi(Internal) public func _session(
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64
     ) async { }
@@ -86,5 +86,7 @@ extension NetworkingTask {
     /// Called when a task has finished collecting metrics.
     ///
     /// This is typically called by the ``URLSessionTaskDelegate``.
-    func _session(collected metrics: URLSessionTaskMetrics) async { }
+    @_spi(Internal) public func _session(
+        collected metrics: URLSessionTaskMetrics
+    ) async { }
 }

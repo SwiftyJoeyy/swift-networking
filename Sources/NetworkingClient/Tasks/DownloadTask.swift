@@ -48,7 +48,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///   - session: The session managing the download.
     ///
     /// - Returns: A tuple containing the downloaded ``URL`` and ``URLResponse``.
-    open override func _execute(
+    @_spi(Internal) open override func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
     ) async throws -> DownloadResponse {
@@ -65,7 +65,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///
     /// - Parameters:
     ///   - error: An optional error if the task failed.
-    open override func _finished(with error: (any Error)?) async {
+    @_spi(Internal) open override func _finished(with error: (any Error)?) async {
         await super._finished(with: error)
         await progressTracker.finish()
     }
@@ -73,7 +73,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     /// Reports download progress to the task.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
-    public func _session(
+    @_spi(Internal) public func _session(
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
@@ -87,7 +87,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     /// Called when a download task is resumed from previous download data.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
-    public func _session(
+    @_spi(Internal) public func _session(
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64
     ) async {

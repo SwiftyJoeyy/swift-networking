@@ -8,7 +8,7 @@
 import Foundation
 import Testing
 @testable import NetworkingClient
-@testable import NetworkingCore
+@_spi(Internal) @testable import NetworkingCore
 
 @Suite
 struct ClientConfigurableTests {

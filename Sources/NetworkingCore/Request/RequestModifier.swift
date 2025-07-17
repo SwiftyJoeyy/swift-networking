@@ -38,7 +38,7 @@ extension RequestModifier {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    public func _accept(_ values: ConfigurationValues) { }
+    @_spi(Internal) public func _accept(_ values: ConfigurationValues) { }
 }
 
 extension Request {

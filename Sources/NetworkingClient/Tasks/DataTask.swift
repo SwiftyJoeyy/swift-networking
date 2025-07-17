@@ -25,7 +25,7 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     ///   - session: The session used to perform the request.
     ///
     /// - Returns: The response containing the raw data and HTTP response.
-    open override func _execute(
+    @_spi(Internal) open override func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
     ) async throws -> DataResponse {

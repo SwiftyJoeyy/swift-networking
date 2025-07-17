@@ -29,7 +29,7 @@ extension _OptionalModifier: RequestModifier where Modifier: RequestModifier {
 
 // MARK: - _DynamicConfigurable
 extension _OptionalModifier: _DynamicConfigurable where Modifier: _DynamicConfigurable {
-    public func _accept(_ values: ConfigurationValues) {
+    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
         storage?._accept(values)
     }
 }

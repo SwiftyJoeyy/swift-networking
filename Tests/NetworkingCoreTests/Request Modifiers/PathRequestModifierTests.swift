@@ -7,7 +7,7 @@
 
 import Foundation
 import Testing
-@testable import NetworkingCore
+@_spi(Internal) @testable import NetworkingCore
 
 @Suite(.tags(.requestModifiers, .path))
 struct PathRequestModifierTests {
