@@ -92,13 +92,6 @@ internal struct TaskInterceptor: Interceptor {
     ) async throws -> RequestContinuation {
         var context = copy context
         let configurations = context.configurations
-        if configurations.logsEnabled, let urlRequest = context.urlRequest {
-            NetworkLogger.logFinished(
-                request: urlRequest,
-                id: task.id,
-                error: nil
-            )
-        }
         
         if let statusValidator = configurations.statusValidator {
             let cont = try await statusValidator.intercept(task, for: session, with: context)
@@ -113,6 +106,14 @@ internal struct TaskInterceptor: Interceptor {
         if let retryPolicy = configurations.retryPolicy {
             let cont = try await retryPolicy.intercept(task, for: session, with: context)
             handle(cont, context: &context)
+        }
+
+        if configurations.logsEnabled, let urlRequest = context.urlRequest {
+            NetworkLogger.logFinished(
+                request: urlRequest,
+                id: task.id,
+                error: context.error
+            )
         }
         
         return context.continuation
