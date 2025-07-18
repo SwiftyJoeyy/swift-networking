@@ -25,7 +25,7 @@ extension Never: Request {
     /// Calling this method will always result in a fatal error.
     ///
     /// - Warning: This should not be accessed directly.
-    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
+    public func _accept(_ values: ConfigurationValues) {
         fatalError("Should not be called directly!!")
     }
 }
@@ -39,5 +39,5 @@ extension Request where Contents == Never {
         """
     }
     
-    @_spi(Internal) public func _accept(_ values: ConfigurationValues) { }
+    public func _accept(_ values: ConfigurationValues) { }
 }

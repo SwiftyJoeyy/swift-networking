@@ -7,7 +7,7 @@
 
 import Foundation
 @testable import NetworkingCore
-@_spi(Internal) @testable import NetworkingClient
+@testable import NetworkingClient
 
 actor MockTask: NetworkingTask, Equatable {
     let id = UUID().uuidString

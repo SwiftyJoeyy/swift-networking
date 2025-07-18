@@ -7,7 +7,7 @@
 
 import Testing
 import Foundation
-@_spi(Internal) @testable import NetworkingCore
+@testable import NetworkingCore
 
 /// Suite for testing the functionality of ``RequestParameter``.
 @Suite(.tags(.requestModifiers, .parameters))

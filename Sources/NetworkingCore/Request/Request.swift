@@ -66,7 +66,7 @@ public protocol Request: _DynamicConfigurable, CustomStringConvertible {
     ///
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @_spi(Internal) func _makeURLRequest(
+    func _makeURLRequest(
         with configurations: ConfigurationValues
     ) throws(NetworkingError) -> URLRequest
 }
@@ -84,7 +84,7 @@ extension Request {
     ///
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @_spi(Internal) public func _makeURLRequest(
+    public func _makeURLRequest(
         with configurations: ConfigurationValues
     ) throws(NetworkingError) -> URLRequest {
         var configs = consume configurations
@@ -103,7 +103,7 @@ extension Request {
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @_spi(Internal) public func _accept(_ values: ConfigurationValues) { }
+    public func _accept(_ values: ConfigurationValues) { }
 }
 
 // MARK: - CustomStringConvertible

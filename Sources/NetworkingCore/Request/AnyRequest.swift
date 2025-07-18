@@ -50,7 +50,7 @@ import Foundation
     ///
     /// - Returns: The configured ``URLRequest``.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @_spi(Internal) public func _makeURLRequest(
+    public func _makeURLRequest(
         with configurations: ConfigurationValues
     ) throws(NetworkingError) -> URLRequest {
         return try storage.makeURLRequest(with: configurations)
@@ -63,7 +63,7 @@ import Foundation
     ///
     /// - Parameter values: The configuration values to apply.
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
-    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
+    public func _accept(_ values: ConfigurationValues) {
         storage.accept(values)
     }
 }

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-@_spi(Internal) @testable import NetworkingCore
+@testable import NetworkingCore
 
 struct TestRequest: Request {
     @Configurations private var configurations

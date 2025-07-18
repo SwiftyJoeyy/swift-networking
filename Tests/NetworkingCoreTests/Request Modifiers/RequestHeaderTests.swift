@@ -10,7 +10,7 @@ import Foundation
 #if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
 #endif
-@_spi(Internal) @testable import NetworkingCore
+@testable import NetworkingCore
 
 /// Suite for testing the functionality of ``RequestHeader``.
 @Suite(.tags(.requestModifiers, .headers))

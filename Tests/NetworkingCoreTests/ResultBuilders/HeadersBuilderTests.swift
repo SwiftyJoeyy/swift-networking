@@ -7,7 +7,7 @@
 
 import Foundation
 import Testing
-@_spi(Internal) @testable import NetworkingCore
+@testable import NetworkingCore
 
 @Suite(.tags(.resultBuilders))
 struct HeadersBuilderTests {

@@ -35,7 +35,7 @@ extension _ConditionalModifier: RequestModifier where TrueContent: RequestModifi
 
 // MARK: - _DynamicConfigurable
 extension _ConditionalModifier: _DynamicConfigurable where TrueContent: _DynamicConfigurable, FalseContent: _DynamicConfigurable {
-    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
+    public func _accept(_ values: ConfigurationValues) {
         switch storage {
             case .trueContent(let mod):
                 mod._accept(values)

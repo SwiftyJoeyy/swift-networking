@@ -7,8 +7,8 @@
 
 import Foundation
 import Testing
-@_spi(Internal) @testable import NetworkingClient
-@_spi(Internal) @testable import NetworkingCore
+@testable import NetworkingClient
+@testable import NetworkingCore
 
 @Suite(.tags(.tasks))
 struct DataTaskTests {

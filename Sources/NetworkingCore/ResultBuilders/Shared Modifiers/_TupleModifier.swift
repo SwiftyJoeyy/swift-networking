@@ -49,7 +49,7 @@ extension _TupleModifier: RequestModifier where M0: RequestModifier, M1: Request
 // MARK: - _DynamicConfigurable
 extension _TupleModifier: _DynamicConfigurable where M0: _DynamicConfigurable, M1: _DynamicConfigurable, M2: _DynamicConfigurable, M3: _DynamicConfigurable, M4: _DynamicConfigurable, M5: _DynamicConfigurable, M6: _DynamicConfigurable, M7: _DynamicConfigurable, M8: _DynamicConfigurable, M9: _DynamicConfigurable {
     
-    @_spi(Internal) public func _accept(_ values: ConfigurationValues) {
+    public func _accept(_ values: ConfigurationValues) {
         value.0._accept(values)
         value.1._accept(values)
         value.2._accept(values)
