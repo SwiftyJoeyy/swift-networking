@@ -19,7 +19,8 @@ body:
     id: proposal
     attributes:
       label: Proposed Solution
-      description: Describe the solution to the problem. Provide examples and describe how they work. Show how this solution is better than current workarounds: is it cleaner, safer, or more efficient?
+      description: |
+        Describe the solution to the problem. Provide examples and describe how they work. Show how this solution is better than current workarounds: is it cleaner, safer, or more efficient?
 
   - type: textarea
     id: alternatives
