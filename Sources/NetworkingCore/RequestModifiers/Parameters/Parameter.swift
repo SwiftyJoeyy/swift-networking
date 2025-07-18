@@ -39,8 +39,11 @@ import Foundation
             return value.map({URLQueryItem(name: name, value: $0)})
         }
     }
-    
-    /// Creates a new ``Parameter`` with a name and multiple values.
+}
+
+// MARK: - Array Initializers
+extension Parameter {
+    /// Creates a new ``Parameter`` with a name and multiple ``String`` values.
     ///
     /// - Parameters:
     ///  - name: The query parameter's name.
@@ -50,13 +53,70 @@ import Foundation
         self.values = values
     }
     
-    /// Creates a new ``Parameter`` with a name and a single optional value.
+    /// Creates a new ``Parameter`` with a name and multiple ``Int`` values.
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - value: Its values.
+    public init(_ name: String, values: [Int?]?) {
+        self.init(name, values: values?.map({$0?.description}))
+    }
+    
+    /// Creates a new ``Parameter`` with a name and multiple ``Double`` values.
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - value: Its values.
+    public init(_ name: String, values: [Double?]?) {
+        self.init(name, values: values?.map({$0?.description}))
+    }
+    
+    /// Creates a new ``Parameter`` with a name and multiple ``Bool`` values.
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - value: Its values.
+    public init(_ name: String, values: [Bool?]?) {
+        self.init(name, values: values?.map({$0?.description}))
+    }
+}
+
+// MARK: - Initializers
+extension Parameter {
+    /// Creates a new ``Parameter`` with a name and a single optional ``String`` value.
     ///
     /// - Parameters:
     ///  - name: The query parameter's name.
     ///  - value: Its value.
     @inlinable public init(_ name: String, value: String?) {
         self.init(name, values: [value])
+    }
+    
+    /// Creates a new ``Parameter`` with a name and a single optional ``Int`` value.
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - value: Its value.
+    public init(_ name: String, value: Int?) {
+        self.init(name, value: value?.description)
+    }
+    
+    /// Creates a new ``Parameter`` with a name and a single optional ``Double`` value.
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - value: Its value.
+    public init(_ name: String, value: Double?) {
+        self.init(name, value: value?.description)
+    }
+    
+    /// Creates a new ``Parameter`` with a name and a single optional ``Bool`` value.
+    ///
+    /// - Parameters:
+    ///  - name: The query parameter's name.
+    ///  - value: Its value.
+    public init(_ name: String, value: Bool?) {
+        self.init(name, value: value?.description)
     }
 }
 

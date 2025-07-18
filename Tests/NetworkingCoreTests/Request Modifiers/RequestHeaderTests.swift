@@ -29,9 +29,31 @@ struct RequestHeaderTests {
     }
     
     @Test func headerWithNilValueDoesNotCreateHeader() {
-        let header = Header("Authorization", value: nil)
-        #expect(header.key == "Authorization")
-        #expect(header.headers.isEmpty)
+        let key = "key"
+        do {
+            let value: String? = nil
+            let header = Header(key, value: value)
+            #expect(header.key == key)
+            #expect(header.headers.isEmpty)
+        }
+        do {
+            let value: Int? = nil
+            let header = Header(key, value: value)
+            #expect(header.key == key)
+            #expect(header.headers.isEmpty)
+        }
+        do {
+            let value: Double? = nil
+            let header = Header(key, value: value)
+            #expect(header.key == key)
+            #expect(header.headers.isEmpty)
+        }
+        do {
+            let value: Bool? = nil
+            let header = Header(key, value: value)
+            #expect(header.key == key)
+            #expect(header.headers.isEmpty)
+        }
     }
     
     @Test func headerModifyingRequest() throws {
@@ -49,6 +71,25 @@ struct RequestHeaderTests {
         request = try header.modifying(request)
         
         #expect(request.allHTTPHeaderFields?["Accept"] == "application/json")
+    }
+
+    @Test func headerWithNonStringValueConvertedToString() {
+        let key = "key"
+        do {
+            let expectedHeader = Header(key, value: "1")
+            let header = Header(key, value: 1)
+            #expect(header == expectedHeader)
+        }
+        do {
+            let expectedHeader = Header(key, value: "1.0")
+            let header = Header(key, value: 1.0)
+            #expect(header == expectedHeader)
+        }
+        do {
+            let expectedHeader = Header(key, value: true)
+            let header = Header(key, value: true)
+            #expect(header == expectedHeader)
+        }
     }
 }
 

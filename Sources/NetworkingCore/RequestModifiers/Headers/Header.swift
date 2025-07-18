@@ -37,8 +37,11 @@ import Foundation
         }
         return [key: value]
     }
-    
-    /// Creates a new ``Header`` with a key and value.
+}
+
+// MARK: - Initializers
+extension Header {
+    /// Creates a new ``Header`` with a key and ``String`` value.
     ///
     /// - Parameters:
     ///  - key: The header field name.
@@ -46,6 +49,33 @@ import Foundation
     @inlinable public init(_ key: String, value: String?) {
         self.key = key
         self.value = value
+    }
+    
+    /// Creates a new ``Header`` with a key and ``Int`` value.
+    ///
+    /// - Parameters:
+    ///  - key: The header field name.
+    ///  - value: The value of the header field.
+    @inlinable public init(_ key: String, value: Int?) {
+        self.init(key, value: value?.description)
+    }
+    
+    /// Creates a new ``Header`` with a key and ``Double`` value.
+    ///
+    /// - Parameters:
+    ///  - key: The header field name.
+    ///  - value: The value of the header field.
+    @inlinable public init(_ key: String, value: Double?) {
+        self.init(key, value: value?.description)
+    }
+    
+    /// Creates a new ``Header`` with a key and ``Bool`` value.
+    ///
+    /// - Parameters:
+    ///  - key: The header field name.
+    ///  - value: The value of the header field.
+    @inlinable public init(_ key: String, value: Bool?) {
+        self.init(key, value: value?.description)
     }
 }
 

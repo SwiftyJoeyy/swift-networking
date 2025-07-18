@@ -535,6 +535,47 @@ final class RequestMacroTests: XCTestCase {
         macros: testMacros
         )
     }
+    func testRequestMacroWithNonStringParameter() {
+        let values = [
+            "1",
+            "1.0",
+            "true"
+        ]
+        for value in values {
+            assertMacroExpansion(
+            """
+            @Request
+            struct TestRequest {
+                @Parameter var contentType = \(value)
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            }
+            """,
+            expandedSource: """
+            struct TestRequest {
+                @Parameter var contentType = \(value)
+                var request: some Request {
+                    HTTPRequest(path: "path")
+                }
+            
+                @ModifiersBuilder var modifier: some RequestModifier {
+                    Parameter("contentType", value: contentType)
+                }
+            
+                let id = "TestRequest"
+            }
+            
+            extension TestRequest: Request {
+            }
+            
+            extension TestRequest: ModifiableRequest {
+            }
+            """,
+            macros: testMacros
+            )
+        }
+    }
     
 // MARK: - Headers & Parameters Tests
     func testRequestMacroWithParametersAndHeaders() {

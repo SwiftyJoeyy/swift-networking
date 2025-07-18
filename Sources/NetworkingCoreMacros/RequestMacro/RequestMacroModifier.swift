@@ -29,15 +29,6 @@ internal struct ParameterMacroModifier: RequestMacroModifier {
     }
 }
 
-internal struct ParametersListMacroModifier: RequestMacroModifier {
-    internal let name: StringLiteralExprSyntax
-    internal let value: TokenSyntax
-    
-    internal func make() -> CodeBlockItemSyntax {
-        return "Parameter(\(name), values: \(value))"
-    }
-}
-
 internal enum RequestModifierType: String {
     case header = "Header"
     case parameter = "Parameter"

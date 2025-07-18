@@ -30,14 +30,16 @@ struct RequestParameterTests {
     
     @Test func nilValueParameterDoesCreatesCorrectQueryItem() {
         do {
-            let param = Parameter("device", value: nil)
+            let value: String? = nil
+            let param = Parameter("device", value: value)
             
             #expect(param.name == "device")
             #expect(param.parameters.isEmpty)
         }
         
         do {
-            let param = Parameter("device", values: nil)
+            let values: [String]? = nil
+            let param = Parameter("device", values: values)
             
             #expect(param.name == "device")
             #expect(param.parameters.isEmpty)
@@ -91,6 +93,86 @@ struct RequestParameterTests {
         let queryItems = try #require(components.queryItems)
         #expect(queryItems.contains(URLQueryItem(name: "search", value: "swift")))
         #expect(queryItems.contains(URLQueryItem(name: "testing", value: "hello")))
+    }
+    
+    @Test func parameterWithNonStringValueConvertedToString() {
+        let name = "name"
+        do {
+            let expectedParam = Parameter(name, value: "1")
+            let param = Parameter(name, value: 1)
+            #expect(param == expectedParam)
+        }
+        do {
+            let expectedParam = Parameter(name, value: "1.0")
+            let param = Parameter(name, value: 1.0)
+            #expect(param == expectedParam)
+        }
+        do {
+            let expectedParam = Parameter(name, value: "true")
+            let param = Parameter(name, value: true)
+            #expect(param == expectedParam)
+        }
+    }
+    
+    @Test func parameterWithNonStringNilValueConvertedToString() {
+        let name = "name"
+        let stringValue: String? = nil
+        let expectedParam = Parameter(name, value: stringValue)
+        do {
+            let value: Int? = nil
+            let param = Parameter(name, value: value)
+            #expect(param == expectedParam)
+        }
+        do {
+            let value: Double? = nil
+            let param = Parameter(name, value: value)
+            #expect(param == expectedParam)
+        }
+        do {
+            let value: Bool? = nil
+            let param = Parameter(name, value: value)
+            #expect(param == expectedParam)
+        }
+    }
+    
+    @Test func parameterWithMultipleNonStringValuesConvertedToString() {
+        let name = "name"
+        do {
+            let expectedParam = Parameter(name, values: ["1", "23", nil])
+            let param = Parameter(name, values: [1, 23, nil])
+            #expect(param == expectedParam)
+        }
+        do {
+            let expectedParam = Parameter(name, values: ["1.0", "2.3", nil])
+            let param = Parameter(name, values: [1.0, 2.3, nil])
+            #expect(param == expectedParam)
+        }
+        do {
+            let expectedParam = Parameter(name, values: ["true", "false", nil])
+            let param = Parameter(name, values: [true, false, nil])
+            #expect(param == expectedParam)
+        }
+    }
+    
+    @Test func parameterWithMultipleNonStringNilValuesConvertedToString() {
+        let name = "name"
+        let stringValues: [String]? = nil
+        let expectedParam = Parameter(name, values: stringValues)
+        do {
+            let values: [Int]? = nil
+            let param = Parameter(name, values: values)
+            #expect(param == expectedParam)
+        }
+        do {
+            let values: [Double]? = nil
+            let param = Parameter(name, values: values)
+            #expect(param == expectedParam)
+        }
+        do {
+            let values: [Bool]? = nil
+            let param = Parameter(name, values: values)
+            #expect(param == expectedParam)
+        }
     }
 }
 
