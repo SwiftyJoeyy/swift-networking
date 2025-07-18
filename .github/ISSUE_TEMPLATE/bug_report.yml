@@ -1,0 +1,61 @@
+name: Report a bug
+description: Report an issue or unexpected behavior in the framework.
+labels: ["bug"]
+assignees:
+  - SwiftyJoeyy
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please provide as much detail as possible.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: false
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Please list all necessary steps and provide sample code if possible.
+      placeholder: |
+        1. Initialize a request using ...
+        2. Call `execute()`
+        3. Observe the result
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Include information about your setup.
+        - Xcode version
+        - Swift version
+        - Deployment target
+        - Package version, or branch
+      placeholder: |
+        Xcode Version 16.4 (16F6)
+        Swift 6.1
+        iOS 18.4
+        Version 1.0.3
+      validations:
+        required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: Any additional information that could help others to work around the problem, and us to better understand the problem and its impact. For example, a console log or stack trace..
