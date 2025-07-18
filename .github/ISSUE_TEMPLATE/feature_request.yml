@@ -1,7 +1,7 @@
 name: Request a feature
 description: Propose a new feature or enhancement.
 labels:
-  - bug
+  - enhancement
 assignees:
   - SwiftyJoeyy
 body:
