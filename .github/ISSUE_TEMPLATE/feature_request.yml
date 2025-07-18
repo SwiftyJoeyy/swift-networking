@@ -1,6 +1,8 @@
 name: Request a feature
 description: Propose a new feature or enhancement.
-labels: [enhancement]
+labels: ["bug"]
+assignees:
+  - SwiftyJoeyy
 body:
   - type: markdown
     attributes:
