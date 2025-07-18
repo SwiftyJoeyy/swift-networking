@@ -30,7 +30,7 @@ import Foundation
     /// - Returns: The modified `URLRequest` with the timeout set.
     @usableFromInline internal func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         request.timeoutInterval = timeoutInterval
         return request
     }

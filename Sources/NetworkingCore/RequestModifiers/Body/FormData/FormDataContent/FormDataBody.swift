@@ -84,7 +84,7 @@ extension FormDataBody: FormDataItem {
     /// - Returns: The encoded data.
     public func data(
         _ configurations: borrowing ConfigurationValues
-    ) throws -> Data? {
+    ) throws(NetworkingError) -> Data? {
         return body
     }
 }

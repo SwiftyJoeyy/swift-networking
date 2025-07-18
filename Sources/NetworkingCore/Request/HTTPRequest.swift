@@ -119,12 +119,11 @@ extension HTTPRequest: Request {
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     @_spi(Internal) public func _makeURLRequest(
         with configurations: ConfigurationValues
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         _accept(configurations)
         
-        let baseURL = configurations.baseURL
-        guard let url = url ?? baseURL else {
-            throw NetworkingError.invalidRequestURL
+        guard let url = url ?? configurations.baseURL else {
+            throw .invalidRequestURL
         }
         
         var urlRequest = URLRequest(url: url)

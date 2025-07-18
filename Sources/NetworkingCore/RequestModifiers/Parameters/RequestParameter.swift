@@ -27,7 +27,7 @@ extension RequestParameter {
     /// - Returns: The modified ``URLRequest`` with query parameters added.
     public func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         guard let url = request.url else {
             return request
         }

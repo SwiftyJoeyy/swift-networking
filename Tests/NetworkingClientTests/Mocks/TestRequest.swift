@@ -17,7 +17,7 @@ struct TestRequest: Request {
     
     func _makeURLRequest(
         with configurations: ConfigurationValues
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         return URLRequest(url: configurations.baseURL ?? URL(string: "fallback.com")!)
     }
     func _accept(_ values: ConfigurationValues) {

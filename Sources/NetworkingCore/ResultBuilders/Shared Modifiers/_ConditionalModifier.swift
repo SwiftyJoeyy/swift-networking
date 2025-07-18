@@ -23,7 +23,7 @@ import Foundation
 extension _ConditionalModifier: RequestModifier where TrueContent: RequestModifier, FalseContent: RequestModifier {
     public func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         switch storage {
             case .trueContent(let mod):
                 return try mod.modifying(consume request)

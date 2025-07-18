@@ -12,8 +12,6 @@ import UniformTypeIdentifiers
 
 /// A form-data item containing a file, used in multipart requests.
 @frozen public struct FormDataFile: Equatable, Hashable {
-    /// The form-data errors.
-    public typealias FactoryError = NetworkingError.FormDataError
     
     /// The key associated with the form-data item.
     public let key: String
@@ -102,12 +100,12 @@ extension FormDataFile: FormDataItem {
     /// - Returns: The encoded file data.
     public func data(
         _ configurations: borrowing ConfigurationValues
-    ) throws -> Data? {
+    ) throws(NetworkingError) -> Data? {
         try checkFileURLValidity()
         try checkFileReachability()
         
         guard let inputStream = InputStream(url: fileURL) else {
-            throw FactoryError.failedStreamCreation(fileURL)
+            throw .file(.failedStreamCreation(fileURL))
         }
         
         inputStream.open()
@@ -120,7 +118,7 @@ extension FormDataFile: FormDataItem {
         var buffer = [UInt8](repeating: 0, count: bufferSize)
         while inputStream.hasBytesAvailable {
             if let error = inputStream.streamError {
-                throw NetworkingError.FormDataError.readingStreamFailed(error: error)
+                throw .file(.readingStreamFailed(error: error))
             }
             let bytes = inputStream.read(&buffer, maxLength: bufferSize)
             guard bytes > 0 else {break}
@@ -152,9 +150,9 @@ extension FormDataFile {
     }
     
     /// Validates whether the file URL is a valid local file path.
-    private func checkFileURLValidity() throws {
+    private func checkFileURLValidity() throws(NetworkingError) {
         guard fileURL.isFileURL else {
-            throw FactoryError.invalidFileURL(fileURL)
+            throw .file(.invalidFileURL(fileURL))
         }
         
         var directory: ObjCBool = false
@@ -164,21 +162,23 @@ extension FormDataFile {
         )
         
         guard fileExists else {
-            throw FactoryError.fileDoesNotExist(fileURL)
+            throw .file(.fileDoesNotExist(fileURL))
         }
         if directory.boolValue {
-            throw FactoryError.urlIsDirectory(fileURL)
+            throw .file(.urlIsDirectory(fileURL))
         }
     }
     
     /// Checks if the file at the given URL is reachable and accessible.
-    private func checkFileReachability() throws {
+    private func checkFileReachability() throws(NetworkingError) {
         do {
             let reachableFile = try fileURL.checkPromisedItemIsReachable()
             guard !reachableFile else {return}
-            throw FactoryError.unreachableFile(fileURL)
+            throw NetworkingError.file(.unreachableFile(fileURL))
         }catch {
-            throw FactoryError.failedFileReachabilityCheck(url: fileURL, error: error)
+            throw .file(
+                .failedFileReachabilityCheck(url: fileURL, error: error)
+            )
         }
     }
 }

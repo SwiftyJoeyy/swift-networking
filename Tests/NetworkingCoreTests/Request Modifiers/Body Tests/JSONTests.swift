@@ -104,9 +104,14 @@ struct JSONTests {
         let sample = DataMock(test: .infinity)
         let encodable = FoundationJSONEncodable(sample)
         
-        try #require(throws: NetworkingError.JSONError.self) {
+        let error = try #require(throws: NetworkingError.self) {
             _ = try encodable.encoded(for: configurations)
         }
+        var foundCorrectError = false
+        if case NetworkingError.encoding(.invalidValue) = error {
+            foundCorrectError = true
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: error))")
     }
     
     @Test func codableJSONEncoderEncodesUsingCustomEncoder() throws {
@@ -166,9 +171,15 @@ struct JSONTests {
         let dictionary: [String: Date] = ["key": Date()]
         let encodable = DictionaryJSONEncodable(dictionary: dictionary)
         
-        try #require(throws: NetworkingError.JSONError.self) {
+
+        let error = try #require(throws: NetworkingError.self) {
             _ = try encodable.encoded(for: configurations)
         }
+        var foundCorrectError = false
+        if case NetworkingError.serialization(.invalidObject) = error {
+            foundCorrectError = true
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: error))")
     }
     
     @Test func dictEncoderDescriptionnIsEmptyWhenDictionaryIsEmptyOrNil() {
@@ -257,7 +268,7 @@ extension JSONTests {
         
         func encoded(
             for configurations: borrowing ConfigurationValues
-        ) throws -> Data? {
+        ) throws(NetworkingError) -> Data? {
             return data
         }
     }
@@ -267,7 +278,7 @@ extension JSONTests {
         
         func encoded(
             for configurations: borrowing ConfigurationValues
-        ) throws -> Data? {
+        ) throws(NetworkingError) -> Data? {
             configs = copy configurations
             return nil
         }

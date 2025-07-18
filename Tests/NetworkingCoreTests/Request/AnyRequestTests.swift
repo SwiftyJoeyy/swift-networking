@@ -41,7 +41,7 @@ extension AnyRequestTests {
         
         func _makeURLRequest(
             with configurations: ConfigurationValues
-        ) throws -> URLRequest {
+        ) throws(NetworkingError) -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com\(path)")!)
             request.httpMethod = method.rawValue
             return request

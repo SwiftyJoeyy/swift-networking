@@ -30,7 +30,7 @@ import Foundation
     /// - Returns: The modified ``URLRequest`` with the cache policy set.
     @usableFromInline internal func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         request.cachePolicy = cachePolicy
         return request
     }

@@ -56,12 +56,17 @@ struct HTTPRequestTests {
         #expect(urlRequest.allHTTPHeaderFields?["test"] == "value")
     }
     
-    @Test func throwsWhenURLMissing() {
+    @Test func throwsWhenURLMissing() throws {
         let request = HTTPRequest()
         
-        #expect(throws: NetworkingError.invalidRequestURL) {
+        let networkingError = try #require(throws: NetworkingError.self) {
             _ = try request._makeURLRequest(with: configurations)
         }
+        var foundCorrectError = false
+        if case NetworkingError.invalidRequestURL = networkingError {
+            foundCorrectError = true
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
     
     @Test func baseURLFromConfiguration() throws {
@@ -92,7 +97,7 @@ struct HTTPRequestTests {
 extension HTTPRequestTests {
     @RequestModifier struct DummyModifier {
         let header: (String, String)
-        func modifying(_ request: consuming URLRequest) throws -> URLRequest {
+        func modifying(_ request: consuming URLRequest) throws(NetworkingError) -> URLRequest {
             request.setValue(header.1, forHTTPHeaderField: header.0)
             return request
         }

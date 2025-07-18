@@ -131,14 +131,19 @@ struct RequestBodyTests {
         #expect(modifiedRequest == urlRequest)
     }
     
-    @Test func requestBodyThrowsWithThrowingBody() {
+    @Test func requestBodyThrowsWithThrowingBody() throws {
         let urlRequest = URLRequest(url: url)
         let expectedError = NSError(domain: "Test", code: 10)
-        let modifier = RequestBodyStub(contentType: nil, result: .failure(expectedError))
+        let modifier = RequestBodyStub(contentType: nil, result: .failure(.custom(expectedError)))
         
-        #expect(throws: expectedError) {
+        let networkingError = try #require(throws: NetworkingError.self) {
             try modifier.modifying(urlRequest)
         }
+        var foundCorrectError = false
+        if case NetworkingError.custom(let error) = networkingError {
+            foundCorrectError = (error as NSError).domain == expectedError.domain
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
 }
 
@@ -160,9 +165,9 @@ extension RequestBodyTests {
 extension RequestBodyTests {
     struct RequestBodyStub: RequestBody {
         let contentType: ContentType?
-        let result: Result<Data?, any Error>
+        let result: Result<Data?, NetworkingError>
     
-        func body() throws -> Data? {
+        func body() throws(NetworkingError) -> Data? {
             return try result.get()
         }
     }

@@ -30,7 +30,7 @@ import Foundation
     /// - Returns: The modified ``URLRequest``.
     @usableFromInline internal func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         request.httpMethod = httpMethod.rawValue
         return request
     }

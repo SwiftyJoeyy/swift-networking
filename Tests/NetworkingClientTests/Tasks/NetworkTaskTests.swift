@@ -86,7 +86,10 @@ struct NetworkTaskTests {
             _ = try await session
                 .dataTask(request)
                 .response()
-        }, throws: { error in
+        }, throws: { networkingError in
+            guard case NetworkingError.custom(let error) = networkingError else {
+                return false
+            }
             return (error as NSError).domain == (expectedError as NSError).domain
         })
     }
@@ -165,9 +168,14 @@ struct NetworkTaskTests {
         try await Task.sleep(nanoseconds: 1_000_000_000)
         await task.cancel()
         
-        try await #require(throws: CancellationError.self) {
+        let networkingError = try await #require(throws: NetworkingError.self) {
             _ = try await task.response()
         }
+        var foundCorrectError = false
+        if case NetworkingError.cancellation = networkingError {
+            foundCorrectError = true
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
     
     @Test func requestIsInterceptedBeforeExecution() async throws {
@@ -278,12 +286,17 @@ struct NetworkTaskTests {
             return .failure(MockURLError.errorMock)
         }
         
-        await #expect(throws: MockURLError.errorMock) {
+        let networkingError = try await #require(throws: NetworkingError.self) {
             _ = try await session
                 .configuration(\.taskInterceptor, interceptor)
                 .dataTask(request)
                 .response()
         }
+        var foundCorrectError = false
+        if case NetworkingError.custom(let error) = networkingError {
+            foundCorrectError = (error as? MockURLError) == .errorMock
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
     
     @Test func taskReturnsResultWhenInterceptorReturnsContinue() async throws {
@@ -342,7 +355,7 @@ struct MockRequestInterceptor: RequestInterceptor {
         request: consuming URLRequest,
         for session: Session,
         with configurations: ConfigurationValues
-    ) async throws -> URLRequest {
+    ) async throws(NetworkingError) -> URLRequest {
         return handler(task, consume request, session, configurations)
     }
 }
@@ -353,8 +366,12 @@ struct MockInterceptor: Interceptor {
         _ task: some NetworkingTask,
         for session: Session,
         with context: borrowing Context
-    ) async throws -> RequestContinuation {
-        return try await handler(task, session, context)
+    ) async throws(NetworkingError) -> RequestContinuation {
+        do {
+            return try await handler(task, session, context)
+        }catch {
+            throw error.networkingError
+        }
     }
     
     func intercept(
@@ -362,7 +379,7 @@ struct MockInterceptor: Interceptor {
         request: consuming URLRequest,
         for session: Session,
         with configurations: ConfigurationValues
-    ) async throws -> URLRequest {
+    ) async throws(NetworkingError) -> URLRequest {
         return request
     }
 }

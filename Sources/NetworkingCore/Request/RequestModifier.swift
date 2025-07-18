@@ -17,7 +17,7 @@ import Foundation
 ///     func modifying(
 ///         _ request: consuming URLRequest,
 ///         with configurations: borrowing NetworkConfigurations
-///     ) throws -> URLRequest {
+///     ) throws(NetworkingError) -> URLRequest {
 ///         request.timeoutInterval = timeoutInterval
 ///         return request
 ///     }
@@ -30,7 +30,7 @@ public protocol RequestModifier: _DynamicConfigurable {
     ///  - request: The original request to modify.
     ///
     /// - Returns: The ``URLRequest`` with the modifier applied to it.
-    func modifying(_ request: consuming URLRequest) throws -> URLRequest
+    func modifying(_ request: consuming URLRequest) throws(NetworkingError) -> URLRequest
 }
 
 extension RequestModifier {

@@ -38,7 +38,7 @@ extension NetworkLogger {
     package static func logFinished(
         request: URLRequest,
         id: String,
-        error: (any Error)?
+        error: NetworkingError?
     ) {
         let url = request.url?.absoluteString ?? "unknown"
         let errorDescription = error.map({"\n│ Error: \($0)"}) ?? ""

@@ -52,7 +52,7 @@ import Foundation
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     @_spi(Internal) public func _makeURLRequest(
         with configurations: ConfigurationValues
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         return try storage.makeURLRequest(with: configurations)
     }
     
@@ -81,7 +81,7 @@ extension AnyRequest {
         /// - Returns: A configured ``URLRequest``.
         internal func makeURLRequest(
             with configurations: ConfigurationValues
-        ) throws -> URLRequest {
+        ) throws(NetworkingError) -> URLRequest {
             fatalError("Subclasses must override this member.")
         }
         
@@ -115,7 +115,7 @@ extension AnyRequest {
         /// - Returns: A configured ``URLRequest``.
         fileprivate override func makeURLRequest(
             with configurations: ConfigurationValues
-        ) throws -> URLRequest {
+        ) throws(NetworkingError) -> URLRequest {
             return try request._makeURLRequest(with: configurations)
         }
         

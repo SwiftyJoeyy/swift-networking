@@ -60,7 +60,7 @@ public protocol RetryInterceptor: ResponseInterceptor {
     /// - Returns: A ``RetryResult`` that determines whether to retry.
     func shouldRetry(
         _ task: some NetworkingTask,
-        error: any Error,
+        error: NetworkingError,
         with context: borrowing Context
     ) async -> RetryResult
 }
@@ -75,7 +75,7 @@ extension RetryInterceptor {
         _ task: some NetworkingTask,
         for session: Session,
         with context: borrowing Context
-    ) async throws -> RequestContinuation {
+    ) async throws(NetworkingError) -> RequestContinuation {
         guard context.status != .unauthorized,
               let error = context.error
         else {
@@ -90,7 +90,7 @@ extension RetryInterceptor {
             do {
                 try await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000_000)
             }catch {
-                throw error
+                throw error.networkingError
             }
         }
         return .retry

@@ -45,7 +45,7 @@ extension FormData: RequestBody {
     /// Encodes the form-data body into ``Data``.
     ///
     /// - Returns: The encoded form-data.
-    public func body() throws -> Data? {
+    public func body() throws(NetworkingError) -> Data? {
         var data = Data()
         
         let firstBoundary = BoundaryFactory.makeBoundary(.first, for: boundary)

@@ -27,13 +27,15 @@ extension DictionaryJSONEncodable: JSONEncodable {
     /// - Returns: The encoded JSON data.
     public func encoded(
         for configurations: borrowing ConfigurationValues
-    ) throws -> Data? {
+    ) throws(NetworkingError) -> Data? {
         guard let dictionary, !dictionary.isEmpty else {
             return nil
         }
         
         guard JSONSerialization.isValidJSONObject(dictionary) else {
-            throw NetworkingError.JSONError.invalidObject(dictionary: dictionary)
+            throw .serialization(
+                .invalidObject(dictionary: dictionary)
+            )
         }
         do {
             let data = try JSONSerialization.data(
@@ -42,9 +44,11 @@ extension DictionaryJSONEncodable: JSONEncodable {
             )
             return data
         }catch {
-            throw NetworkingError.JSONError.serializationFailed(
-                dictionary: dictionary,
-                error: error
+            throw .serialization(
+                .serializationFailed(
+                    dictionary: dictionary,
+                    error: error
+                )
             )
         }
     }

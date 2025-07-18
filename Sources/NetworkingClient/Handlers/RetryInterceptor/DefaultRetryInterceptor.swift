@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NetworkingCore
 
 /// A retry policy that supports count limits, response filtering, and delay strategies.
 ///
@@ -26,7 +27,7 @@ public struct DefaultRetryInterceptor: RetryInterceptor {
     /// Return `false` to cancel the retry even if other conditions are met.
     public typealias Handler = @Sendable (
         _ task: any NetworkingTask,
-        _ error: any Error,
+        _ error: NetworkingError,
         _ context: borrowing Context
     ) async -> Bool
     
@@ -71,7 +72,7 @@ public struct DefaultRetryInterceptor: RetryInterceptor {
     /// If all conditions pass, a delay may be applied based on the strategy.
     public func shouldRetry(
         _ task: some NetworkingTask,
-        error: any Error,
+        error: NetworkingError,
         with context: borrowing Context
     ) async -> RetryResult {
         let retryCount = context.retryCount

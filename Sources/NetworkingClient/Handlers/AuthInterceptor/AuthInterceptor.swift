@@ -40,14 +40,18 @@ public actor AuthInterceptor {
     /// If a refresh is already ongoing, subsequent callers await its result.
     ///
     /// - Parameter session: The active session to use for refreshing.
-    private func refresh(with session: Session) async throws {
-        if let task {
-            try await task.value
-        }else {
-            task = Task {
-                try await provider.refresh(with: session)
+    private func refresh(with session: Session) async throws(NetworkingError) {
+        do {
+            if let task {
+                try await task.value
+            }else {
+                task = Task {
+                    try await provider.refresh(with: session)
+                }
+                try await task?.value
             }
-            try await task?.value
+        }catch {
+            throw .client(.authRefresh(error.networkingError))
         }
     }
 }
@@ -65,7 +69,7 @@ extension AuthInterceptor: RequestInterceptor {
         request: consuming URLRequest,
         for session: Session,
         with configurations: ConfigurationValues
-    ) async throws -> URLRequest {
+    ) async throws(NetworkingError) -> URLRequest {
         if provider.requiresRefresh() {
             try await refresh(with: session)
         }
@@ -84,16 +88,12 @@ extension AuthInterceptor: ResponseInterceptor {
         _ task: some NetworkingTask,
         for session: Session,
         with context: borrowing Context
-    ) async throws -> RequestContinuation {
+    ) async throws(NetworkingError) -> RequestContinuation {
         guard context.status == .unauthorized, context.retryCount == 0 else {
             return .continue
         }
         
-        do {
-            try await refresh(with: session)
-        }catch {
-            throw error
-        }
+        try await refresh(with: session)
         return .retry
     }
 }

@@ -137,14 +137,14 @@ extension ClientConfigurableTests {
             request: consuming URLRequest,
             for session: Session,
             with configurations: ConfigurationValues
-        ) async throws -> URLRequest {
+        ) async throws(NetworkingError) -> URLRequest {
             return request
         }
     }
     struct DummyRetryInterceptor: RetryInterceptor {
         func shouldRetry(
             _ task: some NetworkingTask,
-            error: any Error,
+            error: NetworkingError,
             with context: borrowing Context
         ) async -> RetryResult {
             return .doNotRetry
@@ -172,7 +172,7 @@ extension ClientConfigurableTests {
             _ task: some NetworkingTask,
             status: ResponseStatus,
             with context: borrowing Context
-        ) async throws { }
+        ) async throws(StatusError) { }
     }
     
     struct DummyAuthProvider: AuthProvider {
@@ -187,7 +187,9 @@ extension ClientConfigurableTests {
     }
     
     struct DummyCredential: RequestModifier {
-        func modifying(_ request: consuming URLRequest) throws -> URLRequest {
+        func modifying(
+            _ request: consuming URLRequest
+        ) throws(NetworkingError) -> URLRequest {
             return request
         }
     }

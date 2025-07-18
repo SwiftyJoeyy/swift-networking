@@ -15,7 +15,7 @@ import Foundation
 extension EmptyModifier: RequestModifier {
     @inlinable public func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         return request
     }
 }

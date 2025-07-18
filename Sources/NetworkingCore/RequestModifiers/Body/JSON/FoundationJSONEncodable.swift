@@ -33,13 +33,15 @@ extension FoundationJSONEncodable: JSONEncodable {
     /// - Returns: The encoded JSON data.
     public func encoded(
         for configurations: borrowing ConfigurationValues
-    ) throws -> Data? {
+    ) throws(NetworkingError) -> Data? {
         do {
             let baseEncoder = configurations.encoder
             let data = try (encoder ?? baseEncoder).encode(object)
             return data
+        }catch let error as EncodingError {
+            throw .encoding(error)
         }catch {
-            throw NetworkingError.JSONError.encodingFailed(error)
+            throw .custom(error)
         }
     }
 }

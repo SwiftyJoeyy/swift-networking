@@ -38,7 +38,7 @@ internal struct TaskInterceptor: Interceptor {
         request: consuming URLRequest,
         for session: Session,
         with configurations: ConfigurationValues
-    ) async throws -> URLRequest {
+    ) async throws(NetworkingError) -> URLRequest {
         var urlRequest = consume request
         
         if let interceptor = configurations.interceptor {
@@ -89,7 +89,7 @@ internal struct TaskInterceptor: Interceptor {
         _ task: some NetworkingTask,
         for session: Session,
         with context: borrowing Context
-    ) async throws -> RequestContinuation {
+    ) async throws(NetworkingError) -> RequestContinuation {
         var context = copy context
         let configurations = context.configurations
         
@@ -123,7 +123,7 @@ internal struct TaskInterceptor: Interceptor {
     private func handle(_ continuation: RequestContinuation, context: inout Context) {
         switch continuation {
             case .failure(let error):
-                context.error = error
+                context.error = error.networkingError
             case .retry:
                 context.continuation = .retry
             default:

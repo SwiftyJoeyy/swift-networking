@@ -64,7 +64,7 @@ extension ModifiedRequestTests {
         
         func _makeURLRequest(
             with configurations: ConfigurationValues
-        ) throws -> URLRequest {
+        ) throws(NetworkingError) -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com")!)
             request.httpMethod = method.rawValue
             return request
@@ -72,7 +72,7 @@ extension ModifiedRequestTests {
     }
     
     @RequestModifier struct MockModifier {
-        func modifying(_ request: consuming URLRequest) throws -> URLRequest {
+        func modifying(_ request: consuming URLRequest) throws(NetworkingError) -> URLRequest {
             var modified = request
             modified.setValue("true", forHTTPHeaderField: "X-Modified")
             return modified

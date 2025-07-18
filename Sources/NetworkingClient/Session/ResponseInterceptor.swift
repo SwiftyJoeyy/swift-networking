@@ -24,7 +24,7 @@ import NetworkingCore
 ///         _ task: some NetworkingTask,
 ///         for session: Session,
 ///         with context: Context
-///     ) async throws -> RequestContinuation {
+///     ) async throws(NetworkingError) -> RequestContinuation {
 ///         if context.status?.isSuccess == false {
 ///             return .failure(MyError.badStatus)
 ///         }
@@ -48,7 +48,7 @@ public protocol ResponseInterceptor: Sendable {
         _ task: some NetworkingTask,
         for session: Session,
         with context: borrowing Context
-    ) async throws -> RequestContinuation
+    ) async throws(NetworkingError) -> RequestContinuation
 }
 
 /// A control flow value returned by a ``ResponseInterceptor`` to determine what happens next.
@@ -90,7 +90,7 @@ public struct InterceptorContext: Sendable {
     /// The error received when executing the request.
     ///
     /// This value is set only if the request failed.
-    public var error: (any Error)?
+    public var error: NetworkingError?
     
     /// The continuation result from the previous interceptor in the chain.
     ///

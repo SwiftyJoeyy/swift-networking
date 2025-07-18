@@ -56,7 +56,7 @@ extension ModifiableRequest {
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     @_spi(Internal) public func _makeURLRequest(
         with configurations: ConfigurationValues
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         _accept(configurations)
         
         let urlRequest = try request._makeURLRequest(with: configurations)
