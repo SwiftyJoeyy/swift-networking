@@ -1,29 +1,38 @@
+---
 name: Report a bug
 description: Report an issue or unexpected behavior in the framework.
-labels: ["bug"]
+labels:
+  - bug
 assignees:
   - SwiftyJoeyy
 body:
   - type: markdown
     attributes:
-      value: |
-        Thanks for taking the time to report a bug. Please provide as much detail as possible.
+      value: >
+        Thanks for taking the time to report a bug. Please provide as much detail
+        as possible.
+        
   - type: textarea
     id: description
     attributes:
       label: Describe the bug
-      description: A clear description of what causes the problem, in human language. Though not required, it may help us to more accurately triage the issue as well as understand a non-trivial test case.
+      description: A clear description of what causes the problem, in human language.
+        Though not required, it may help us to more accurately triage the issue
+        as well as understand a non-trivial test case.
     validations:
       required: false
-
+      
   - type: textarea
     id: reproduction
     attributes:
       label: Steps to Reproduce
-      description: Provide a test case, preferably in a Markdown code block, and explain how to build or run it to reproduce the problem. Consider reducing the test case to the smallest amount of code possible, a smaller test case is easier to reason about and more appealing.
+      description: Provide a test case, preferably in a Markdown code block, and
+        explain how to build or run it to reproduce the problem. Consider
+        reducing the test case to the smallest amount of code possible, a
+        smaller test case is easier to reason about and more appealing.
     validations:
       required: true
-
+      
   - type: textarea
     id: expected-behavior
     attributes:
@@ -31,12 +40,13 @@ body:
       description: Describe what you expected to happen.
     validations:
       required: true
-
+      
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: Include information about your setup like the Xcode version, Swift version, Deployment target, Package version, or branch
+      description: Include information about your setup like the Xcode version, Swift
+        version, Deployment target, Package version, or branch
       placeholder: |
         Xcode Version 16.4 (16F6)
         Swift 6.1
@@ -44,9 +54,11 @@ body:
         Version 1.0.3
     validations:
       required: true
-
+      
   - type: textarea
     id: additional-info
     attributes:
       label: Additional information
-      description: Any additional information that could help others to work around the problem, and us to better understand the problem and its impact. For example, a console log or stack trace.
+      description: Any additional information that could help others to work around
+        the problem, and us to better understand the problem and its impact. For
+        example, a console log or stack trace.
