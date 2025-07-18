@@ -1,0 +1,34 @@
+name: Request a feature
+description: Propose a new feature or enhancement.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please fill out the form below.
+
+  - type: input
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Describe the problems that this idea seeks to address. If the problem is that some common pattern is currently hard to express, show how one can currently get a similar effect and describe its drawbacks. If it's completely new functionality that cannot be emulated, motivate why this new functionality would help.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution to the problem. Provide examples and describe how they work. Show how this solution is better than current workarounds: is it cleaner, safer, or more efficient?
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Did you try workarounds or other approaches?
+
+   - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional information
+      description: Any complementary information that could be valuable for an implementor.
