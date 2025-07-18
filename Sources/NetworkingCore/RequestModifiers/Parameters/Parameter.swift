@@ -76,7 +76,7 @@ import Foundation
     ///
     /// - Parameter parameters: The query parameters, with optional values.
     @inlinable public init(_ parameters: [URLQueryItem?]) {
-        self.init(parameters.compactMap(\.self))
+        self.init(parameters.compactMap({$0}))
     }
     
     /// Creates a new ``ParametersGroup`` using ``ParametersBuilder``.

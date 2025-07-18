@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Never: @retroactive CustomStringConvertible { }
+extension Swift.Never: Swift.CustomStringConvertible { }
 
 extension Never: Request {
     /// The request's identifier.

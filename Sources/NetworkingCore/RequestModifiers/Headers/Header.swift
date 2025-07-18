@@ -65,7 +65,7 @@ import Foundation
     ///
     /// - Parameter headers: The headers dictionary with optional values.
     @inlinable public init(_ headers: [String: String?]) {
-        self.init(headers.compactMapValues(\.self))
+        self.init(headers.compactMapValues({$0}))
     }
     
     /// Creates a new ``HeadersGroup`` using ``HeadersBuilder``.
