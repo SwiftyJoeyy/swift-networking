@@ -113,47 +113,48 @@ final class FormDataFileTests {
     }
     
 // MARK: - Errors Tests
-    @Test func invalidURLThrowsError() {
+    @Test func invalidURLThrowsError() throws {
         let invalidURL = URL(string: "https://example.com/file.txt")!
         let item = FormDataFile("file", fileURL: invalidURL)
         
-        #expect(performing: {
-            try item.data(configurations)
-        }, throws: { error in
-            let formError = error as? NetworkingError.FormDataError
-            guard case .invalidFileURL(let url) = formError else {
-                return false
-            }
-            return url == invalidURL
-        })
+        let networkingError = try #require(throws: NetworkingError.self) {
+            try item.data(self.configurations)
+        }
+        var foundCorrectError = false
+        if case NetworkingError.file(let error) = networkingError,
+           case .invalidFileURL(let url) = error {
+            foundCorrectError = url == invalidURL
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
     
-    @Test func missingFileThrowsError() {
+    @Test func missingFileThrowsError() throws {
         let missingURL = tempDirectory.appendingPathComponent("missing.txt")
         let item = FormDataFile("file", fileURL: missingURL)
         
-        #expect(performing: {
-            try item.data(configurations)
-        }, throws: { error in
-            let formError = error as? NetworkingError.FormDataError
-            guard case .fileDoesNotExist(let url) = formError else {
-                return false
-            }
-            return url == missingURL
-        })
+        let networkingError = try #require(throws: NetworkingError.self) {
+            try item.data(self.configurations)
+        }
+        var foundCorrectError = false
+        if case NetworkingError.file(let error) = networkingError,
+           case .fileDoesNotExist(let url) = error {
+            foundCorrectError = url == missingURL
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
     
     @Test func directoryURLThrowsError() throws {
         let item = FormDataFile("file", fileURL: tempDirectory)
-        #expect(performing: {
-            try item.data(configurations)
-        }, throws: { error in
-            let formError = error as? NetworkingError.FormDataError
-            guard case .urlIsDirectory(let url) = formError else {
-                return false
-            }
-            return url == tempDirectory
-        })
+        
+        let networkingError = try #require(throws: NetworkingError.self) {
+            try item.data(self.configurations)
+        }
+        var foundCorrectError = false
+        if case NetworkingError.file(let error) = networkingError,
+           case .urlIsDirectory(let url) = error {
+            foundCorrectError = url == tempDirectory
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
     
 // MARK: - Description Tests

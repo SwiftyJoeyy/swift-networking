@@ -232,7 +232,9 @@ struct ModifiersBuilderTests {
 extension ModifiersBuilderTests {
     @RequestModifier struct TestModifier<T> {
         var header = (key: "", value: "")
-        func modifying(_ request: consuming URLRequest) throws -> URLRequest {
+        func modifying(
+            _ request: consuming URLRequest
+        ) throws(NetworkingError) -> URLRequest {
             var modified = request
             modified.setValue(header.value, forHTTPHeaderField: header.key)
             return modified

@@ -33,7 +33,7 @@ import Foundation
     /// - Returns: The modified ``URLRequest`` with paths appended.
     @usableFromInline internal func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         for path in paths {
             guard !path.isEmpty else {continue}
             if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *) {

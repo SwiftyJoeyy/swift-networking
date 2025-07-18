@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import NetworkingCore
 // TODO: - Add support for resumable downloads.
 
 public typealias DownloadResponse = (url: URL, response: URLResponse)
@@ -51,12 +51,18 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     @_spi(Internal) open override func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
-    ) async throws -> DownloadResponse {
+    ) async throws(NetworkingError) -> DownloadResponse {
         await progressTracker.setProgress(0)
-        return try await session.session.download(
-            for: urlRequest,
-            delegate: session.delegate
-        )
+        do {
+            return try await session.session.download(
+                for: urlRequest,
+                delegate: session.delegate
+            )
+        }catch let error as URLError {
+            throw .client(.urlError(error))
+        }catch {
+            throw .custom(error)
+        }
     }
     
     /// Called when the task finishes, either successfully or with an error.
@@ -65,7 +71,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///
     /// - Parameters:
     ///   - error: An optional error if the task failed.
-    @_spi(Internal) open override func _finished(with error: (any Error)?) async {
+    @_spi(Internal) open override func _finished(with error: NetworkingError?) async {
         await super._finished(with: error)
         await progressTracker.finish()
     }

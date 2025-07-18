@@ -98,13 +98,16 @@ struct DataTaskTests {
         
         let urlRequest = try request._makeURLRequest(with: session.configurations)
         
-        try await #require(performing: {
+        let networkingError = try await #require(throws: NetworkingError.self) {
             _ = try await session
                 .dataTask(request)
                 ._execute(urlRequest, session: session)
-        }, throws: { error in
-            return (error as NSError).domain == (expectedError as NSError).domain
-        })
+        }
+        var foundCorrectError = false
+        if case NetworkingError.custom(let error) = networkingError {
+            foundCorrectError = (error as NSError).domain == (expectedError as NSError).domain
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
     }
 }
 

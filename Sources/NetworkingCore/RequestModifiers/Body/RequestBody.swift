@@ -16,7 +16,7 @@ public protocol RequestBody: RequestModifier {
     /// Encodes and returns the request body as ``Data``.
     ///
     /// - Returns: The encoded body data.
-    func body() throws -> Data?
+    func body() throws(NetworkingError) -> Data?
 }
 
 // MARK: - RequestModifier
@@ -30,7 +30,7 @@ extension RequestBody {
     /// - Returns: The modified ``URLRequest`` with the body set.
     public func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         let body = try body()
         guard let body else {
             return request

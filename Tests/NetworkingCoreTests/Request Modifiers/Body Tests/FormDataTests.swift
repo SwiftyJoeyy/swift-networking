@@ -142,7 +142,7 @@ extension FormDataTests {
         }
         func data(
             _ configurations: borrowing ConfigurationValues
-        ) throws -> Data? {
+        ) throws(NetworkingError) -> Data? {
             content
         }
         

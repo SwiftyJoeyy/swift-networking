@@ -31,7 +31,7 @@ extension _TupleModifier: RequestModifier where M0: RequestModifier, M1: Request
     
     public func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         var urlRequest = try value.0.modifying(consume request)
         urlRequest = try value.1.modifying(consume urlRequest)
         urlRequest = try value.2.modifying(consume urlRequest)

@@ -19,7 +19,7 @@ import Foundation
 extension _OptionalModifier: RequestModifier where Modifier: RequestModifier {
     public func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         guard let storage else {
             return request
         }

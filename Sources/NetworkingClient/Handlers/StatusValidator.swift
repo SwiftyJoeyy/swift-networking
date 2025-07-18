@@ -31,7 +31,7 @@ public protocol StatusValidator: ResponseInterceptor, Sendable {
         _ task: some NetworkingTask,
         status: ResponseStatus,
         with context: borrowing Context
-    ) async throws
+    ) async throws(StatusError)
 }
 
 extension StatusValidator {
@@ -45,17 +45,17 @@ extension StatusValidator {
         _ task: some NetworkingTask,
         for session: Session,
         with context: borrowing Context
-    ) async throws -> RequestContinuation {
+    ) async throws(NetworkingError) -> RequestContinuation {
         guard let status = context.status,
               context.error == nil
         else {
             return .continue
         }
         
-        do {
+        do throws(StatusError) {
             try await validate(task, status: status, with: context)
         }catch {
-            return .failure(error)
+            return .failure(NetworkingError.client(.status(error)))
         }
         return .continue
     }
@@ -77,7 +77,7 @@ public struct DefaultStatusValidator: StatusValidator {
         _ task: any NetworkingTask,
         _ status: ResponseStatus,
         _ context: borrowing Context
-    ) async throws -> Void
+    ) async throws(StatusError) -> Void
     
     /// A set of predefined acceptable statuses.
     private let validStatuses: Set<ResponseStatus>
@@ -108,9 +108,9 @@ public struct DefaultStatusValidator: StatusValidator {
         _ task: some NetworkingTask,
         status: ResponseStatus,
         with context: borrowing Context
-    ) async throws {
+    ) async throws(StatusError) {
         if !validStatuses.contains(status) {
-            throw NetworkingError.ClientError.unacceptableStatusCode(status)
+            throw StatusError(status: status)
         }
         try await handler?(task, status, context)
     }

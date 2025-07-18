@@ -14,7 +14,7 @@ public protocol JSONEncodable {
     /// - Returns: The encoded JSON data.
     func encoded(
         for configurations: borrowing ConfigurationValues
-    ) throws -> Data?
+    ) throws(NetworkingError) -> Data?
 }
 
 extension Data?: JSONEncodable {
@@ -23,7 +23,7 @@ extension Data?: JSONEncodable {
     /// - Returns: The encoded JSON data.
     public func encoded(
         for configurations: borrowing ConfigurationValues
-    ) throws -> Data? {
+    ) throws(NetworkingError) -> Data? {
         return self
     }
 }
@@ -131,7 +131,7 @@ extension JSON: RequestBody {
     /// Encodes the JSON body.
     ///
     /// - Returns: The encoded JSON data.
-    public func body() throws -> Data? {
+    public func body() throws(NetworkingError) -> Data? {
         return try encodable.encoded(for: configurations)
     }
     

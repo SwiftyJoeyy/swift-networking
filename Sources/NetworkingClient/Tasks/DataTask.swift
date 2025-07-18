@@ -28,29 +28,41 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     @_spi(Internal) open override func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
-    ) async throws -> DataResponse {
-        let response = try await session.session.data(
-            for: urlRequest,
-            delegate: session.delegate
-        )
-        let status = response.1.status
-        if configurations.logsEnabled {
-            await NetworkLogger.logReceived(
-                data: response.0,
-                status: status,
-                id: request.id
+    ) async throws(NetworkingError) -> DataResponse {
+        do {
+            let response = try await session.session.data(
+                for: urlRequest,
+                delegate: session.delegate
             )
+            let status = response.1.status
+            if configurations.logsEnabled {
+                await NetworkLogger.logReceived(
+                    data: response.0,
+                    status: status,
+                    id: request.id
+                )
+            }
+            return response
+        }catch let error as URLError {
+            throw .client(.urlError(error))
+        }catch {
+            throw .custom(error)
         }
-        return response
     }
     
     /// Decodes the response data into a specified ``Decodable`` type.
     ///
     /// - Parameter type: The ``Decodable`` type to decode the data into.
     /// - Returns: The decoded object of type `T`.
-    open func decode<T: Decodable>(as type: T.Type) async throws -> sending T {
+    open func decode<T: Decodable>(as type: T.Type) async throws(NetworkingError) -> sending T {
         let response = try await response()
         let decoder = configurations.decoder
-        return try decoder.decode(T.self, from: response.0)
+        do {
+            return try decoder.decode(T.self, from: response.0)
+        }catch let error as DecodingError {
+            throw .decoding(error)
+        }catch {
+            throw .custom(error)
+        }
     }
 }

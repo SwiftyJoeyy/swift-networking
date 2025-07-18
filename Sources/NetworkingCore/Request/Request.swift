@@ -68,7 +68,7 @@ public protocol Request: _DynamicConfigurable, CustomStringConvertible {
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     @_spi(Internal) func _makeURLRequest(
         with configurations: ConfigurationValues
-    ) throws -> URLRequest
+    ) throws(NetworkingError) -> URLRequest
 }
 
 extension Request {
@@ -86,7 +86,7 @@ extension Request {
     /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
     @_spi(Internal) public func _makeURLRequest(
         with configurations: ConfigurationValues
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         var configs = consume configurations
         if configs.requestID == nil {
             configs[keyPath: \.requestID] = id

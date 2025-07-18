@@ -44,7 +44,7 @@ public protocol RequestInterceptor: Sendable {
         request: consuming URLRequest,
         for session: Session,
         with configurations: ConfigurationValues
-    ) async throws -> URLRequest
+    ) async throws(NetworkingError) -> URLRequest
 }
 
 /// A default implementation of ``RequestInterceptor`` using a closure.
@@ -90,8 +90,12 @@ public struct DefaultRequestInterceptor: RequestInterceptor {
         request: consuming URLRequest,
         for session: Session,
         with configurations: ConfigurationValues
-    ) async throws -> URLRequest {
-        return try await handler(consume request, task, session, configurations)
+    ) async throws(NetworkingError) -> URLRequest {
+        do {
+            return try await handler(consume request, task, session, configurations)
+        }catch {
+            throw error.networkingError
+        }
     }
 }
 

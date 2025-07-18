@@ -25,7 +25,7 @@ extension RequestHeader {
     /// - Returns: The modified ``URLRequest`` with headers added.
     public func modifying(
         _ request: consuming URLRequest
-    ) throws -> URLRequest {
+    ) throws(NetworkingError) -> URLRequest {
         for header in headers {
             request.setValue(header.value, forHTTPHeaderField: header.key)
         }

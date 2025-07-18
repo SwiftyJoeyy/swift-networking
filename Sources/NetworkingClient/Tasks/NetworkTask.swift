@@ -85,22 +85,22 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     @_spi(Internal) open func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
-    ) async throws -> Response {
+    ) async throws(NetworkingError) -> Response {
         fatalError("must override execute(_:session:)")
     }
     
     /// Called when the task has finished execution (success or error).
     ///
     /// Removes itself from the task storage and logs the outcome.
-    @_spi(Internal) open func _finished(with error: (any Error)?) async {
+    @_spi(Internal) open func _finished(with error: NetworkingError?) async {
         if let urlRequest = await state.urlRequest {
             await configurations.tasks.remove(urlRequest)
         }
     }
 
     /// Starts or resumes the task if needed and returns its response.
-    @discardableResult public func response() async throws -> sending Response {
-        return try await currentTask().value
+    @discardableResult public func response() async throws(NetworkingError) -> sending Response {
+        return try await currentTask().typedValue
     }
 }
 
@@ -130,9 +130,9 @@ extension NetworkTask {
     /// Errors are caught and returned as `.failure(...)` results.
     ///
     /// - Returns: A result containing the response or an error.
-    func perform() async -> Result<Response, any Error> {
-        var result: Result<Response, any Error>
-        do {
+    func perform() async -> Result<Response, NetworkingError> {
+        var result: Result<Response, NetworkingError>
+        do throws(NetworkingError) {
             let urlRequest = try await makeURLRequest()
             let response = try await _execute(urlRequest, session: session)
             result = .success(response)
@@ -140,8 +140,8 @@ extension NetworkTask {
             result = .failure(error)
         }
         
-        do {
-            try Task.checkCancellation()
+        do throws(NetworkingError) {
+            try Task.checkTypedCancellation()
             let context = await InterceptorContext(
                 configurations: configurations,
                 status: result.value?.1.status,
@@ -158,7 +158,7 @@ extension NetworkTask {
                 case .continue:
                     return result
                 case .failure(let error):
-                    return .failure(error)
+                    return .failure(error.networkingError)
                 case .retry:
                     await state.resetTask()
                     return await perform()
@@ -177,7 +177,7 @@ extension NetworkTask {
     /// - Stores the result in `state` and registers it for tracking
     ///
     /// - Returns: A fully constructed and intercepted ``URLRequest``.
-    private func makeURLRequest() async throws -> URLRequest {
+    private func makeURLRequest() async throws(NetworkingError) -> URLRequest {
         if let oldRequest = await state.urlRequest {
             await configurations.tasks.remove(oldRequest)
         }
