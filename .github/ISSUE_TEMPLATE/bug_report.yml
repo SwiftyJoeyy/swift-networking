@@ -51,8 +51,8 @@ body:
         Swift 6.1
         iOS 18.4
         Version 1.0.3
-      validations:
-        required: true
+    validations:
+      required: true
 
   - type: textarea
     id: additional-info
