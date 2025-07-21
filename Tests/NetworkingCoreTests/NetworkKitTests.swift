@@ -13,8 +13,8 @@ func getModified<Req: Request, Mod: RequestModifier>(
     _ request: some Request,
     _ req: Req.Type,
     _ mod: Mod.Type
-) -> ModifiedRequest<Req, Mod>? {
-    return request as? ModifiedRequest<Req, Mod>
+) -> _ModifiedRequest<Req, Mod>? {
+    return request as? _ModifiedRequest<Req, Mod>
 }
 
 ////@Test

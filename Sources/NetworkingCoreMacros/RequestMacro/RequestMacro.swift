@@ -107,7 +107,7 @@ extension RequestMacro: ExtensionMacro {
         
         if !getModifiers(declaration: declaration).isEmpty {
             declarations.append(
-                DeclarationsFactory.makeExtensionDecl(type, name: "ModifiableRequest")
+                DeclarationsFactory.makeExtensionDecl(type, name: "_ModifiableRequest")
             )
         }
         return declarations

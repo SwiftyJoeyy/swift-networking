@@ -215,7 +215,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -249,7 +249,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -283,7 +283,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -317,7 +317,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -354,7 +354,7 @@ final class RequestMacroTests: XCTestCase {
             extension TestRequest: Request {
             }
             
-            extension TestRequest: ModifiableRequest {
+            extension TestRequest: _ModifiableRequest {
             }
             """,
             macros: testMacros
@@ -390,7 +390,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -424,7 +424,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -458,7 +458,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -492,7 +492,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -529,7 +529,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -569,7 +569,7 @@ final class RequestMacroTests: XCTestCase {
             extension TestRequest: Request {
             }
             
-            extension TestRequest: ModifiableRequest {
+            extension TestRequest: _ModifiableRequest {
             }
             """,
             macros: testMacros
@@ -609,7 +609,7 @@ final class RequestMacroTests: XCTestCase {
         extension TestRequest: Request {
         }
         
-        extension TestRequest: ModifiableRequest {
+        extension TestRequest: _ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -703,7 +703,7 @@ final class RequestMacroTests: XCTestCase {
             extension TestRequest: Request {
             }
             
-            extension TestRequest: ModifiableRequest {
+            extension TestRequest: _ModifiableRequest {
             }
             """,
             diagnostics: expectedDiagnostics,
