@@ -77,17 +77,3 @@ public struct DefaultRedirectionHandler: RedirectionHandler {
         return .redirect
     }
 }
-
-extension Configurable {
-    /// Sets the handler used to manage HTTP redirections.
-    ///
-    /// Use this method to override the default redirection behavior for a request.
-    /// You can ignore, modify, or explicitly cancel redirects based on response metadata.
-    ///
-    /// - Parameter handler: A type conforming to ``RedirectionHandler``.
-    ///
-    /// - Note: Use ``RedirectionHandler/none`` to disable redirects.
-    public func redirectionHandler(_ handler: some RedirectionHandler) -> Self {
-        return configuration(\.redirectionHandler, handler)
-    }
-}

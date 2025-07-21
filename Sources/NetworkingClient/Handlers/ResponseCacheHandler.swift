@@ -88,22 +88,3 @@ public struct DefaultResponseCacheHandler: ResponseCacheHandler {
         return .cache
     }
 }
-
-extension Configurable {
-    /// Sets the handler used to control how responses are cached.
-    ///
-    /// Use this method to attach a custom ``ResponseCacheHandler`` that decides
-    /// whether a response should be cached, ignored, or modified before storing.
-    ///
-    /// You can return a predefined handler like ``DefaultResponseCacheHandler`` or
-    /// use ``ResponseCacheHandler/none`` to disable caching.
-    ///
-    /// ```swift
-    /// request.cacheHandler(MyCustomCacheHandler())
-    /// ```
-    ///
-    /// - Parameter handler: The handler that manages caching for this request.
-    public func cacheHandler(_ handler: some ResponseCacheHandler) -> Self {
-        return configuration(\.cacheHandler, handler)
-    }
-}

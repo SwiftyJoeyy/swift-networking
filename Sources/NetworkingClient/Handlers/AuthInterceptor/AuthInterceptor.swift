@@ -97,24 +97,3 @@ extension AuthInterceptor: ResponseInterceptor {
         return .retry
     }
 }
-
-extension Configurable {
-    /// Disables request authorization.
-    ///
-    /// Call this to explicitly disable authentication for a request.
-    public func unauthorized() -> Self {
-        return configuration(\.authInterceptor, nil)
-    }
-    
-    /// Sets the authorization provider used to authorize requests.
-    ///
-    /// The interceptor will apply credentials before sending and refresh them
-    /// automatically if the response is unauthorized.
-    ///
-    /// - Parameter provider: A type conforming to ``AuthProvider``.
-    public func authorization(
-        _ provider: some AuthProvider
-    ) -> Self {
-        return configuration(\.authInterceptor, AuthInterceptor(provider: provider))
-    }
-}

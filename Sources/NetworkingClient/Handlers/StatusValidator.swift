@@ -115,37 +115,3 @@ public struct DefaultStatusValidator: StatusValidator {
         try await handler?(task, status, context)
     }
 }
-
-extension Configurable {
-    /// Sets the validator used to validate response statuses.
-    ///
-    /// Use this method to attach a custom ``StatusValidator``.
-    ///
-    /// - Parameter validator: The validator to apply.
-    public func validate(_ validator: some StatusValidator) -> Self {
-        return configuration(\.statusValidator, validator)
-    }
-    
-    /// Disables response status validation.
-    ///
-    /// Use this to explicitly skip status validation for the request.
-    public func unvalidated() -> Self {
-        return configuration(\.statusValidator, nil)
-    }
-    
-    /// Sets a default status validator with an optional validation handler.
-    ///
-    /// - Parameters:
-    ///   - statuses: The set of acceptable statuses.
-    ///   - handler: An optional closure for custom validation logic.
-    public func validate(
-        for statuses: Set<ResponseStatus> = ResponseStatus.validStatuses,
-        _ handler: DefaultStatusValidator.Handler? = nil
-    ) -> Self {
-        let validator = DefaultStatusValidator(
-            validStatuses: statuses,
-            handler
-        )
-        return validate(validator)
-    }
-}

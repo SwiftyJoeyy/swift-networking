@@ -54,7 +54,7 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     ///
     /// - Parameter type: The ``Decodable`` type to decode the data into.
     /// - Returns: The decoded object of type `T`.
-    open func decode<T: Decodable>(as type: T.Type) async throws(NetworkingError) -> sending T {
+    open func decode<T: Decodable>(as type: T.Type) async throws(NetworkingError) -> (sending T) {
         let response = try await response()
         let decoder = configurations.decoder
         do {

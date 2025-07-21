@@ -39,10 +39,3 @@ extension ConfigurationValues {
     /// The interceptors that will intercept the request & response.
     @Config internal var taskInterceptor: any Interceptor = TaskInterceptor()
 }
-
-extension Configurable {
-    /// Enables or disables request/response logging.
-    public func enableLogs(_ enabled: Bool = true) -> Self {
-        return configuration(\.logsEnabled, enabled)
-    }
-}
