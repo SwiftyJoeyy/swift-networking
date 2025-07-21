@@ -179,7 +179,7 @@ extension FormDataFile {
         do {
             let reachableFile = try fileURL.checkPromisedItemIsReachable()
             guard !reachableFile else {return}
-            throw .file(.unreachableFile(fileURL))
+            throw NetworkingError.file(.unreachableFile(fileURL))
         }catch {
             throw .file(
                 .failedFileReachabilityCheck(url: fileURL, error: error)

@@ -23,18 +23,14 @@ struct ModifiedRequestTests {
         }
         
         do {
-            let request = _ModifiedRequest(request: base) {
-                MockModifier()
-            }
+            let request = _ModifiedRequest(request: base, modifier: MockModifier())
             #expect(request.id == base.id)
         }
     }
     
     @Test func makeURLRequestAppliesModifier() throws {
         let base = MockRequest()
-        let request = _ModifiedRequest(request: base) {
-            MockModifier()
-        }
+        let request = _ModifiedRequest(request: base, modifier: MockModifier())
         
         let result = try request._makeURLRequest(with: configurations)
         
@@ -44,9 +40,7 @@ struct ModifiedRequestTests {
     
     @Test func makeURLRequestPreservesBaseRequestValues() throws {
         let base = MockRequest()
-        let request = _ModifiedRequest(request: base) {
-            MockModifier()
-        }
+        let request = _ModifiedRequest(request: base, modifier: MockModifier())
         
         let result = try request._makeURLRequest(with: configurations)
         
