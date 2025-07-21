@@ -16,6 +16,7 @@ public protocol RequestBody: RequestModifier {
     /// Encodes and returns the request body as ``Data``.
     ///
     /// - Returns: The encoded body data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     func body() throws(NetworkingError) -> Data?
 }
 
@@ -28,6 +29,7 @@ extension RequestBody {
     ///  - configurations: The network configurations.
     ///  
     /// - Returns: The modified ``URLRequest`` with the body set.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func modifying(
         _ request: consuming URLRequest
     ) throws(NetworkingError) -> URLRequest {

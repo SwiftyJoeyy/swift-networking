@@ -44,6 +44,7 @@ public protocol ResponseInterceptor: Sendable {
     ///   - context: The response context, including status and error info.
     ///
     /// - Returns: A ``RequestContinuation`` indicating what to do next.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     func intercept(
         _ task: some NetworkingTask,
         for session: Session,

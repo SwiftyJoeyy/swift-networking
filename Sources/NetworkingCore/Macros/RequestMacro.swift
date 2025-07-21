@@ -54,8 +54,21 @@ public macro Request(_ id: String = "") = #externalMacro(
     type: "RequestMacro"
 )
 
-// TODO: - Add support for mods builder in init for composable requests
-
+/// Macro that synthesizes request modification logic based on dynamic configurations.
+///
+/// Apply `@RequestModifier` to any type that contains a `@Configurations` annotated property
+/// to automatically:
+/// - Conform the type to ``RequestModifier``.
+/// - Generate the required method that delegates configuration values to the property.
+///
+/// ```swift
+/// @RequestModifier struct MyModifier {
+///     @Configurations var config
+/// }
+/// ```
+///
+/// - Warning: Do **not** manually conform to ``RequestModifier``. Use this macro instead.
+/// The macro ensures that required internal wiring is in place to avoid runtime issues.
 @attached(extension, conformances: RequestModifier)
 @attached(member, conformances: RequestModifier, names: named(_accept))
 public macro RequestModifier() = #externalMacro(

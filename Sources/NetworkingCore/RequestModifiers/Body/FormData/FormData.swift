@@ -45,6 +45,7 @@ extension FormData: RequestBody {
     /// Encodes the form-data body into ``Data``.
     ///
     /// - Returns: The encoded form-data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func body() throws(NetworkingError) -> Data? {
         var data = Data()
         
@@ -75,7 +76,7 @@ extension FormData: RequestBody {
     /// Applies configuration values to the modifier.
     ///
     /// - Parameter values: The configuration values to apply.
-    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _accept(_ values: ConfigurationValues) {
         _configurations._accept(values)
     }

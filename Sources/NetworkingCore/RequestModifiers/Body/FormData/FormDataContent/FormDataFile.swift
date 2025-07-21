@@ -98,6 +98,7 @@ extension FormDataFile: FormDataItem {
     /// Reads and encodes the file content into ``Data``.
     ///
     /// - Returns: The encoded file data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func data(
         _ configurations: borrowing ConfigurationValues
     ) throws(NetworkingError) -> Data? {
@@ -150,6 +151,8 @@ extension FormDataFile {
     }
     
     /// Validates whether the file URL is a valid local file path.
+    ///
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     private func checkFileURLValidity() throws(NetworkingError) {
         guard fileURL.isFileURL else {
             throw .file(.invalidFileURL(fileURL))
@@ -170,11 +173,13 @@ extension FormDataFile {
     }
     
     /// Checks if the file at the given URL is reachable and accessible.
+    ///
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     private func checkFileReachability() throws(NetworkingError) {
         do {
             let reachableFile = try fileURL.checkPromisedItemIsReachable()
             guard !reachableFile else {return}
-            throw NetworkingError.file(.unreachableFile(fileURL))
+            throw .file(.unreachableFile(fileURL))
         }catch {
             throw .file(
                 .failedFileReachabilityCheck(url: fileURL, error: error)

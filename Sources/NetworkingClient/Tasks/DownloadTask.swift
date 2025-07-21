@@ -48,6 +48,8 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///   - session: The session managing the download.
     ///
     /// - Returns: A tuple containing the downloaded ``URL`` and ``URLResponse``.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     open override func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
@@ -71,6 +73,8 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     ///
     /// - Parameters:
     ///   - error: An optional error if the task failed.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     open override func _finished(with error: NetworkingError?) async {
         await super._finished(with: error)
         await progressTracker.finish()
@@ -79,6 +83,8 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     /// Reports download progress to the task.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _session(
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
@@ -93,6 +99,8 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     /// Called when a download task is resumed from previous download data.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _session(
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64

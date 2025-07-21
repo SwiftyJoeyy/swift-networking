@@ -35,6 +35,8 @@ public protocol NetworkingTask: Sendable {
     /// Reports download progress to the task.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     func _session(
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
@@ -44,6 +46,8 @@ public protocol NetworkingTask: Sendable {
     /// Called when a download task is resumed from previous download data.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     func _session(
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64
@@ -52,6 +56,8 @@ public protocol NetworkingTask: Sendable {
     /// Called when a task has finished collecting metrics.
     ///
     /// This is typically called by the ``URLSessionTaskDelegate``.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     func _session(collected metrics: URLSessionTaskMetrics) async
     
     
@@ -60,6 +66,8 @@ public protocol NetworkingTask: Sendable {
     @discardableResult func suspend() async -> Self
     
     /// Sets the ``URLSessionTask``.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     func _set(_ task: URLSessionTask) async
 }
@@ -69,6 +77,8 @@ extension NetworkingTask {
     /// Reports download progress to the task.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _session(
         didWriteData bytesWritten: Int64,
         totalBytesWritten: Int64,
@@ -78,6 +88,8 @@ extension NetworkingTask {
     /// Called when a download task is resumed from previous download data.
     ///
     /// This is typically called by the ``URLSessionDownloadDelegate`` during download.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _session(
         didResumeAtOffset fileOffset: Int64,
         expectedTotalBytes: Int64
@@ -86,6 +98,8 @@ extension NetworkingTask {
     /// Called when a task has finished collecting metrics.
     ///
     /// This is typically called by the ``URLSessionTaskDelegate``.
+    ///
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _session(
         collected metrics: URLSessionTaskMetrics
     ) async { }

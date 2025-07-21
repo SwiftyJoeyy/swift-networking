@@ -40,6 +40,7 @@ public actor AuthInterceptor {
     /// If a refresh is already ongoing, subsequent callers await its result.
     ///
     /// - Parameter session: The active session to use for refreshing.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     private func refresh(with session: Session) async throws(NetworkingError) {
         do {
             if let task {
@@ -64,6 +65,7 @@ extension AuthInterceptor: RequestInterceptor {
     /// this method refreshes the credentials before continuing.
     ///
     /// - Returns: A modified request with authentication applied.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func intercept(
         _ task: some NetworkingTask,
         request: consuming URLRequest,
@@ -84,6 +86,7 @@ extension AuthInterceptor: ResponseInterceptor {
     /// This only runs if the response is `401 Unauthorized` and the retry count is zero.
     ///
     /// - Returns: `.retry` if refresh succeeds; otherwise `.continue` or rethrows on failure.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func intercept(
         _ task: some NetworkingTask,
         for session: Session,

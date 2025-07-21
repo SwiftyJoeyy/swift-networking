@@ -82,6 +82,7 @@ extension FormDataBody: FormDataItem {
     /// Encodes the form-data content into ``Data``.
     ///
     /// - Returns: The encoded data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func data(
         _ configurations: borrowing ConfigurationValues
     ) throws(NetworkingError) -> Data? {

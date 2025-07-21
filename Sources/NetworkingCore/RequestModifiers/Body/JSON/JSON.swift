@@ -12,6 +12,7 @@ public protocol JSONEncodable {
     /// Encodes the object into JSON data.
     ///
     /// - Returns: The encoded JSON data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     func encoded(
         for configurations: borrowing ConfigurationValues
     ) throws(NetworkingError) -> Data?
@@ -21,6 +22,7 @@ extension Data?: JSONEncodable {
     /// Encodes the object into JSON data.
     ///
     /// - Returns: The encoded JSON data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func encoded(
         for configurations: borrowing ConfigurationValues
     ) throws(NetworkingError) -> Data? {
@@ -131,6 +133,7 @@ extension JSON: RequestBody {
     /// Encodes the JSON body.
     ///
     /// - Returns: The encoded JSON data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func body() throws(NetworkingError) -> Data? {
         return try encodable.encoded(for: configurations)
     }
@@ -138,7 +141,7 @@ extension JSON: RequestBody {
     /// Applies configuration values to the modifier.
     ///
     /// - Parameter values: The configuration values to apply.
-    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _accept(_ values: ConfigurationValues) {
         _configurations._accept(values)
     }

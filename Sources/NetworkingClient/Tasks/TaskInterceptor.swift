@@ -33,6 +33,7 @@ internal struct TaskInterceptor: Interceptor {
     ///   - configurations: The current configuration values.
     ///
     /// - Returns: The final ``URLRequest`` to send.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     internal func intercept(
         _ task: some NetworkingTask,
         request: consuming URLRequest,
@@ -85,6 +86,7 @@ internal struct TaskInterceptor: Interceptor {
     ///   - context: The response context, including configuration, status, and error.
     ///
     /// - Returns: A continuation value indicating whether to proceed, fail, or retry.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     internal func intercept(
         _ task: some NetworkingTask,
         for session: Session,

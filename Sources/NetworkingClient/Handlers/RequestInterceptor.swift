@@ -39,6 +39,7 @@ public protocol RequestInterceptor: Sendable {
     ///   - configurations: The current resolved configuration values.
     ///
     /// - Returns: The modified or replaced request to be executed.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     func intercept(
         _ task: some NetworkingTask,
         request: consuming URLRequest,

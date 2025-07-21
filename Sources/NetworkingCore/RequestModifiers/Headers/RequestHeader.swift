@@ -23,6 +23,7 @@ extension RequestHeader {
     ///  - configurations: The network configurations.
     ///  
     /// - Returns: The modified ``URLRequest`` with headers added.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func modifying(
         _ request: consuming URLRequest
     ) throws(NetworkingError) -> URLRequest {

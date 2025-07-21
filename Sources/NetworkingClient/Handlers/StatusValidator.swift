@@ -27,6 +27,8 @@ public protocol StatusValidator: ResponseInterceptor, Sendable {
     ///   - task: The current networking task.
     ///   - status: The response status to validate.
     ///   - context: The current request context.
+    ///
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     func validate(
         _ task: some NetworkingTask,
         status: ResponseStatus,
@@ -41,6 +43,7 @@ extension StatusValidator {
     /// if the response has a valid status and no prior error.
     ///
     /// - Returns: `.continue` if the status is valid, `.failure(error)` if validation throws.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func intercept(
         _ task: some NetworkingTask,
         for session: Session,
@@ -104,6 +107,8 @@ public struct DefaultStatusValidator: StatusValidator {
     ///   - task: The current networking task.
     ///   - status: The response status to validate.
     ///   - context: The current request context.
+    ///
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func validate(
         _ task: some NetworkingTask,
         status: ResponseStatus,

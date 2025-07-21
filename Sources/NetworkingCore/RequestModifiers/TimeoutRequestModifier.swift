@@ -28,6 +28,7 @@ import Foundation
     ///  - configurations: The network configurations.
     ///  
     /// - Returns: The modified `URLRequest` with the timeout set.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     @usableFromInline internal func modifying(
         _ request: consuming URLRequest
     ) throws(NetworkingError) -> URLRequest {

@@ -25,6 +25,8 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     ///   - session: The session used to perform the request.
     ///
     /// - Returns: The response containing the raw data and HTTP response.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     open override func _execute(
         _ urlRequest: borrowing URLRequest,
         session: Session
@@ -54,6 +56,7 @@ open class DataTask: NetworkTask<Data>, @unchecked Sendable {
     ///
     /// - Parameter type: The ``Decodable`` type to decode the data into.
     /// - Returns: The decoded object of type `T`.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     open func decode<T: Decodable>(as type: T.Type) async throws(NetworkingError) -> (sending T) {
         let response = try await response()
         let decoder = configurations.decoder

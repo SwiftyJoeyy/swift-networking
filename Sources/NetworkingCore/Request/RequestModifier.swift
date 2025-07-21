@@ -23,6 +23,33 @@ import Foundation
 ///     }
 /// }
 /// ```
+
+/// Type that modifies a ``URLRequest`` before it is sent.
+///
+/// Conforming to ``RequestModifier`` allows you to apply transformations to a request
+/// at runtime. This is useful for injecting headers, changing timeouts, or applying
+/// other custom logic before the request is executed.
+///
+/// Types that conform to this protocol are typically used within a networking pipeline,
+/// and are expected to implement the ``modifying(_:)`` method to alter the request.
+///
+///
+/// ```swift
+/// @RequestModifier struct TimeoutRequestModifier {
+///     @Configurations var config
+///
+///     func modifying(
+///         _ request: consuming URLRequest
+///     ) throws(NetworkingError) -> URLRequest {
+///         request.timeoutInterval = config.timeoutInterval
+///         return request
+///     }
+/// }
+/// ```
+///
+/// - Warning: You should **not** conform to this protocol manually.
+/// Instead, use the ``@RequestModifier`` macro, which handles required wiring
+/// and ensures the modifier integrates correctly with the configuration system.
 public protocol RequestModifier: _DynamicConfigurable {
     /// Modifies the given ``URLRequest`` and returns the updated version.
     ///
@@ -30,21 +57,28 @@ public protocol RequestModifier: _DynamicConfigurable {
     ///  - request: The original request to modify.
     ///
     /// - Returns: The ``URLRequest`` with the modifier applied to it.
-    func modifying(_ request: consuming URLRequest) throws(NetworkingError) -> URLRequest
+    /// - Throws: A ``NetworkingError`` if request construction fails.
+    func modifying(
+        _ request: consuming URLRequest
+    ) throws(NetworkingError) -> URLRequest
 }
 
 extension RequestModifier {
     /// Applies configuration values to the modifier.
     ///
     /// - Parameter values: The configuration values to apply.
-    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _accept(_ values: ConfigurationValues) { }
 }
 
 extension Request {
-    /// Applies a request modifier to the request.
+    /// Use this method to apply a ``RequestModifier`` to a ``Request`` type, enabling
+    /// dynamic customization of the underlying ``URLRequest`` before it is sent.
+    /// This is typically used to inject headers, authentication tokens, timeouts,
+    /// or any other request-level adjustments.
     ///
-    /// Use this to modify a ``Request``:
+    /// The modifier will be invoked during request resolution, allowing it to
+    /// operate with full access to configurations and runtime context.
     ///
     /// ```swift
     /// let signedRequest = UserInfoRequest()

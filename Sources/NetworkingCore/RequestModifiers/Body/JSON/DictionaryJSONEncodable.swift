@@ -25,6 +25,7 @@ extension DictionaryJSONEncodable: JSONEncodable {
     /// Encodes the dictionary into JSON data.
     ///
     /// - Returns: The encoded JSON data.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
     public func encoded(
         for configurations: borrowing ConfigurationValues
     ) throws(NetworkingError) -> Data? {

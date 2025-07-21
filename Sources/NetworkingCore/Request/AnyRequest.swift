@@ -43,13 +43,16 @@ import Foundation
     }
     
 // MARK: - Functions
-    /// Constructs a ``URLRequest`` from this request.
+    /// Constructs a ``URLRequest`` from this request, using the provided configurations.
     ///
-    /// This method builds the final ``URLRequest`` by resolving the base URL, appending the path,
-    /// and applying all configured modifiers.
+    /// This method is responsible for producing the final ``URLRequest`` that will be
+    /// sent over the network. It ensures that all relevant configurations and
+    /// modifiers are applied.
     ///
-    /// - Returns: The configured ``URLRequest``.
-    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    /// - Parameter configurations: The resolved ``ConfigurationValues`` to use during construction.
+    /// - Returns: A fully configured ``URLRequest``.
+    /// - Throws: A ``NetworkingError`` if request construction fails.
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _makeURLRequest(
         with configurations: ConfigurationValues
     ) throws(NetworkingError) -> URLRequest {
@@ -62,7 +65,7 @@ import Foundation
     /// do not call this method directly.
     ///
     /// - Parameter values: The configuration values to apply.
-    /// - Note: This type is prefixed with `_` to indicate that it is not intended for public use.
+    /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _accept(_ values: ConfigurationValues) {
         storage.accept(values)
     }
@@ -79,6 +82,7 @@ extension AnyRequest {
         /// Creates a ``URLRequest`` from the underlying request.
         ///
         /// - Returns: A configured ``URLRequest``.
+        /// - Throws: A ``NetworkingError`` if request construction fails.
         internal func makeURLRequest(
             with configurations: ConfigurationValues
         ) throws(NetworkingError) -> URLRequest {
@@ -113,6 +117,7 @@ extension AnyRequest {
         /// Builds a ``URLRequest`` from the wrapped request.
         ///
         /// - Returns: A configured ``URLRequest``.
+        /// - Throws: A ``NetworkingError`` if request construction fails.
         fileprivate override func makeURLRequest(
             with configurations: ConfigurationValues
         ) throws(NetworkingError) -> URLRequest {
