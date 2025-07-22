@@ -29,16 +29,17 @@ extension RequestParameter {
     public func modifying(
         _ request: consuming URLRequest
     ) throws(NetworkingError) -> URLRequest {
-        guard let url = request.url else {
+        let params = parameters
+        guard !params.isEmpty, let url = request.url else {
             return request
         }
         if #available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *) {
-            request.url?.append(queryItems: parameters)
+            request.url?.append(queryItems: params)
             return request
         }
         var components = URLComponents(string: url.absoluteString)
         let queryItems = components?.queryItems ?? []
-        components?.queryItems = queryItems + parameters
+        components?.queryItems = queryItems + params
         request.url = components?.url
         return request
     }

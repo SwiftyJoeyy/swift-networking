@@ -1,5 +1,5 @@
 //
-//  ModifiedRequestTests.swift
+//  ModifiableRequestTests.swift
 //  Networking
 //
 //  Created by Joe Maghzal on 24/05/2025.
@@ -10,7 +10,7 @@ import Testing
 @testable import NetworkingCore
 
 @Suite(.tags(.request))
-struct ModifiedRequestTests {
+struct ModifiableRequestTests {
     private let configurations = ConfigurationValues()
     
     @Test func modifiedRequestID() {
@@ -46,9 +46,22 @@ struct ModifiedRequestTests {
         
         #expect(result.httpMethod == "GET")
     }
+    
+    @Test func makeURLRequestSetsupModifier() throws {
+        let value = UUID().uuidString
+        var configurations = ConfigurationValues()
+        configurations[MockConfigKey.self] = value
+        
+        let base = MockRequest()
+        let request = _ModifiedRequest(request: base, modifier: ConfiguredModifier())
+        
+        let urlRequest = try request._makeURLRequest(with: configurations)
+        let headerValue = try #require(urlRequest.value(forHTTPHeaderField: "ConfigHeader"))
+        #expect(headerValue == value)
+    }
 }
 
-extension ModifiedRequestTests {
+extension ModifiableRequestTests {
     struct MockRequest: Request {
         let method = RequestMethod.get
         

@@ -89,8 +89,8 @@ struct JSONTests {
         #expect(result.contains("body = JSONEncodableMock"))
     }
     
-// MARK: - CodableJSONEncoder Tests
-    @Test func codableJSONEncoderEncodesValidObject() throws {
+// MARK: - FoundationJSONEncodable Tests
+    @Test func foundationJSONEncodableEncodesValidObject() throws {
         let sample = DataMock()
         let encodable = FoundationJSONEncodable(sample)
         
@@ -100,7 +100,7 @@ struct JSONTests {
         #expect(decoded == sample)
     }
     
-    @Test func codableJSONEncoderThrowsErrorForInvalidObject() throws {
+    @Test func foundationJSONEncodableThrowsErrorForInvalidObject() throws {
         let sample = DataMock(test: .infinity)
         let encodable = FoundationJSONEncodable(sample)
         
@@ -114,7 +114,7 @@ struct JSONTests {
         #expect(foundCorrectError, "Found error \(String(describing: error))")
     }
     
-    @Test func codableJSONEncoderEncodesUsingCustomEncoder() throws {
+    @Test func foundationJSONEncodableEncodesUsingCustomEncoder() throws {
         let sample = DataMock()
         let customEncoder = JSONEncoder()
         customEncoder.keyEncodingStrategy = .convertToSnakeCase
@@ -128,7 +128,7 @@ struct JSONTests {
         #expect(decoded == sample)
     }
     
-    @Test func codableEncoderDescription() {
+    @Test func foundationJSONEncodableDescription() {
         let object = DataMock(test: 10)
         let encoder = FoundationJSONEncodable(object)
         
@@ -137,8 +137,8 @@ struct JSONTests {
         #expect(result.contains("CodableJSONEncoder = DataMock(test: \(object.test)"))
     }
 
-// MARK: - DictionaryJSONEncoder Tests
-    @Test func dictionaryJSONEncoderReturnsNilForEmptyOrNilDictionary() throws {
+// MARK: - DictionaryJSONEncodable Tests
+    @Test func dictionaryJSONEncodableReturnsNilForEmptyOrNilDictionary() throws {
         do {
             let encodable = DictionaryJSONEncodable(dictionary: [:])
             
@@ -154,7 +154,7 @@ struct JSONTests {
         }
     }
     
-    @Test func dictionaryJSONEncoderEncodesDictionaryCorrectly() throws {
+    @Test func dictionaryJSONEncodableEncodesDictionaryCorrectly() throws {
         let dictionary: [String: String] = ["key": "value", "number": "42"]
         let encodable = DictionaryJSONEncodable(dictionary: dictionary)
         
@@ -167,7 +167,7 @@ struct JSONTests {
         #expect(jsonObject == dictionary)
     }
     
-    @Test func dictionaryJSONEncoderFailsForInvalidDictionary() throws {
+    @Test func dictionaryJSONEncodableFailsForInvalidDictionary() throws {
         let dictionary: [String: Date] = ["key": Date()]
         let encodable = DictionaryJSONEncodable(dictionary: dictionary)
         
@@ -182,7 +182,7 @@ struct JSONTests {
         #expect(foundCorrectError, "Found error \(String(describing: error))")
     }
     
-    @Test func dictEncoderDescriptionnIsEmptyWhenDictionaryIsEmptyOrNil() {
+    @Test func dictionaryJSONEncodableDescriptionIsEmptyWhenDictionaryIsEmptyOrNil() {
         do {
             let encoder = DictionaryJSONEncodable(dictionary: [:])
             let result = encoder.description
@@ -198,7 +198,7 @@ struct JSONTests {
         }
     }
     
-    @Test func dictEncoderDescriptionContainsAllKeys() {
+    @Test func dictionaryJSONEncodableDescriptionContainsAllKeys() {
         let encoder = DictionaryJSONEncodable(dictionary: [
             "name": "Alice",
             "email": "alice@example.com"

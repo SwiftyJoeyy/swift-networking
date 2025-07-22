@@ -27,9 +27,26 @@ struct MockRequest: Request {
         ) throws(NetworkingError) -> URLRequest {
             var request = URLRequest(url: URL(string: "https://example.com")!)
             request.httpMethod = "GET"
+            let text = configurations[MockConfigKey.self]
+            request.setValue(text, forHTTPHeaderField: "ConfigHeader")
             return request
         }
     }
     
     var request = Contents()
+}
+
+struct MockConfigKey: ConfigurationKey {
+    static let defaultValue: String = "Config"
+}
+
+@RequestModifier struct ConfiguredModifier {
+    @Configurations private var configurations
+    func modifying(
+        _ request: consuming URLRequest
+    ) throws(NetworkingError) -> URLRequest {
+        let text = configurations[MockConfigKey.self]
+        request.setValue(text, forHTTPHeaderField: "ConfigHeader")
+        return request
+    }
 }

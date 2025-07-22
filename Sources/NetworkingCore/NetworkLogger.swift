@@ -22,8 +22,8 @@ package enum NetworkLogger {
     /// - Parameters:
     ///   - id: A unique identifier associated with the request.
     ///   - url: The target URL of the GET request.
-    package static func logGETRequestWithBody(id: String, url: URL?) {
-        let urlPreview = url.map({"to \($0.absoluteString)"}) ?? ""
+    package static func logGETRequestWithBody(id: String, url: URL) {
+        let urlPreview = "to \(url.absoluteString)"
         logger.info("Discarded HTTP body from GET request (id: \(id)) \(urlPreview)")
     }
 }

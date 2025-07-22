@@ -49,9 +49,6 @@ import Foundation
 /// - Note: If the base URL is not provided at initialization, it must be available
 ///   through ``ConfigurationValues.baseURL`` at the time of request execution.
 @frozen public struct HTTPRequest<Modifier: RequestModifier> {
-    /// The configuration values available to this instance.
-    @Configurations private var configurations
-    
     /// The request's identifier.
     public let id = "HTTPRequest"
     
@@ -136,12 +133,15 @@ extension HTTPRequest: Request {
         }
         
         urlRequest = try modifier.modifying(consume urlRequest)
+        guard urlRequest.url != nil else {
+            throw .invalidRequestURL
+        }
         if urlRequest.httpBody != nil,
             urlRequest.httpMethod == RequestMethod.get.rawValue {
             urlRequest.httpBody = nil
             NetworkLogger.logGETRequestWithBody(
                 id: configurations.requestID ?? id,
-                url: urlRequest.url
+                url: urlRequest.url!
             )
         }
         return urlRequest
@@ -158,6 +158,5 @@ extension HTTPRequest: Request {
     /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _accept(_ values: ConfigurationValues) {
         modifier._accept(values)
-        _configurations._accept(values)
     }
 }
