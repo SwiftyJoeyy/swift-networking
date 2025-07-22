@@ -39,7 +39,7 @@ final class RequestMacroTests: XCTestCase {
                 let id = "TestRequest"
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             """,
             macros: testMacros
@@ -71,7 +71,7 @@ final class RequestMacroTests: XCTestCase {
                 let id = "TestRequest"
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             """,
             macros: testMacros
@@ -99,7 +99,7 @@ final class RequestMacroTests: XCTestCase {
                 let id = "\(id)"
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             """,
             macros: testMacros
@@ -125,7 +125,7 @@ final class RequestMacroTests: XCTestCase {
                 let id = "TestRequest"
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             """,
             macros: testMacros
@@ -152,7 +152,7 @@ final class RequestMacroTests: XCTestCase {
                 }
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             """,
             macros: testMacros
@@ -179,7 +179,7 @@ final class RequestMacroTests: XCTestCase {
                 }
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             """,
             macros: testMacros
@@ -205,17 +205,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Header("contentLanguage", value: contentLanguage)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Header("contentLanguage", value: contentLanguage)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -239,17 +239,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Header("contentLanguage", value: contentLanguage)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Header("contentLanguage", value: contentLanguage)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -273,17 +273,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Header("Content-Language", value: contentLanguage)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Header("Content-Language", value: contentLanguage)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -307,17 +307,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Header("contentLanguage", value: contentLanguage)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Header("contentLanguage", value: contentLanguage)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -343,18 +343,18 @@ final class RequestMacroTests: XCTestCase {
                     HTTPRequest(path: "path")
                 }
             
-                @ModifiersBuilder var modifier: some RequestModifier {
-                    Header("Content-Language", value: contentLanguage)
-                    Header("contentType", value: contentType)
+                @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                    NetworkingCore.Header("Content-Language", value: contentLanguage)
+                    NetworkingCore.Header("contentType", value: contentType)
                 }
             
                 let id = "TestRequest"
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             
-            extension TestRequest: _ModifiableRequest {
+            extension TestRequest: NetworkingCore._ModifiableRequest {
             }
             """,
             macros: testMacros
@@ -380,17 +380,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Parameter("contentType", value: contentType)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Parameter("contentType", value: contentType)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -414,17 +414,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Parameter("contentType", value: contentType)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Parameter("contentType", value: contentType)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -448,17 +448,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Parameter("content-type", value: contentType)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Parameter("content-type", value: contentType)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -482,17 +482,17 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Parameter("content-type", value: contentType)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Parameter("content-type", value: contentType)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -518,18 +518,18 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Parameter("content-type", value: contentType)
-                Parameter("contentLanguage", value: contentLanguage)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Parameter("content-type", value: contentType)
+                NetworkingCore.Parameter("contentLanguage", value: contentLanguage)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -559,17 +559,17 @@ final class RequestMacroTests: XCTestCase {
                     HTTPRequest(path: "path")
                 }
             
-                @ModifiersBuilder var modifier: some RequestModifier {
-                    Parameter("contentType", value: contentType)
+                @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                    NetworkingCore.Parameter("contentType", value: contentType)
                 }
             
                 let id = "TestRequest"
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             
-            extension TestRequest: _ModifiableRequest {
+            extension TestRequest: NetworkingCore._ModifiableRequest {
             }
             """,
             macros: testMacros
@@ -598,18 +598,18 @@ final class RequestMacroTests: XCTestCase {
                 HTTPRequest(path: "path")
             }
         
-            @ModifiersBuilder var modifier: some RequestModifier {
-                Parameter("content-type", value: contentType)
-                Header("contentLanguage", value: contentLanguage)
+            @NetworkingCore.ModifiersBuilder var modifier: some NetworkingCore.RequestModifier {
+                NetworkingCore.Parameter("content-type", value: contentType)
+                NetworkingCore.Header("contentLanguage", value: contentLanguage)
             }
         
             let id = "TestRequest"
         }
         
-        extension TestRequest: Request {
+        extension TestRequest: NetworkingCore.Request {
         }
         
-        extension TestRequest: _ModifiableRequest {
+        extension TestRequest: NetworkingCore._ModifiableRequest {
         }
         """,
         macros: testMacros
@@ -637,12 +637,12 @@ final class RequestMacroTests: XCTestCase {
             
                 let id = "TestRequest"
             
-                func _accept(_ values: ConfigurationValues) {
+                func _accept(_ values: NetworkingCore.ConfigurationValues) {
                     _configs._accept(values)
                 }
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             """,
             macros: testMacros
@@ -657,6 +657,7 @@ final class RequestMacroTests: XCTestCase {
             """
             @Request("\(id)")
             \(level) struct TestRequest {
+                @Header \(level) var contentLanguage: String
                 \(level) var request: some Request {
                     HTTPRequest(path: "path")
                 }
@@ -664,14 +665,23 @@ final class RequestMacroTests: XCTestCase {
             """,
             expandedSource: """
             \(level) struct TestRequest {
+                @Header \(level) var contentLanguage: String
                 \(level) var request: some Request {
                     HTTPRequest(path: "path")
+                }
+            
+                @NetworkingCore.ModifiersBuilder
+                \(level) var modifier: some NetworkingCore.RequestModifier {
+                    NetworkingCore.Header("contentLanguage", value: contentLanguage)
                 }
             
                 \(level) let id = "\(id)"
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
+            }
+            
+            extension TestRequest: NetworkingCore._ModifiableRequest {
             }
             """,
             macros: testMacros
@@ -700,10 +710,10 @@ final class RequestMacroTests: XCTestCase {
                 @Header("Content-Type") var contentType: String
             }
             
-            extension TestRequest: Request {
+            extension TestRequest: NetworkingCore.Request {
             }
             
-            extension TestRequest: _ModifiableRequest {
+            extension TestRequest: NetworkingCore._ModifiableRequest {
             }
             """,
             diagnostics: expectedDiagnostics,
@@ -712,4 +722,3 @@ final class RequestMacroTests: XCTestCase {
     }
 }
 #endif
-

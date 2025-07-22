@@ -41,7 +41,7 @@ internal enum DynamicConfigDeclFactory {
                         FunctionParameterSyntax(
                             firstName: "_",
                             secondName: "values",
-                            type: IdentifierTypeSyntax(name: "ConfigurationValues")
+                            type: IdentifierTypeSyntax(name: "NetworkingCore.ConfigurationValues")
                         )
                     ]
                 )

@@ -36,13 +36,13 @@ final class ClientMacroTests: XCTestCase {
                     Session()
                 }
             
-                var _session: Session!
+                var _session: NetworkingClient.Session!
             
-                @ClientInit init() {
+                @NetworkingClient.ClientInit init() {
                 }
             }
             
-            extension TestClient: NetworkClient {
+            extension TestClient: NetworkingClient.NetworkClient {
             }
             """,
             macros: testMacros
@@ -62,16 +62,16 @@ final class ClientMacroTests: XCTestCase {
             """,
             expandedSource: """
             struct TestClient {
-                @ClientInit
+                @NetworkingClient.ClientInit
                 init() { }
                 var session: Session {
                     Session()
                 }
             
-                var _session: Session!
+                var _session: NetworkingClient.Session!
             }
             
-            extension TestClient: NetworkClient {
+            extension TestClient: NetworkingClient.NetworkClient {
             }
             """,
             macros: testMacros
@@ -93,7 +93,7 @@ final class ClientMacroTests: XCTestCase {
             """,
             expandedSource: """
             struct TestClient {
-                @ClientInit
+                @NetworkingClient.ClientInit
                 init(test: Int) { 
                     self.test = test
                 }
@@ -101,10 +101,10 @@ final class ClientMacroTests: XCTestCase {
                     Session()
                 }
             
-                var _session: Session!
+                var _session: NetworkingClient.Session!
             }
             
-            extension TestClient: NetworkClient {
+            extension TestClient: NetworkingClient.NetworkClient {
             }
             """,
             macros: testMacros
@@ -129,14 +129,14 @@ final class ClientMacroTests: XCTestCase {
                     Session()
                 }
             
-                \(level) var _session: Session!
+                \(level) var _session: NetworkingClient.Session!
             
-                @ClientInit
+                @NetworkingClient.ClientInit
                 \(level) init() {
                 }
             }
             
-            extension TestClient: NetworkClient {
+            extension TestClient: NetworkingClient.NetworkClient {
             }
             """,
             macros: testMacros
@@ -158,16 +158,16 @@ final class ClientMacroTests: XCTestCase {
             """,
             expandedSource: """
             \(level) struct TestClient {
-                @ClientInit
+                @NetworkingClient.ClientInit
                 \(level) init() { }
                 \(level) var session: Session {
                     Session()
                 }
             
-                \(level) var _session: Session!
+                \(level) var _session: NetworkingClient.Session!
             }
             
-            extension TestClient: NetworkClient {
+            extension TestClient: NetworkingClient.NetworkClient {
             }
             """,
             macros: testMacros
@@ -194,11 +194,11 @@ final class ClientMacroTests: XCTestCase {
             """,
             expandedSource: """
             struct TestClient {
-                @ClientInit
+                @NetworkingClient.ClientInit
                 init() { }
             }
             
-            extension TestClient: NetworkClient {
+            extension TestClient: NetworkingClient.NetworkClient {
             }
             """,
             diagnostics: expectedDiagnostics,
@@ -231,7 +231,7 @@ final class ClientMacroTests: XCTestCase {
             """,
             expandedSource: """
             struct TestClient {
-                @ClientInit
+                @NetworkingClient.ClientInit
                 init() { }
                 var session: Session {
                     Session()
@@ -239,7 +239,7 @@ final class ClientMacroTests: XCTestCase {
                 var _session: Session!
             }
             
-            extension TestClient: NetworkClient {
+            extension TestClient: NetworkingClient.NetworkClient {
             }
             """,
             diagnostics: expectedDiagnostics,

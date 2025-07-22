@@ -23,7 +23,7 @@ extension ClientMacro.DeclarationsFactory {
                     pattern: IdentifierPatternSyntax(identifier: "_session"),
                     typeAnnotation: TypeAnnotationSyntax(
                         type: ImplicitlyUnwrappedOptionalTypeSyntax(
-                            wrappedType: IdentifierTypeSyntax(name: "Session")
+                            wrappedType: IdentifierTypeSyntax(name: "NetworkingClient.Session")
                         )
                     )
                 )
@@ -60,7 +60,7 @@ extension ClientMacro.DeclarationsFactory {
             inheritanceClause: InheritanceClauseSyntax(
                 inheritedTypes: [
                     InheritedTypeSyntax(
-                        type: IdentifierTypeSyntax(name: "NetworkClient")
+                        type: IdentifierTypeSyntax(name: "NetworkingClient.NetworkClient")
                     )
                 ]
             )

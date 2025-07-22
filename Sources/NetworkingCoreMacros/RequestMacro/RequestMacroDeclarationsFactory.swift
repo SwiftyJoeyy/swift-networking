@@ -23,7 +23,7 @@ extension RequestMacro.DeclarationsFactory {
             typeAnnotation: TypeAnnotationSyntax(
                 type: SomeOrAnyTypeSyntax(
                     someOrAnySpecifier: .keyword(.some),
-                    constraint: IdentifierTypeSyntax(name: "RequestModifier")
+                    constraint: IdentifierTypeSyntax(name: "NetworkingCore.RequestModifier")
                 )
             ),
             accessorBlock: AccessorBlockSyntax(
@@ -37,7 +37,7 @@ extension RequestMacro.DeclarationsFactory {
                 .attribute(
                     AttributeSyntax(
                         attributeName: IdentifierTypeSyntax(
-                            name: .identifier("ModifiersBuilder")
+                            name: .identifier("NetworkingCore.ModifiersBuilder")
                         )
                     )
                 )

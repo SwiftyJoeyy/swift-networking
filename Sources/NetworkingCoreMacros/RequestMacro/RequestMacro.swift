@@ -102,12 +102,12 @@ extension RequestMacro: ExtensionMacro {
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
         var declarations = [
-            DeclarationsFactory.makeExtensionDecl(type, name: "Request")
+            DeclarationsFactory.makeExtensionDecl(type, name: "NetworkingCore.Request")
         ]
         
         if !getModifiers(declaration: declaration).isEmpty {
             declarations.append(
-                DeclarationsFactory.makeExtensionDecl(type, name: "_ModifiableRequest")
+                DeclarationsFactory.makeExtensionDecl(type, name: "NetworkingCore._ModifiableRequest")
             )
         }
         return declarations

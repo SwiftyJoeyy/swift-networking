@@ -34,7 +34,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 }
             }
             
-            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
                 fileprivate static let defaultValue = JSONDecoder()
             }
             """,
@@ -57,7 +57,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 }
             }
             
-            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
                 fileprivate static let defaultValue: JSONDecoder = JSONDecoder()
             }
             """,
@@ -81,7 +81,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 }
             }
             
-            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
                 fileprivate static let defaultValue: JSONDecoder? = nil
             }
             """,
@@ -104,7 +104,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 }
             }
             
-            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
                 fileprivate static let defaultValue: JSONDecoder? = nil
             }
             """,
@@ -133,7 +133,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 }
             }
             
-            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
                 fileprivate static let defaultValue: (JSONDecoder)? = nil
             }
             """,
@@ -160,7 +160,7 @@ final class ConfigurationKeyMacroTests: XCTestCase {
                 }
             }
             
-            fileprivate struct ConfigurationKey_decoder: ConfigurationKey {
+            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
                 fileprivate static let defaultValue: (any Decoder)? = nil
             }
             """,

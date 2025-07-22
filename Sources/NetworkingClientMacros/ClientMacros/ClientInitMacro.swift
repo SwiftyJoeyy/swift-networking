@@ -10,7 +10,7 @@ import SwiftSyntaxMacros
 
 internal enum ClientInitMacro: BodyMacro {
     private static let functionName = "configure"
-    internal static let name: TokenSyntax = "ClientInit"
+    internal static let name: TokenSyntax = "NetworkingClient.ClientInit"
     
     internal static func expansion(
         of node: AttributeSyntax,

@@ -108,7 +108,7 @@ extension ConfigurationKeyMacro.DeclarationsFactory {
             name: makeKeyName(from: propertyName),
             inheritanceClause: InheritanceClauseSyntax(
                 inheritedTypes: [
-                    InheritedTypeSyntax(type: TypeSyntax("ConfigurationKey"))
+                    InheritedTypeSyntax(type: TypeSyntax("NetworkingCore.ConfigurationKey"))
                 ]
             ),
             memberBlock: MemberBlockSyntax {

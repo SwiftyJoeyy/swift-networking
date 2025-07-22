@@ -26,7 +26,7 @@ struct DynamicConfigDeclFactoryTests {
         let funcDecl = try #require(DynamicConfigDeclFactory.make(for: decl))
         
         let expectedDecl = """
-        func _accept(_ values: ConfigurationValues) {
+        func _accept(_ values: NetworkingCore.ConfigurationValues) {
             _\(propery.text)._accept(values)
         }
         """
@@ -60,7 +60,7 @@ struct DynamicConfigDeclFactoryTests {
         let funcDecl = try #require(DynamicConfigDeclFactory.make(for: decl))
         
         let expectedDecl = """
-        \(level.text) func _accept(_ values: ConfigurationValues) {
+        \(level.text) func _accept(_ values: NetworkingCore.ConfigurationValues) {
             _config._accept(values)
         }
         """

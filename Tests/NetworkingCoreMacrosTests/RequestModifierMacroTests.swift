@@ -31,7 +31,7 @@ final class RequestModifierMacroTests: XCTestCase {
             struct TestModifier {
             }
             
-            extension TestModifier: RequestModifier {
+            extension TestModifier: NetworkingCore.RequestModifier {
             }
             """,
             macros: testMacros
@@ -50,12 +50,12 @@ final class RequestModifierMacroTests: XCTestCase {
             struct TestModifier {
                 @Configurations var configs
             
-                func _accept(_ values: ConfigurationValues) {
+                func _accept(_ values: NetworkingCore.ConfigurationValues) {
                     _configs._accept(values)
                 }
             }
             
-            extension TestModifier: RequestModifier {
+            extension TestModifier: NetworkingCore.RequestModifier {
             }
             """,
             macros: testMacros
@@ -75,12 +75,12 @@ final class RequestModifierMacroTests: XCTestCase {
             \(level) struct TestModifier {
                 @Configurations var configs
             
-                \(level) func _accept(_ values: ConfigurationValues) {
+                \(level) func _accept(_ values: NetworkingCore.ConfigurationValues) {
                     _configs._accept(values)
                 }
             }
             
-            extension TestModifier: RequestModifier {
+            extension TestModifier: NetworkingCore.RequestModifier {
             }
             """,
             macros: testMacros

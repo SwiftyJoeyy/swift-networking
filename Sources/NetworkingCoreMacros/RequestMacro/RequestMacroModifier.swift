@@ -16,7 +16,7 @@ internal struct HeaderMacroModifier: RequestMacroModifier {
     internal let value: TokenSyntax
     
     internal func make() -> CodeBlockItemSyntax {
-        return "Header(\(key), value: \(value))"
+        return "NetworkingCore.Header(\(key), value: \(value))"
     }
 }
 
@@ -25,7 +25,7 @@ internal struct ParameterMacroModifier: RequestMacroModifier {
     internal let value: TokenSyntax
     
     internal func make() -> CodeBlockItemSyntax {
-        return "Parameter(\(name), value: \(value))"
+        return "NetworkingCore.Parameter(\(name), value: \(value))"
     }
 }
 
