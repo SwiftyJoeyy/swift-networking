@@ -74,14 +74,14 @@ struct DownloadTaskTests {
         let task = session.downloadTask(TestRequest())
         
         Task {
-            try await Task.sleep(nanoseconds: 1_000_000_000)
+            try await Task.sleep(nanoseconds: 1_000_000_00)
             for update in expectedUpdates {
                 await task._session(
                     didWriteData: 2,
                     totalBytesWritten: Int64(update * 10),
                     totalBytesExpectedToWrite: 10
                 )
-                try await Task.sleep(nanoseconds: 100_000_000)
+                try await Task.sleep(nanoseconds: 1_000_000_00)
             }
             await task._finished(with: nil)
         }
@@ -122,7 +122,7 @@ struct DownloadTaskTests {
             let task = session.downloadTask(TestRequest())
             
             Task {
-                try await Task.sleep(nanoseconds: 1_000_000_000)
+                try await Task.sleep(nanoseconds: 1_000_000_00)
                 await task._session(
                     didWriteData: 0,
                     totalBytesWritten: 0,
@@ -141,7 +141,7 @@ struct DownloadTaskTests {
             let task = session.downloadTask(TestRequest())
             
             Task {
-                try await Task.sleep(nanoseconds: 1_000_000_000)
+                try await Task.sleep(nanoseconds: 1_000_000_00)
                 await task._session(
                     didResumeAtOffset: 0,
                     expectedTotalBytes: 0
@@ -152,6 +152,56 @@ struct DownloadTaskTests {
             for await progress in await task.progressUpdates {
                 try await #require(task.progress == progress)
                 #expect(progress == 0)
+            }
+        }
+    }
+    
+    @Test func urlSessionTaskGetsCancelledWhenCancellingTask() async throws {
+        let requestID = "expect-cancellation-error"
+        let request = TestRequest()
+            .testID(requestID)
+        
+        await MockURLProtocol.setResult(
+            (4_000_000_000, .failure(MockURLError.errorMock)),
+            for: requestID
+        )
+        let task = ErrorExtractingDownloadTask(
+            request: AnyRequest(request),
+            session: session
+        )
+        task._accept(session.configurations)
+        
+        Task {
+            try await Task.sleep(nanoseconds: 1_000_000_00)
+            await task.cancel()
+        }
+        
+        _ = try? await task.response()
+        let networkingError = try #require(task.error)
+        
+        var foundCorrectError = false
+        if case NetworkingError.custom(let error) = networkingError,
+           let clientError = error as? ClientError,
+           case ClientError.urlError(let urlError) = clientError {
+            foundCorrectError = urlError.code == .cancelled
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
+    }
+}
+
+extension DownloadTaskTests {
+    class ErrorExtractingDownloadTask: DownloadTask, @unchecked Sendable {
+        var error: NetworkingError?
+        
+        open override func _execute(
+            _ urlRequest: borrowing URLRequest,
+            session: Session
+        ) async throws(NetworkingError) -> DownloadResponse {
+            do {
+                return try await super._execute(urlRequest, session: session)
+            }catch {
+                self.error = error
+                throw error
             }
         }
     }

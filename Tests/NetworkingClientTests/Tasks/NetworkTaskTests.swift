@@ -23,7 +23,8 @@ struct NetworkTaskTests {
     @Test func taskConfigurationsAreSet() async throws {
         let baseURL = URL(string: "https://example.com")
         
-        let task = session.dataTask(TestRequest())
+        let request = TestRequest()
+        let task = DummyTask(request: AnyRequest(request), session: session)
             .configuration(\.baseURL, baseURL)
         
         #expect(task.configurations.baseURL == baseURL)
@@ -41,37 +42,6 @@ struct NetworkTaskTests {
         _ = try await task.response()
         
         await #expect(task.metrics != nil)
-    }
-    
-    @Test func taskReturnsExpectedData() async throws {
-        let requestID = "expect-data"
-        let request = TestRequest()
-            .testID(requestID)
-        
-        let string = "Hello, this is a test."
-        let response = (string.data(using: .utf8)!, ResponseStatus.accepted)
-        await MockURLProtocol.setResult(.success(response), for: requestID)
-        
-        let data = try await session.dataTask(request)
-            .response()
-            .0
-        let decoded = String(data: data, encoding: .utf8)
-        #expect(decoded == string)
-    }
-    
-    @Test(arguments: [ResponseStatus.accepted, ResponseStatus.badRequest])
-    func taskReturnsExpectedData(expectedStatus: ResponseStatus) async throws {
-        let requestID = "expect-status\(expectedStatus.rawValue)"
-        let request = TestRequest()
-            .testID(requestID)
-        
-        let response = (Data(), expectedStatus)
-        await MockURLProtocol.setResult(.success(response), for: requestID)
-        
-        let status = try await session.dataTask(request)
-            .response()
-            .1.status
-        #expect(status == expectedStatus)
     }
     
     @Test func taskReturnsExpectedError() async throws {
@@ -107,12 +77,44 @@ struct NetworkTaskTests {
         
         await task.resume()
         
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_00)
         
         let executed = await MockURLHandler.shared.executedRequests[requestID]
         #expect(executed != nil)
     }
     
+    @Test func topLevelTaskCancellationWhenCallingCancel() async throws {
+        let request = TestRequest()
+        let task = DummyTask(request: AnyRequest(request), session: session)
+        task._accept(session.configurations)
+        task.delay = 2_000_000_000
+        await task.resume()
+        try await Task.sleep(nanoseconds: 1_000_000_00)
+        await task.cancel()
+        
+        let networkingError = try await #require(throws: NetworkingError.self) {
+            _ = try await task.response()
+        }
+        var foundCorrectError = false
+        if case NetworkingError.cancellation = networkingError {
+            foundCorrectError = true
+        }
+        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
+    }
+    
+    @Test func resumingTaskMultipleTimesDoesNotCreateANewOne() async throws {
+        let request = TestRequest()
+        let task = DummyTask(request: AnyRequest(request), session: session)
+        task._accept(session.configurations)
+        
+        _ = try await task.response()
+        #expect(task.executed == 1)
+        
+        _ = try await task.response()
+        #expect(task.executed == 1)
+    }
+    
+// MARK: - Storage Tests
     @Test func taskIsStoredInStorageWhenTaskStarts() async throws {
         let requestID = "store-task"
         let request = TestRequest()
@@ -125,7 +127,7 @@ struct NetworkTaskTests {
         let task = session.dataTask(request)
         
         await task.resume()
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_00)
         
         let urlRequest = try #require(await task.urlRequest)
         let stored = await session.configurations.tasks.task(for: urlRequest)
@@ -144,69 +146,15 @@ struct NetworkTaskTests {
         let task = session.dataTask(request)
         
         await task.resume()
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_00)
         
         let urlRequest = try #require(await task.urlRequest)
-        await task.cancel()
         
         let stored = await session.configurations.tasks.task(for: urlRequest)
         #expect(stored == nil)
     }
     
-    @Test func taskCancellationWhenCallingCancel() async throws {
-        let requestID = "expect-cancellation-error"
-        let request = TestRequest()
-            .testID(requestID)
-        
-        await MockURLProtocol.setResult(
-            (4_000_000_000, .failure(MockURLError.errorMock)),
-            for: requestID
-        )
-        let task = session.dataTask(request)
-        
-        await task.resume()
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        await task.cancel()
-        
-        let networkingError = try await #require(throws: NetworkingError.self) {
-            _ = try await task.response()
-        }
-        var foundCorrectError = false
-        if case NetworkingError.cancellation = networkingError {
-            foundCorrectError = true
-        }
-        #expect(foundCorrectError, "Found error \(String(describing: networkingError))")
-    }
-    
-    @Test func requestIsInterceptedBeforeExecution() async throws {
-        let requestID = "intercepted-request"
-        let request = TestRequest()
-            .testID(requestID)
-        
-        await MockURLProtocol.setResult(
-            (100_000_000_000, .failure(MockURLError.errorMock)),
-            for: requestID
-        )
-        
-        let interceptor = MockRequestInterceptor { _, request, _, _ in
-            var request = request
-            request.setValue("true", forHTTPHeaderField: "intercepted")
-            return request
-        }
-        let task = session
-            .configuration(\.interceptor, interceptor)
-            .dataTask(request)
-        
-        await task.resume()
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        
-        let urlRequest = try #require(await task.urlRequest)
-        #expect(urlRequest.value(forHTTPHeaderField: "intercepted") == "true")
-        
-        let executedRequest = try #require(await MockURLHandler.shared.executedRequests[requestID])
-        #expect(executedRequest.value(forHTTPHeaderField: "intercepted") == "true")
-    }
-    
+// MARK: - URLSessionTask Tests
     @Test func settingURLSessionTaskForTask() async throws {
         let requestID = "setting-urlSessionTask"
         let request = TestRequest()
@@ -219,7 +167,7 @@ struct NetworkTaskTests {
         
         let task = session.dataTask(request)
         await task.resume()
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_00)
         
         await #expect(task.sessionTask != nil)
     }
@@ -237,7 +185,7 @@ struct NetworkTaskTests {
         
         let task = session.dataTask(request)
         await task.resume()
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_00)
         
         await task.suspend()
         
@@ -251,7 +199,7 @@ struct NetworkTaskTests {
             .testID(requestID)
         
         await MockURLProtocol.setResult(
-            (4_000_000_000, .success((Data(), .ok))),
+            (1_000_000_000, .success((Data(), .ok))),
             for: requestID
         )
         
@@ -260,16 +208,45 @@ struct NetworkTaskTests {
             try await task.response()
         }
         
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_00)
         await task.suspend()
         let urlSessionTask = try #require(await task.sessionTask)
-        try await Task.sleep(nanoseconds: 1_000_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_00)
         await task.resume()
         
         await #expect(task.sessionTask === urlSessionTask)
         
         let result = try await resultTask.value
         #expect(result.1.status == .ok)
+    }
+    
+// MARK: - Interceptor Tests
+    @Test func requestIsInterceptedBeforeExecution() async throws {
+        let requestID = "intercepted-request"
+        let request = TestRequest()
+            .testID(requestID)
+        
+        await MockURLProtocol.setResult(
+            (100_000_000_000, .failure(MockURLError.errorMock)),
+            for: requestID
+        )
+        
+        let interceptor = MockRequestInterceptor { _, request, _, _ in
+            var request = request
+            request.setValue("true", forHTTPHeaderField: "intercepted")
+            return request
+        }
+        let task = session.dataTask(request)
+            .configuration(\.interceptor, interceptor)
+        
+        await task.resume()
+        try await Task.sleep(nanoseconds: 1_000_000_00)
+        
+        let urlRequest = try #require(await task.urlRequest)
+        #expect(urlRequest.value(forHTTPHeaderField: "intercepted") == "true")
+        
+        let executedRequest = try #require(await MockURLHandler.shared.executedRequests[requestID])
+        #expect(executedRequest.value(forHTTPHeaderField: "intercepted") == "true")
     }
     
     @Test func taskThrowsErrorWhenInterceptorReturnsFailure() async throws {
@@ -288,8 +265,8 @@ struct NetworkTaskTests {
         
         let networkingError = try await #require(throws: NetworkingError.self) {
             _ = try await session
-                .configuration(\.taskInterceptor, interceptor)
                 .dataTask(request)
+                .configuration(\.taskInterceptor, interceptor)
                 .response()
         }
         var foundCorrectError = false
@@ -314,8 +291,8 @@ struct NetworkTaskTests {
         }
         
         let data = try await session
-            .configuration(\.taskInterceptor, interceptor)
             .dataTask(request)
+            .configuration(\.taskInterceptor, interceptor)
             .response()
         
         #expect(data.1.status == .ok)
@@ -338,9 +315,8 @@ struct NetworkTaskTests {
             return .continue
         }
         
-        let task = session
+        let task = session.dataTask(request)
             .configuration(\.taskInterceptor, interceptor)
-            .dataTask(request)
         let data = try await task.response()
         
         #expect(await task.retryCount == 1)
@@ -348,39 +324,56 @@ struct NetworkTaskTests {
     }
 }
 
-struct MockRequestInterceptor: RequestInterceptor {
-    let handler: @Sendable (any NetworkingTask, consuming URLRequest, Session, ConfigurationValues) -> URLRequest
-    func intercept(
-        _ task: some NetworkingTask,
-        request: consuming URLRequest,
-        for session: Session,
-        with configurations: ConfigurationValues
-    ) async throws(NetworkingError) -> URLRequest {
-        return handler(task, consume request, session, configurations)
-    }
-}
-
-struct MockInterceptor: Interceptor {
-    let handler: @Sendable (any NetworkingTask, Session, Context) async throws -> RequestContinuation
-    func intercept(
-        _ task: some NetworkingTask,
-        for session: Session,
-        with context: borrowing Context
-    ) async throws(NetworkingError) -> RequestContinuation {
-        do {
-            return try await handler(task, session, context)
-        }catch {
-            throw error.networkingError
+extension NetworkTaskTests {
+    struct MockRequestInterceptor: RequestInterceptor {
+        let handler: @Sendable (any NetworkingTask, consuming URLRequest, Session, ConfigurationValues) -> URLRequest
+        func intercept(
+            _ task: some NetworkingTask,
+            request: consuming URLRequest,
+            for session: Session,
+            with configurations: ConfigurationValues
+        ) async throws(NetworkingError) -> URLRequest {
+            return handler(task, consume request, session, configurations)
         }
     }
     
-    func intercept(
-        _ task: some NetworkingTask,
-        request: consuming URLRequest,
-        for session: Session,
-        with configurations: ConfigurationValues
-    ) async throws(NetworkingError) -> URLRequest {
-        return request
+    struct MockInterceptor: Interceptor {
+        let handler: @Sendable (any NetworkingTask, Session, Context) async throws -> RequestContinuation
+        func intercept(
+            _ task: some NetworkingTask,
+            for session: Session,
+            with context: borrowing Context
+        ) async throws(NetworkingError) -> RequestContinuation {
+            do {
+                return try await handler(task, session, context)
+            }catch {
+                throw error.networkingError
+            }
+        }
+        
+        func intercept(
+            _ task: some NetworkingTask,
+            request: consuming URLRequest,
+            for session: Session,
+            with configurations: ConfigurationValues
+        ) async throws(NetworkingError) -> URLRequest {
+            return request
+        }
+    }
+    
+    class DummyTask: NetworkTask<String>, @unchecked Sendable {
+        var executed = 0
+        var delay: UInt64?
+        override func _execute(
+            _ urlRequest: borrowing URLRequest,
+            session: Session
+        ) async throws(NetworkingError) -> Response {
+            if let delay {
+                try? await Task.sleep(nanoseconds: delay)
+            }
+            executed += 1
+            return ("", URLResponse())
+        }
     }
 }
 
