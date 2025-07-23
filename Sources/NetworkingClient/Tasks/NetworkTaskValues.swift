@@ -41,9 +41,6 @@ internal actor NetworkTaskValues<T: Sendable> {
     /// The current ``URLSessionTask`` instance, if any.
     internal var sessionTask: URLSessionTask?
     
-    /// The current execution state of a task.
-    internal private(set) var state = TaskState.created
-    
     /// The stream continuation for emitting progress values.
     private var stateStreamContinuation: AsyncStream<TaskState>.Continuation? {
         didSet {
@@ -59,6 +56,13 @@ internal actor NetworkTaskValues<T: Sendable> {
             self.stateStreamContinuation = continuation
         }
     }()
+    
+    /// The current execution state of a task.
+    internal private(set) var state = TaskState.created {
+        didSet {
+            stateStreamContinuation?.yield(state)
+        }
+    }
     
 // MARK: - Initializer
     /// Creates a new task state container.
@@ -128,7 +132,6 @@ internal actor NetworkTaskValues<T: Sendable> {
             return false
         }
         state = newState
-        stateStreamContinuation?.yield(state)
         return true
     }
     
