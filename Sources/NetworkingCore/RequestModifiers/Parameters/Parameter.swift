@@ -182,7 +182,7 @@ extension Request {
     /// struct GoogleRequest {
     ///     var request: some Request {
     ///         HTTPRequest()
-    ///             .appendingParameter("language", value: "en")
+    ///             .appendingParameter("language", values: ["en"])
     ///     }
     /// }
     /// ```

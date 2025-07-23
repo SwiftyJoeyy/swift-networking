@@ -180,7 +180,7 @@ struct NetworkTaskStateTests {
         }
         
         var updates = [TaskState]()
-        for await state in await task.stateUpdates {
+        for await state in task.stateUpdates {
             try await #require(task.state == state)
             updates.append(state)
         }

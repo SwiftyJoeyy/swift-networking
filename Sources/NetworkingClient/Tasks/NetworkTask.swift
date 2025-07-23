@@ -261,9 +261,7 @@ extension NetworkTask: NetworkingTask {
     
     /// A stream that emits state updates throughout the task lifecycle.
     public var stateUpdates: AsyncStream<TaskState> {
-        get async {
-            return await values.stateStream
-        }
+        return values.stateStream.stream
     }
     
     /// Called when a task has finished collecting metrics.

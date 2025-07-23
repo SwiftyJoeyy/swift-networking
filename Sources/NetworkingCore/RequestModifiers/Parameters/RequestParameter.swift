@@ -14,8 +14,6 @@ public protocol RequestParameter: RequestModifier, CustomStringConvertible {
     var parameters: [URLQueryItem] {get}
 }
 
-// TODO: - Add support for parameter encoding strategies (ie: arrays)
-
 // MARK: - RequestModifier
 extension RequestParameter {
     /// Modifies the given ``URLRequest`` by appending query parameters.

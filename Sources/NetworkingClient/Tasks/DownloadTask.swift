@@ -24,9 +24,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     
     /// A stream that emits progress updates throughout the download lifecycle.
     public var progressUpdates: AsyncStream<Double> {
-        get async {
-            return await progressTracker.progressStream
-        }
+        return progressTracker.progressStream.stream
     }
     
     /// The current progress value.
@@ -136,31 +134,20 @@ extension DownloadTask {
 /// - Important: This type is internal and intended for use within the networking framework only.
 internal actor ProgressTracker {
 // MARK: - Properties
-    /// The stream continuation for emitting progress values.
-    private var continuation: AsyncStream<Double>.Continuation? {
-        didSet {
-            continuation?.yield(progress)
-        }
-    }
-    
     /// A stream that emits progress updates throughout the download lifecycle.
-    ///
-    /// The stream completes automatically when ``finish()`` is called.
-    internal private(set) lazy var progressStream: AsyncStream<Double> = {
-        return AsyncStream(
-            bufferingPolicy: .bufferingNewest(1)
-        ) { continuation in
-            self.continuation = continuation
-        }
-    }()
+    internal let progressStream = AsyncStream<Double>.makeStream(bufferingPolicy: .bufferingNewest(1))
     
     /// The current progress value.
     ///
     /// Updating this property emits the new value to the progress stream.
     internal private(set) var progress = Double.zero {
         didSet {
-            continuation?.yield(progress)
+            progressStream.continuation.yield(progress)
         }
+    }
+    
+    internal init() {
+        progressStream.continuation.yield(progress)
     }
     
 // MARK: - Functions
@@ -180,18 +167,13 @@ internal actor ProgressTracker {
     ///   - offset: The number of bytes downloaded.
     ///   - total: The total number of bytes expected.
     internal func setProgress(_ offset: Double, total: Double) {
-        guard total > 0 else {
-            setProgress(0)
-            return
-        }
-        setProgress(offset / total)
+        setProgress(total > 0 ? offset / total : 0)
     }
     
     /// Completes the progress stream and clears the continuation.
     ///
     /// Call this when the download has finished or been cancelled.
     internal func finish() {
-        continuation?.finish()
-        continuation = nil
+        progressStream.continuation.finish()
     }
 }

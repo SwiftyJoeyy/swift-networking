@@ -41,26 +41,13 @@ internal actor NetworkTaskValues<T: Sendable> {
     /// The current ``URLSessionTask`` instance, if any.
     internal var sessionTask: URLSessionTask?
     
-    /// The stream continuation for emitting progress values.
-    private var stateStreamContinuation: AsyncStream<TaskState>.Continuation? {
-        didSet {
-            stateStreamContinuation?.yield(state)
-        }
-    }
-    
     /// A stream that emits state updates throughout the task lifecycle.
-    internal private(set) lazy var stateStream: AsyncStream<TaskState> = {
-        return AsyncStream(
-            bufferingPolicy: .bufferingNewest(1)
-        ) { continuation in
-            self.stateStreamContinuation = continuation
-        }
-    }()
+    internal let stateStream = AsyncStream<TaskState>.makeStream(bufferingPolicy: .bufferingNewest(1))
     
     /// The current execution state of a task.
     internal private(set) var state = TaskState.created {
         didSet {
-            stateStreamContinuation?.yield(state)
+            stateStream.continuation.yield(state)
         }
     }
     
@@ -70,6 +57,7 @@ internal actor NetworkTaskValues<T: Sendable> {
     /// - Parameter request: The type-erased request associated with the task.
     internal init(request: AnyRequest) {
         self.request = request
+        stateStream.continuation.yield(state)
     }
     
 // MARK: - Functions
@@ -139,8 +127,7 @@ internal actor NetworkTaskValues<T: Sendable> {
     ///
     /// Call this when the task has finished or been cancelled.
     internal func finish() {
-        stateStreamContinuation?.finish()
-        stateStreamContinuation = nil
+        stateStream.continuation.finish()
     }
 }
 
