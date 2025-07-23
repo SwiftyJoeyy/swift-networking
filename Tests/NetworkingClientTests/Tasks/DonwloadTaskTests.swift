@@ -87,7 +87,7 @@ struct DownloadTaskTests {
         }
         
         var progressUpdates = [Double]()
-        for await progress in await task.progressStream {
+        for await progress in await task.progressUpdates {
             try await #require(task.progress == progress)
             progressUpdates.append(progress)
         }
@@ -109,7 +109,7 @@ struct DownloadTaskTests {
         }
         
         var progressUpdate = 0.0
-        for await progress in await task.progressStream {
+        for await progress in await task.progressUpdates {
             try await #require(task.progress == progress)
             progressUpdate = progress
         }
@@ -131,7 +131,7 @@ struct DownloadTaskTests {
                 await task._finished(with: nil)
             }
             
-            for await progress in await task.progressStream {
+            for await progress in await task.progressUpdates {
                 try await #require(task.progress == progress)
                 #expect(progress == 0)
             }
@@ -149,7 +149,7 @@ struct DownloadTaskTests {
                 await task._finished(with: nil)
             }
             
-            for await progress in await task.progressStream {
+            for await progress in await task.progressUpdates {
                 try await #require(task.progress == progress)
                 #expect(progress == 0)
             }

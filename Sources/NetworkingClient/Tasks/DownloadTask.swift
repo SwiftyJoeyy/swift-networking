@@ -23,9 +23,7 @@ open class DownloadTask: NetworkTask<URL>, @unchecked Sendable {
     private let progressTracker = ProgressTracker()
     
     /// A stream that emits progress updates throughout the download lifecycle.
-    ///
-    /// The stream completes automatically when ``finish()`` is called.
-    public var progressStream: AsyncStream<Double> {
+    public var progressUpdates: AsyncStream<Double> {
         get async {
             return await progressTracker.progressStream
         }

@@ -30,12 +30,12 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     private let session: Session
     
     /// The thread safe state of the task.
-    private let state: NetworkTaskState<Response>
+    private let values: NetworkTaskValues<Response>
     
     /// The underlying ``URLSessionTask``.
     internal var sessionTask: URLSessionTask? {
         get async {
-            return await state.sessionTask
+            return await values.sessionTask
         }
     }
     
@@ -47,7 +47,7 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     /// You can use this to inspect the request metadata or re-execute it.
     public var request: AnyRequest {
         get async {
-            return await state.request
+            return await values.request
         }
     }
     
@@ -59,7 +59,7 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     /// You can inspect this to view the final request sent over the network.
     public var urlRequest: URLRequest? {
         get async {
-            return await state.urlRequest
+            return await values.urlRequest
         }
     }
     
@@ -75,7 +75,7 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     ) {
         self.id = request.id
         self.session = session
-        self.state = NetworkTaskState(request: request)
+        self.values = NetworkTaskValues(request: request)
     }
     
 // MARK: - Functions
@@ -97,7 +97,9 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     ///
     /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     open func _finished(with error: NetworkingError?) async {
-        if let urlRequest = await state.urlRequest {
+        await values.transition(to: .completed)
+        await values.finish()
+        if let urlRequest = await values.urlRequest {
             await configurations.tasks.remove(urlRequest)
         }
     }
@@ -106,6 +108,10 @@ open class NetworkTask<T: Sendable>: @unchecked Sendable {
     ///
     /// - Throws: A ``NetworkingError`` if request construction fails.
     @discardableResult public func response() async throws(NetworkingError) -> sending Response {
+        guard await state != .cancelled else {
+            throw .cancellation
+        }
+        await values.transition(to: .running)
         return try await currentTask().typedValue
     }
 }
@@ -116,7 +122,7 @@ extension NetworkTask {
     ///
     /// - Returns: A task representing the lifecycle of the current request.
     private func currentTask() async -> Task<Response, any Error> {
-        return await state.activeTask {
+        return await values.activeTask {
             let result = await self.perform()
             await self._finished(with: result.error)
             return try result.get()
@@ -146,13 +152,15 @@ extension NetworkTask {
             result = .failure(error)
         }
         
+        await values.transition(to: .intercepting)
+        
         do throws(NetworkingError) {
             try Task.checkTypedCancellation()
             let context = await InterceptorContext(
                 configurations: configurations,
                 status: result.value?.1.status,
                 retryCount: retryCount,
-                urlRequest: state.urlRequest,
+                urlRequest: values.urlRequest,
                 error: result.error
             )
             let intercepted = try await configurations.taskInterceptor.intercept(
@@ -166,7 +174,7 @@ extension NetworkTask {
                 case .failure(let error):
                     return .failure(error.networkingError)
                 case .retry:
-                    await state.resetTask()
+                    await values.resetTask()
                     return await perform()
             }
         }catch {
@@ -185,7 +193,7 @@ extension NetworkTask {
     /// - Returns: A fully constructed and intercepted ``URLRequest``.
     /// - Throws: A ``NetworkingError`` if request construction fails.
     private func makeURLRequest() async throws(NetworkingError) -> URLRequest {
-        if let oldRequest = await state.urlRequest {
+        if let oldRequest = await values.urlRequest {
             await configurations.tasks.remove(oldRequest)
         }
         var urlRequest = try await request._makeURLRequest(with: configurations)
@@ -196,7 +204,7 @@ extension NetworkTask {
             with: configurations
         )
         await configurations.tasks.add(self, for: urlRequest)
-        await state.set(urlRequest)
+        await values.set(urlRequest)
         return urlRequest
     }
 }
@@ -233,14 +241,28 @@ extension NetworkTask: NetworkingTask {
     /// The number of retry attempts made for this task.
     public var retryCount: Int {
         get async {
-            return await state.retryCount
+            return await values.retryCount
         }
     }
     
     /// The current task metrics.
     public var metrics: URLSessionTaskMetrics? {
         get async {
-            return await state.metrics
+            return await values.metrics
+        }
+    }
+    
+    /// The current execution state of a task.
+    public var state: TaskState {
+        get async {
+            return await values.state
+        }
+    }
+    
+    /// A stream that emits state updates throughout the task lifecycle.
+    public var stateUpdates: AsyncStream<TaskState> {
+        get async {
+            return await values.stateStream
         }
     }
     
@@ -250,7 +272,7 @@ extension NetworkTask: NetworkingTask {
     ///
     /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     public func _session(collected metrics: URLSessionTaskMetrics) async {
-        await state.set(metrics)
+        await values.set(metrics)
     }
     
     /// Sets the ``URLSessionTask``.
@@ -258,21 +280,27 @@ extension NetworkTask: NetworkingTask {
     /// - Note: This method is prefixed with `_` to indicate that it is not intended for public use.
     @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     public func _set(_ task: URLSessionTask) async {
-        await state.set(task)
+        await values.set(task)
     }
     
     /// Cancels the current task if any is running.
     @discardableResult public func cancel() async -> Self {
-        await state.currentTask?.cancel()
+        guard await values.transition(to: .cancelled) else {
+            return self
+        }
+        await values.currentTask?.cancel()
         return self
     }
     
     /// Resumes the task by starting it or continuing it if already started.
     @discardableResult public func resume() async -> Self {
-        if await state.currentTask == nil {
+        guard await values.transition(to: .running) else {
+            return self
+        }
+        if await values.currentTask == nil {
             _ = await currentTask()
         }else {
-            await state.sessionTask?.resume()
+            await values.sessionTask?.resume()
         }
         return self
     }
@@ -280,7 +308,10 @@ extension NetworkTask: NetworkingTask {
     /// Suspends the task if it's currently running.
     @available(iOS 16.0, macOS 13.0, watchOS 9.0, tvOS 16.0, visionOS 1.0, macCatalyst 16.0, *)
     @discardableResult public func suspend() async -> Self {
-        await state.sessionTask?.suspend()
+        guard await values.transition(to: .suspended) else {
+            return self
+        }
+        await values.sessionTask?.suspend()
         return self
     }
 }

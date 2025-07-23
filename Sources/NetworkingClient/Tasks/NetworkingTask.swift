@@ -19,6 +19,12 @@ public protocol NetworkingTask: Sendable {
     /// The number of retry attempts made for this task.
     var retryCount: Int {get async}
     
+    /// The current execution state of a task.
+    var state: TaskState {get async}
+    
+    /// A stream that emits state updates throughout the task lifecycle.
+    var stateUpdates: AsyncStream<TaskState> {get async}
+    
     /// The current task metrics.
     var metrics: URLSessionTaskMetrics? {get async}
     

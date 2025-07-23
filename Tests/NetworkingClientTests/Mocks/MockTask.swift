@@ -17,6 +17,10 @@ actor MockTask: NetworkingTask, Equatable {
     let request: URLRequest
     var isCancelled = false
     var taskSet: URLSessionTask?
+    var state = TaskState.created
+    var stateUpdates: AsyncStream<TaskState> {
+        fatalError()
+    }
     
     init(request: URLRequest) {
         self.request = request
