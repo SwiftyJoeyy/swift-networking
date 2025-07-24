@@ -10,17 +10,6 @@ import SwiftSyntaxMacros
 import MacrosKit
 
 internal enum RequestMacro {
-    private static func validateRequest(
-        declaration: some DeclGroupSyntax
-    ) throws {
-        let hasRequestRequirement = declaration.memberBlock.members.contains {
-            return $0.decl.as(VariableDeclSyntax.self)?.name?.text == "request"
-        }
-        if !hasRequestRequirement {
-            throw RequestMacroDiagnostic.missingRequestDeclaration
-        }
-    }
-    
     private static func getModifiers(
         declaration: some DeclGroupSyntax
     ) -> [any RequestMacroModifier] {
@@ -56,7 +45,6 @@ extension RequestMacro: MemberMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        try validateRequest(declaration: declaration)
         let reqMods = getModifiers(declaration: declaration)
         
         var declarations = [DeclSyntax]()

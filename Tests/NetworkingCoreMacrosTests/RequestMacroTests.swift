@@ -688,37 +688,5 @@ final class RequestMacroTests: XCTestCase {
             )
         }
     }
-    
-// MARK: - Validation Tests
-    func testClientMacroFailsWithMissingDeclarationErrorWhenCommandPropertyIsMissing() {
-        let expectedDiagnostics = [
-            // The property is missing a 'request' property declaration.
-            DiagnosticSpec(message: RequestMacroDiagnostic.missingRequestDeclaration.message, line: 1, column: 1)
-        ]
-        
-        assertMacroExpansion(
-            """
-            @Request
-            struct TestRequest {
-                @Header("Content-Language") var contentLanguage: String
-                @Header("Content-Type") var contentType: String
-            }
-            """,
-            expandedSource: """
-            struct TestRequest {
-                @Header("Content-Language") var contentLanguage: String
-                @Header("Content-Type") var contentType: String
-            }
-            
-            extension TestRequest: NetworkingCore.Request {
-            }
-            
-            extension TestRequest: NetworkingCore._ModifiableRequest {
-            }
-            """,
-            diagnostics: expectedDiagnostics,
-            macros: testMacros
-        )
-    }
 }
 #endif

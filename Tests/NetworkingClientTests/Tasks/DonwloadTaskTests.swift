@@ -131,7 +131,7 @@ struct DownloadTaskTests {
                 await task._finished(with: nil)
             }
             
-            for await progress in await task.progressUpdates {
+            for await progress in task.progressUpdates {
                 try await #require(task.progress == progress)
                 #expect(progress == 0)
             }
@@ -149,7 +149,7 @@ struct DownloadTaskTests {
                 await task._finished(with: nil)
             }
             
-            for await progress in await task.progressUpdates {
+            for await progress in task.progressUpdates {
                 try await #require(task.progress == progress)
                 #expect(progress == 0)
             }
