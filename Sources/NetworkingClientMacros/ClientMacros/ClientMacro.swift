@@ -12,7 +12,6 @@ import MacrosKit
 
 internal enum ClientMacro {
 // MARK: - Properties
-    private static let sessionRequirement = "session"
     private static let sessionProperty = "_session"
     
 // MARK: - Functions
@@ -44,7 +43,6 @@ internal enum ClientMacro {
         in context: some MacroExpansionContext
     ) throws -> Bool {
         var hasInitializer = false
-        var hasSessionRequirement = false
         
         for member in declaration.memberBlock.members {
             guard !member.decl.is(InitializerDeclSyntax.self) else {
@@ -60,13 +58,6 @@ internal enum ClientMacro {
                 propertyName: propertyName,
                 context: context
             )
-            
-            if !hasSessionRequirement {
-                hasSessionRequirement = propertyName == sessionRequirement
-            }
-        }
-        guard hasSessionRequirement else {
-            throw ClientMacroDiagnostic.missingSessionDeclaration
         }
         return hasInitializer
     }

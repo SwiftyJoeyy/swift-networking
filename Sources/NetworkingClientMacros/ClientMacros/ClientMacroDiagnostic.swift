@@ -9,7 +9,6 @@ import SwiftSyntax
 import SwiftDiagnostics
 
 internal enum ClientMacroDiagnostic: Error {
-    case missingSessionDeclaration
     case unexpectedSessionDeclaration
 }
 
@@ -17,8 +16,6 @@ extension ClientMacroDiagnostic: DiagnosticMessage {
     /// The diagnostic messages.
     internal var message: String {
         switch self {
-            case .missingSessionDeclaration:
-                return "Property 'session' is required to conform to protocol 'NetworkClient'"
             case .unexpectedSessionDeclaration:
                 return "Unexpected '_session' property declaration"
         }
