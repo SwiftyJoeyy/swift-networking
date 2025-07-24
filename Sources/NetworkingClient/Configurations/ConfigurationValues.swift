@@ -34,7 +34,7 @@ extension ConfigurationValues {
     ///
     /// - Warning: If accessed before being explicitly set, this property will trigger a runtime
     /// precondition failure to help catch misconfiguration.
-    @Config(forceUnwrapped: true) public internal(set) var tasks: any TasksStorage
+    @Config public internal(set) var tasks: (any TasksStorage)!
     
     /// The interceptors that will intercept the request & response.
     @Config internal var taskInterceptor: any Interceptor = TaskInterceptor()

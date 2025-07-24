@@ -22,20 +22,24 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacro() {
         assertMacroExpansion(
             """
-            @Config var decoder = JSONDecoder()
+            extension ConfigurationValues {
+                @Config var decoder = JSONDecoder()
+            }
             """,
             expandedSource: """
-            var decoder {
-                get {
-                    return self[ConfigurationKey_decoder.self]
+            extension ConfigurationValues {
+                var decoder {
+                    get {
+                        return self[ConfigurationKey_decoder.self]
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
-                }
-            }
             
-            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
-                fileprivate static let defaultValue = JSONDecoder()
+                fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
+                    fileprivate static let defaultValue = JSONDecoder()
+                }
             }
             """,
             macros: testMacros
@@ -45,20 +49,24 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroWithType() {
         assertMacroExpansion(
             """
-            @Config var decoder: JSONDecoder = JSONDecoder()
+            extension ConfigurationValues {
+                @Config var decoder: JSONDecoder = JSONDecoder()
+            }
             """,
             expandedSource: """
-            var decoder: JSONDecoder {
-                get {
-                    return self[ConfigurationKey_decoder.self]
+            extension ConfigurationValues {
+                var decoder: JSONDecoder {
+                    get {
+                        return self[ConfigurationKey_decoder.self]
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
-                }
-            }
             
-            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
-                fileprivate static let defaultValue: JSONDecoder = JSONDecoder()
+                fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
+                    fileprivate static let defaultValue: JSONDecoder = JSONDecoder()
+                }
             }
             """,
             macros: testMacros
@@ -69,20 +77,24 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroWithOptionalValueWithInitializer() {
         assertMacroExpansion(
             """
-            @Config var decoder: JSONDecoder? = nil
+            extension ConfigurationValues {
+                @Config var decoder: JSONDecoder? = nil
+            }
             """,
             expandedSource: """
-            var decoder: JSONDecoder? {
-                get {
-                    return self[ConfigurationKey_decoder.self]
+            extension ConfigurationValues {
+                var decoder: JSONDecoder? {
+                    get {
+                        return self[ConfigurationKey_decoder.self]
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
-                }
-            }
             
-            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
-                fileprivate static let defaultValue: JSONDecoder? = nil
+                fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
+                    fileprivate static let defaultValue: JSONDecoder? = nil
+                }
             }
             """,
             macros: testMacros
@@ -92,20 +104,24 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroWithOptionalValueWithoutInitializer() {
         assertMacroExpansion(
             """
-            @Config var decoder: JSONDecoder?
+            extension ConfigurationValues {
+                @Config var decoder: JSONDecoder?
+            }
             """,
             expandedSource: """
-            var decoder: JSONDecoder? {
-                get {
-                    return self[ConfigurationKey_decoder.self]
+            extension ConfigurationValues {
+                var decoder: JSONDecoder? {
+                    get {
+                        return self[ConfigurationKey_decoder.self]
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
-                }
-            }
             
-            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
-                fileprivate static let defaultValue: JSONDecoder? = nil
+                fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
+                    fileprivate static let defaultValue: JSONDecoder? = nil
+                }
             }
             """,
             macros: testMacros
@@ -116,25 +132,29 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroWithForceUnwrapTrue() {
         assertMacroExpansion(
             """
-            @Config(forceUnwrapped: true) var decoder: JSONDecoder
+            extension ConfigurationValues {
+                @Config var decoder: JSONDecoder!
+            }
             """,
             expandedSource: """
-            var decoder: JSONDecoder {
-                get {
-                    let value = self[ConfigurationKey_decoder.self]
-                    precondition(
-                        value != nil,
-                        "Missing configuration of type: 'JSONDecoder'. Make sure you're setting a value for the key 'decoder' before using it."
-                    )
-                    return value!
+            extension ConfigurationValues {
+                var decoder: JSONDecoder! {
+                    get {
+                        let value = self[ConfigurationKey_decoder.self]
+                        precondition(
+                            value != nil,
+                            "Missing configuration of type: 'JSONDecoder'. Make sure you're setting a value for the key 'decoder' before using it."
+                        )
+                        return value!
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
-                }
-            }
             
-            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
-                fileprivate static let defaultValue: (JSONDecoder)? = nil
+                fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
+                    fileprivate static let defaultValue: JSONDecoder? = nil
+                }
             }
             """,
             macros: testMacros
@@ -143,25 +163,29 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     func testConfigurationKeyMacroWithForceUnwrapTrueAndExistential() {
         assertMacroExpansion(
             """
-            @Config(forceUnwrapped: true) var decoder: any Decoder
+            extension ConfigurationValues {
+                @Config var decoder: (any Decoder)!
+            }
             """,
             expandedSource: """
-            var decoder: any Decoder {
-                get {
-                    let value = self[ConfigurationKey_decoder.self]
-                    precondition(
-                        value != nil,
-                        "Missing configuration of type: 'any Decoder'. Make sure you're setting a value for the key 'decoder' before using it."
-                    )
-                    return value!
+            extension ConfigurationValues {
+                var decoder: (any Decoder)! {
+                    get {
+                        let value = self[ConfigurationKey_decoder.self]
+                        precondition(
+                            value != nil,
+                            "Missing configuration of type: '(any Decoder)'. Make sure you're setting a value for the key 'decoder' before using it."
+                        )
+                        return value!
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
-                }
-            }
             
-            fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
-                fileprivate static let defaultValue: (any Decoder)? = nil
+                fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
+                    fileprivate static let defaultValue: (any Decoder)? = nil
+                }
             }
             """,
             macros: testMacros
@@ -169,31 +193,86 @@ final class ConfigurationKeyMacroTests: XCTestCase {
     }
     
 // MARK: - Validation Tests
-    func testConfigurationKeyMacroFailsWithInvalidPropertyType() {
+    func testConfigurationKeyMacroFailsWhenPropertyIsNotInConfigurationValuesExtension() {
+        // Invalid declaration, the macro requires the property to be
+        // in an extension of ConfigurationValues.
+        let diagnostic = DiagnosticSpec(
+            message: ConfigurationKeyMacroDiagnostic.invalidDeclarationContext.message,
+            line: 2,
+            column: 5
+        )
+        
+        assertMacroExpansion(
+            """
+            extension String {
+                @Config var decoder = JSONDecoder()
+            }
+            """,
+            expandedSource: """
+            extension String {
+                var decoder {
+                    get {
+                        return self[ConfigurationKey_decoder.self]
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
+                }
+            }
+            """,
+            diagnostics: [diagnostic],
+            macros: testMacros
+        )
+    }
+    
+    func testConfigurationKeyMacroFailsWhenMacroIsAppliedToLetProperty() {
         // Invalid property type, the macro requires var instead of let.
         let diagnostic = DiagnosticSpec(
             message: ConfigurationKeyMacroDiagnostic.invalidPropertyType.message,
-            line: 1,
-            column: 1
+            line: 2,
+            column: 5,
+            fixIts: [
+                FixItSpec(message: "Replace 'let' with 'var'")
+            ]
         )
         
         assertMacroExpansion(
             """
-            @Config let decoder = JSONDecoder()
+            extension ConfigurationValues {
+                @Config let decoder = JSONDecoder()
+            }
             """,
             expandedSource: """
-            let decoder = JSONDecoder()
+            extension ConfigurationValues {
+                let decoder = JSONDecoder()
+            
+                fileprivate struct ConfigurationKey_decoder: NetworkingCore.ConfigurationKey {
+                    fileprivate static let defaultValue = JSONDecoder()
+                }
+            }
             """,
-            diagnostics: [diagnostic, diagnostic],
+            diagnostics: [diagnostic],
             macros: testMacros
         )
-        
+    }
+    
+    func testConfigurationKeyMacroFailsWhenMacroIsAppliedToFunction() {
+        // Invalid type, the macro can only be applied to vars not funcs.
+        let diagnostic = DiagnosticSpec(
+            message: ConfigurationKeyMacroDiagnostic.invalidPropertyType.message,
+            line: 2,
+            column: 5
+        )
         assertMacroExpansion(
             """
-            @Config func decoder() { }
+            extension ConfigurationValues {
+                @Config func decoder() { }
+            }
             """,
             expandedSource: """
-            func decoder() { }
+            extension ConfigurationValues {
+                func decoder() { }
+            }
             """,
             diagnostics: [diagnostic],
             macros: testMacros
@@ -204,21 +283,25 @@ final class ConfigurationKeyMacroTests: XCTestCase {
         // The property is missing an initializer
         let diagnostic = DiagnosticSpec(
             message: ConfigurationKeyMacroDiagnostic.missingInitializer.message,
-            line: 1,
-            column: 1
+            line: 2,
+            column: 5
         )
         
         assertMacroExpansion(
             """
-            @Config var decoder
+            extension ConfigurationValues {
+                @Config var decoder
+            }
             """,
             expandedSource: """
-            var decoder {
-                get {
-                    return self[ConfigurationKey_decoder.self]
-                }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
+            extension ConfigurationValues {
+                var decoder {
+                    get {
+                        return self[ConfigurationKey_decoder.self]
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
             }
             """,
@@ -231,45 +314,29 @@ final class ConfigurationKeyMacroTests: XCTestCase {
         // The property is missing an initializer
         let diagnostic = DiagnosticSpec(
             message: ConfigurationKeyMacroDiagnostic.missingInitializer.message,
-            line: 1,
-            column: 1
+            line: 2,
+            column: 5
         )
         
         assertMacroExpansion(
             """
-            @Config var decoder: JSONDecoder
+            extension ConfigurationValues {
+                @Config var decoder: JSONDecoder
+            }
             """,
             expandedSource: """
-            var decoder: JSONDecoder {
-                get {
-                    return self[ConfigurationKey_decoder.self]
-                }
-                set {
-                    self[ConfigurationKey_decoder.self] = newValue
+            extension ConfigurationValues {
+                var decoder: JSONDecoder {
+                    get {
+                        return self[ConfigurationKey_decoder.self]
+                    }
+                    set {
+                        self[ConfigurationKey_decoder.self] = newValue
+                    }
                 }
             }
             """,
             diagnostics: [diagnostic],
-            macros: testMacros
-        )
-    }
-    
-    func testConfigurationKeyMacroFailsWithMissingTypeWithForceUnwrappAttribute() {
-        // The property is missing a type
-        let diagnostic = DiagnosticSpec(
-            message: ConfigurationKeyMacroDiagnostic.missingTypeAnnotation.message,
-            line: 1,
-            column: 1
-        )
-        
-        assertMacroExpansion(
-            """
-            @Config(forceUnwrapped: true) var decoder
-            """,
-            expandedSource: """
-            var decoder
-            """,
-            diagnostics: [diagnostic, diagnostic],
             macros: testMacros
         )
     }

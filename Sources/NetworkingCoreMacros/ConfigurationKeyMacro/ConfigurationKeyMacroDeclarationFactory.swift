@@ -75,8 +75,7 @@ extension ConfigurationKeyMacro.DeclarationsFactory {
     internal static func makeKeyDecl(
         propertyName: PatternSyntax,
         binding: PatternBindingSyntax,
-        forced: Bool,
-        optional: Bool
+        addNilLiteral: Bool
     ) -> [DeclSyntax] {
         let accessLevel = DeclModifierSyntax(name: .keyword(.fileprivate))
         var binding = binding
@@ -84,23 +83,20 @@ extension ConfigurationKeyMacro.DeclarationsFactory {
             IdentifierPatternSyntax(identifier: .identifier("defaultValue"))
         )
         
-        if (optional || forced) && binding.initializer == nil {
+        if addNilLiteral {
             binding.initializer = InitializerClauseSyntax(value: NilLiteralExprSyntax())
         }
         binding.typeAnnotation = binding.typeAnnotation.map {
-            if forced {
+            if let unwrapped = $0.type.as(ImplicitlyUnwrappedOptionalTypeSyntax.self) {
                 return TypeAnnotationSyntax(
                     type: OptionalTypeSyntax(
-                        wrappedType: TupleTypeSyntax(elements: [
-                            TupleTypeElementSyntax(type: $0.type)
-                        ])
+                        wrappedType: unwrapped.wrappedType
                     )
                 )
-            }else {
-                return TypeAnnotationSyntax(
-                    type: $0.type
-                )
             }
+            return TypeAnnotationSyntax(
+                type: $0.type
+            )
         }
         
         let structDecl = StructDeclSyntax(

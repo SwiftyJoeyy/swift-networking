@@ -7,35 +7,55 @@
 
 import SwiftSyntax
 import SwiftSyntaxMacros
+import SwiftDiagnostics
 import MacrosKit
 
 internal enum ConfigurationKeyMacro {
+    private static func validateProperyContext(
+        context: some MacroExpansionContext
+    ) throws {
+        for syntax in context.lexicalContext {
+            if let extDecl = syntax.as(ExtensionDeclSyntax.self),
+               let type = extDecl.extendedType.as(IdentifierTypeSyntax.self),
+               type.name.text == "ConfigurationValues" {
+                return
+            }
+        }
+        throw ConfigurationKeyMacroDiagnostic.invalidDeclarationContext
+    }
+    private static func validatedDeclType(
+        _ decl: VariableDeclSyntax
+    ) throws {
+        guard decl.bindingSpecifier.tokenKind != .keyword(.var) else {return}
+        let diag = ConfigurationKeyMacroDiagnostic.invalidPropertyType
+            .diagnose(at: Syntax(decl))
+            .fixIt { diag in
+                FixIt(
+                    message: MacroFixItMessage(
+                        message: "Replace 'let' with 'var'",
+                        fixItID: diag.diagnosticID
+                    ),
+                    changes: [
+                        .replace(
+                            oldNode: Syntax(decl.bindingSpecifier),
+                            newNode: Syntax(TokenSyntax("var "))
+                        )
+                    ]
+                )
+            }
+        throw diag.error
+    }
     private static func declInfo(
-        of node: AttributeSyntax,
-        declaration: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext
-    ) throws -> (
+        for decl: VariableDeclSyntax
+    ) -> (
         binding: PatternBindingSyntax,
         forced: Bool,
         propertyName: PatternSyntax,
         type: TypeSyntax?
     ) {
-        guard let decl = declaration.as(VariableDeclSyntax.self),
-              decl.bindingSpecifier.tokenKind == .keyword(.var)
-        else {
-            throw ConfigurationKeyMacroDiagnostic.invalidPropertyType
-        }
-        
         let binding = decl.bindings.first!
-        
-        let arguments = node.arguments?.named
-        let forced = arguments?["forceUnwrapped"]?.tokenKind == .keyword(.true)
         let type = binding.typeAnnotation?.type
-        
-        if forced && type == nil {
-            throw ConfigurationKeyMacroDiagnostic.missingTypeAnnotation
-        }
-        
+        let forced = type?.is(ImplicitlyUnwrappedOptionalTypeSyntax.self) == true
         return (
             binding: binding,
             forced: forced,
@@ -54,11 +74,15 @@ extension ConfigurationKeyMacro: AccessorMacro {
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [AccessorDeclSyntax] {
-        let info = try declInfo(of: node, declaration: declaration, in: context)
+        let decl = declaration.as(VariableDeclSyntax.self)!
+        try validatedDeclType(decl)
+        let info = declInfo(for: decl)
+        
         if info.forced {
+            let type = info.type?.as(ImplicitlyUnwrappedOptionalTypeSyntax.self)
             return DeclarationsFactory.makeUnwrappedAccessors(
                 propertyName: info.propertyName,
-                type: info.type
+                type: type?.wrappedType
             )
         }
         return DeclarationsFactory.makeAccessors(from: info.propertyName)
@@ -73,17 +97,22 @@ extension ConfigurationKeyMacro: PeerMacro {
         providingPeersOf declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let info = try declInfo(of: node, declaration: declaration, in: context)
+        try validateProperyContext(context: context)
+        guard let decl = declaration.as(VariableDeclSyntax.self) else {
+            throw ConfigurationKeyMacroDiagnostic.invalidPropertyType
+        }
+        let info = declInfo(for: decl)
+        
         let optional = info.type?.is(OptionalTypeSyntax.self) == true
-        if !info.forced && info.binding.initializer == nil && !optional {
+        let requiredInit = info.forced || optional
+        if !requiredInit && info.binding.initializer == nil {
             throw ConfigurationKeyMacroDiagnostic.missingInitializer
         }
         
         return DeclarationsFactory.makeKeyDecl(
             propertyName: info.propertyName,
             binding: info.binding,
-            forced: info.forced,
-            optional: optional
+            addNilLiteral: requiredInit
         )
     }
 }

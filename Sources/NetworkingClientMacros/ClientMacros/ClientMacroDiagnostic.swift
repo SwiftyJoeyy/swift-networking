@@ -14,10 +14,6 @@ internal enum ClientMacroDiagnostic: Error {
 }
 
 extension ClientMacroDiagnostic: DiagnosticMessage {
-    func diagnose(at node: some SyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: node, message: self)
-    }
-    
     /// The diagnostic messages.
     internal var message: String {
         switch self {

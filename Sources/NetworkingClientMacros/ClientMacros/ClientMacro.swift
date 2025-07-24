@@ -27,7 +27,7 @@ internal enum ClientMacro {
             .diagnose(at: node)
             .fixIt { diag in
                 FixIt(
-                    message: NetworkingFixItMessage(
+                    message: MacroFixItMessage(
                         message: "Remove the '\(sessionProperty)' property declaration",
                         fixItID: diag.diagnosticID
                     ),

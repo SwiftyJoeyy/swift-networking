@@ -17,8 +17,8 @@ internal enum ConfigurationKeyMacroDiagnostic: Error {
     /// or an explicitly stated getter.
     case missingInitializer
     
-    /// The property declaration is missing a type annotation.
-    case missingTypeAnnotation
+    /// The property is not declared in an extension of ConfigurationValues.
+    case invalidDeclarationContext
 }
 
 extension ConfigurationKeyMacroDiagnostic: DiagnosticMessage {
@@ -26,11 +26,11 @@ extension ConfigurationKeyMacroDiagnostic: DiagnosticMessage {
     internal var message: String {
         switch self {
             case .invalidPropertyType:
-                return "The applied macro is only valid for 'var' properties"
+                return "'@Config' can only be applied to a 'var' declaration"
             case .missingInitializer:
-                return "Property declaration requires an initializer expression or an explicitly stated getter"
-            case .missingTypeAnnotation:
-                return "Property declaration requires an optional type annotation"
+                return "Property missing a default value"
+            case .invalidDeclarationContext:
+                return "'@Config' macro can only attach to var declarations inside an extension of ConfigurationValues"
         }
     }
     

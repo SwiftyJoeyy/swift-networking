@@ -25,7 +25,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/buildexperience/MacrosKit.git",
-            from: "1.0.1"
+            from: "1.0.2"
         )
     ],
     targets: [
