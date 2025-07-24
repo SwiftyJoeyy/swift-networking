@@ -6,7 +6,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/buildexperience/MacrosKit.git",
       "state" : {
-        "revision" : "5fc548066843e106e64258fd0d303e159e2a4eb8",
+        "revision" : "a71c75579de25dfd6687748f5ec8258aac1395e4",
         "version" : "1.0.2"
       }
     },
