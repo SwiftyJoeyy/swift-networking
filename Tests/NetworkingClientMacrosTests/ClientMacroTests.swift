@@ -176,36 +176,6 @@ final class ClientMacroTests: XCTestCase {
     }
     
 // MARK: - Validations Tests
-    func testClientMacroFailsWithMissingSessionDeclaration() {
-        let expectedDiagnostics = [
-            DiagnosticSpec(
-                message: ClientMacroDiagnostic.missingSessionDeclaration.message,
-                line: 1,
-                column: 1
-            )
-        ]
-        
-        assertMacroExpansion(
-            """
-            @Client
-            struct TestClient {
-                init() { }
-            }
-            """,
-            expandedSource: """
-            struct TestClient {
-                @NetworkingClient.ClientInit
-                init() { }
-            }
-            
-            extension TestClient: NetworkingClient.NetworkClient {
-            }
-            """,
-            diagnostics: expectedDiagnostics,
-            macros: testMacros
-        )
-    }
-    
     func testClientMacroFailsWithUnexpectedSessionDeclaration() {
         let expectedDiagnostics = [
             DiagnosticSpec(

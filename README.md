@@ -289,6 +289,33 @@ Then add `"Networking"` to your target dependencies.
 
 
 
+## 🛣️ Planned Features
+
+These enhancements are planned for future releases of `Networking` to further improve flexibility, control, and developer experience:
+
+- 🪄 Simplified Request API
+Quick request execution using a default client instance for lightweight use cases.
+
+- 🔄 Resumable Downloads
+Support for partial downloads and automatic resume handling across app launches or interruptions.
+
+- 📤 Upload Task Support
+Upload data or files with progress tracking, cancellation, and retry support.
+
+- 🏷️ Request Tagging
+Tag and categorize requests into logical groups for analytics, cancellation, debugging, and tracing.
+
+- 🧪 Built-in Testing Support
+Tools for mocking, stubbing, and asserting requests and responses with zero boilerplate.
+
+- 🔄 Request Execution & Prioritization
+Control request flow with custom executors, in-flight limits, and per-task priority that can escalate or drop dynamically.
+
+- 📽 Request Recording & Playback
+Capture and replay real request traffic for debugging, offline development, and test validation.
+
+
+
 ## 📖 Documentation
 
 The [documentation](https://swiftpackageindex.com/SwiftyJoeyy/swift-networking/main/documentation/networking) is provided by [swiftpackageindex](https://swiftpackageindex.com).
