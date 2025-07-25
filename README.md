@@ -57,8 +57,7 @@ This creates a simple GET request to `https://www.google.com/test/cats/images`.
 You can also compose and override requests:
 
 ```swift
-@Request
-struct TestRequest {
+@Request struct TestRequest {
     @Header var test: String {
         return "Computed"
     }

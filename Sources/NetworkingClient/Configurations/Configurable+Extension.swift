@@ -19,7 +19,7 @@ extension Configurable {
     /// Use this method to attach a custom ``StatusValidator``.
     ///
     /// - Parameter validator: The validator to apply.
-    public func validate(_ validator: some StatusValidator) -> Self {
+    public func validate(using validator: some StatusValidator) -> Self {
         return configuration(\.statusValidator, validator)
     }
     
@@ -43,7 +43,7 @@ extension Configurable {
             validStatuses: statuses,
             handler
         )
-        return validate(validator)
+        return validate(using: validator)
     }
     
     /// Sets the handler used to control how responses are cached.
@@ -119,7 +119,7 @@ extension Configurable {
     ///
     /// Use this method to apply a custom retry strategy using a type
     /// that conforms to ``RetryInterceptor``.
-    public func retry(_ interceptor: some RetryInterceptor) -> Self {
+    public func retry(using interceptor: some RetryInterceptor) -> Self {
         return configuration(\.retryPolicy, interceptor)
     }
     
@@ -152,7 +152,7 @@ extension Configurable {
             strategy: strategy,
             handler: handler
         )
-        return retry(interceptor)
+        return retry(using: interceptor)
     }
     
     /// Sets the retry policy with a fixed delay between attempts.

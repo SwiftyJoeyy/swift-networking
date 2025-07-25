@@ -66,12 +66,12 @@ extension URLSessionConfiguration {
     
     /// Sets additional HTTP headers for the session configuration.
     ///
-    /// - Parameter headers: The headers to be added.
+    /// - Parameter header: The headers to be added.
     /// - Returns: The modified ``URLSessionConfiguration``.
     public func headers(
-        @HeadersBuilder headers: () -> some RequestHeader
+        @HeadersBuilder header: () -> some RequestHeader
     ) -> Self {
-        httpAdditionalHeaders = headers().headers
+        httpAdditionalHeaders = header().headers
         return self
     }
 }

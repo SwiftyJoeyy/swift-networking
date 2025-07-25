@@ -41,7 +41,7 @@ struct ClientConfigurableTests {
         
         do {
             let interceptor = DummyRetryInterceptor()
-            let configured = TestConfigurable().retry(interceptor)
+            let configured = TestConfigurable().retry(using: interceptor)
             #expect(configured.configurationValues.retryPolicy is DummyRetryInterceptor)
         }
         
@@ -81,7 +81,7 @@ struct ClientConfigurableTests {
     @Test func statusValidatorConfiguration() {
         do {
             let validator = DummyStatusValidator()
-            let configured = TestConfigurable().validate(validator)
+            let configured = TestConfigurable().validate(using: validator)
             #expect(configured.configurationValues.statusValidator is DummyStatusValidator)
         }
         

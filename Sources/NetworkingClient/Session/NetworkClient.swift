@@ -12,7 +12,7 @@ import NetworkingCore
 /// Requirements for defining network clients that handle session management
 /// and perform network requests, such as data tasks and download tasks.
 /// It provides an abstraction for the session and commands network requests based on that session.
-public protocol NetworkClient: Configurable {
+public protocol NetworkClient: Configurable, Sendable {
     /// The internal session command that is used to execute network requests.
     var _session: Session! {get set}
     

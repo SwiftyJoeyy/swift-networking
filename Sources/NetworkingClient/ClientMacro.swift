@@ -13,16 +13,19 @@ import Foundation
 /// adding the necessary ``NetworkClient`` conformance.
 ///
 /// ```
-/// @Client
-/// struct MyClient {
-///     var command: Session {
-///         Session()
-///             .onRequest { request, session in
-///                 // handle request creation
-///                 return request
-///             }.enableLogs()
-///             .validate(for: [.accepted, .ok])
-///             .retryPolicy(.doNotRetry)
+/// @Client struct MyClient {
+///     var session: Session {
+///         Session {
+///             URLSessionConfiguration.default
+///                 .timeoutIntervalForRequest(60)
+///                 .timeoutIntervalForResource(120)
+///                 .requestCachePolicy(.useProtocolCachePolicy)
+///         }.onRequest { request, task, session, configurations in
+///             // handle request creation
+///             return request
+///         }.enableLogs()
+///         .validate(for: [.accepted, .ok])
+///         .doNotRetry()
 ///     }
 /// }
 /// ```
