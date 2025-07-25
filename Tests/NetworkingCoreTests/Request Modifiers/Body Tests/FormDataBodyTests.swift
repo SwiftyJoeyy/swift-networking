@@ -113,7 +113,7 @@ struct FormDataBodyTests {
         #expect(result.contains("key = \(key)"))
         #expect(result.contains("fileName = \(fileName)"))
         #expect(result.contains("mimeType = \(mimeType.description)"))
-        #expect(result.contains(contentType.type.value))
+        #expect(result.contains(contentType.type))
     }
     
     @Test func descriptionIncludesAllFieldsWithoutFileNameAndMimeType() {

@@ -17,7 +17,7 @@ struct RequestBodyTests {
     @Test(arguments: [
         ContentType(.applicationFormURLEncoded),
         ContentType(.applicationJson),
-        ContentType(.custom("Custom"))
+        ContentType("Custom")
     ])
     func requestBodySetsContentType(expectedContentType: ContentType) throws {
         let body = "Test Body".data(using: .utf8)

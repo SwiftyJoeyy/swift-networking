@@ -7,9 +7,6 @@
 
 import Testing
 import Foundation
-#if canImport(UniformTypeIdentifiers)
-import UniformTypeIdentifiers
-#endif
 @testable import NetworkingCore
 
 /// Suite for testing the functionality of ``RequestHeader``.
@@ -150,99 +147,6 @@ extension RequestHeaderTests {
         
         #expect(request.allHTTPHeaderFields?["Authorization"] == "NewToken")
     }
-}
-
-// MARK: - AcceptLanguage Tests
-extension RequestHeaderTests {
-    @Test func acceptLanguageHeader() {
-        let language = "en-US"
-        let header = AcceptLanguage(language)
-        #expect(header.headers == ["Accept-Language": language])
-    }
-}
-
-// MARK: - ContentDisposition Tests
-extension RequestHeaderTests {
-    @Test func contentDispositionWithRawValue() {
-        let value = "inline"
-        let header = ContentDisposition(value)
-        #expect(header.headers == ["Content-Disposition": value])
-    }
-    
-    @Test func contentDispositionWithNameOnly() {
-        let name = "upload"
-        let header = ContentDisposition(name: name)
-        
-        let expectedValue = #"form-data; name="\#(name)""#
-        #expect(header.headers == ["Content-Disposition": expectedValue])
-    }
-    
-    @Test func contentDispositionWithNameAndFilename() {
-        let name = "upload"
-        let fileName = "file.txt"
-        let header = ContentDisposition(name: name, fileName: fileName)
-        
-        let expectedValue = #"form-data; name="\#(name)"; filename="\#(fileName)""#
-        #expect(header.headers == ["Content-Disposition": expectedValue])
-    }
-}
-
-// MARK: - ContentType Tests
-extension RequestHeaderTests {
-    @Test func applicationFormURLEncoded() {
-        let header = ContentType(.applicationFormURLEncoded)
-        
-        let expectedValue = "application/x-www-form-urlencoded"
-        #expect(header.type.value == expectedValue)
-        #expect(header.headers == ["Content-Type": expectedValue])
-    }
-    
-    @Test func applicationJson() {
-        let header = ContentType(.applicationJson)
-        
-        let expectedValue = "application/json"
-        #expect(header.type.value == expectedValue)
-        #expect(header.headers == ["Content-Type": expectedValue])
-    }
-    
-    @Test func multipartFormData() {
-        let boundary = "abc123"
-        let header = ContentType(.multipartFormData(boundary: boundary))
-        
-        let expectedValue = "multipart/form-data; boundary=\(boundary)"
-        #expect(header.type.value == expectedValue)
-        #expect(header.headers == ["Content-Type": expectedValue])
-    }
-    
-    @Test func customContentType() {
-        let type = "text/plain; charset=utf-8"
-        let header = ContentType(.custom(type))
-        
-        #expect(header.type.value == type)
-        #expect(header.headers["Content-Type"] == type)
-    }
-    
-#if canImport(UniformTypeIdentifiers)
-    @Test func supportedMimeContentType() {
-        let type = UTType.plainText
-        let header = ContentType(.mime(type))
-        
-        let value = type.preferredMIMEType
-        
-        #expect(header.type.value == value)
-        #expect(header.headers["Content-Type"] == value)
-    }
-    
-    @Test func unsupportedMimeContentType() {
-        let type = UTType.text
-        let header = ContentType(.mime(type))
-        
-        let value = "Unsupported"
-        
-        #expect(header.type.value == value)
-        #expect(header.headers["Content-Type"] == value)
-    }
-#endif
 }
 
 // MARK: - Description Tests

@@ -13,18 +13,25 @@ import UniformTypeIdentifiers
 /// A `Content-Type` header modifier.
 @frozen public struct ContentType: RequestHeader, Equatable, Hashable, Sendable {
     /// The content type.
-    public var type: BodyContentType
+    public var type: String
     
     /// The headers dictionary representation.
     public var headers: [String: String] {
-        return ["Content-Type": type.value]
+        return ["Content-Type": type]
+    }
+    
+    /// Creates a new ``ContentType`` modifier.
+    ///
+    /// - Parameter type: The content type to apply.
+    @inlinable public init(_ type: String) {
+        self.type = type
     }
     
     /// Creates a new ``ContentType`` modifier.
     ///
     /// - Parameter type: The content type to apply.
     @inlinable public init(_ type: BodyContentType) {
-        self.type = type
+        self.init(type.value)
     }
 }
 
@@ -41,8 +48,17 @@ import UniformTypeIdentifiers
     /// - Parameter boundary: The boundary string used for separating parts.
     case multipartFormData(boundary: String)
     
-    /// Custom content type.
-    case custom(String)
+    /// `text/plain`.
+    case text
+    
+    /// `text/html`.
+    case html
+    
+    /// `application/xml`.
+    case applicationXML
+    
+    /// `*/*`.
+    case any
     
 #if canImport(UniformTypeIdentifiers)
     /// Mime Type
@@ -58,8 +74,14 @@ import UniformTypeIdentifiers
                 return "application/json"
             case .multipartFormData(let boundary):
                 return "multipart/form-data; boundary=\(boundary)"
-            case .custom(let type):
-                return type
+            case .text:
+                return "text/plain"
+            case .html:
+                return "text/html"
+            case .applicationXML:
+                return "application/xml"
+            case .any:
+                return "*/*"
 #if canImport(UniformTypeIdentifiers)
             case .mime(let type):
                 return type.preferredMIMEType ?? "Unsupported"
